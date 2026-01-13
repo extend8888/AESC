@@ -1,389 +1,251 @@
 #!/usr/bin/make -f
 
-###############################################################################
-###                           Module & Versioning                           ###
-###############################################################################
-
-VERSION ?= $(shell echo $(shell git describe --tags --always) | sed 's/^v//')
-TMVERSION := $(shell go list -m github.com/cometbft/cometbft | sed 's:.* ::')
+VERSION := $(shell echo $(shell git describe --tags))
 COMMIT := $(shell git log -1 --format='%H')
 
-###############################################################################
-###                          Directories & Binaries                         ###
-###############################################################################
-
-BINDIR ?= $(GOPATH)/bin
 BUILDDIR ?= $(CURDIR)/build
-EXAMPLE_BINARY := aescd
-
-###############################################################################
-###                              Repo Info                                  ###
-###############################################################################
-
-HTTPS_GIT := https://github.com/extend8888/AESC.git
-DOCKER := $(shell which docker)
-
+INVARIANT_CHECK_INTERVAL ?= $(INVARIANT_CHECK_INTERVAL:-0)
+export PROJECT_HOME=$(shell git rev-parse --show-toplevel)
+export GO_PKG_PATH=$(HOME)/go/pkg
 export GO111MODULE = on
 
-###############################################################################
-###                            Submodule Settings                           ###
-###############################################################################
-
-AESCD_MAIN_PKG := ./cmd/aescd
-
-###############################################################################
-###                        Build & Install aescd                             ###
-###############################################################################
-
 # process build tags
-build_tags = netgo
 
-ifeq (cleveldb,$(findstring cleveldb,$(COSMOS_BUILD_OPTIONS)))
-  build_tags += gcc
+LEDGER_ENABLED ?= true
+build_tags = netgo
+ifeq ($(LEDGER_ENABLED),true)
+	ifeq ($(OS),Windows_NT)
+		GCCEXE = $(shell where gcc.exe 2> NUL)
+		ifeq ($(GCCEXE),)
+			$(error gcc.exe not installed for ledger support, please install or set LEDGER_ENABLED=false)
+		else
+			build_tags += ledger
+		endif
+	else
+		UNAME_S = $(shell uname -s)
+		ifeq ($(UNAME_S),OpenBSD)
+			$(warning OpenBSD detected, disabling ledger support (https://github.com/cosmos/cosmos-sdk/issues/1988))
+		else
+			GCC = $(shell command -v gcc 2> /dev/null)
+			ifeq ($(GCC),)
+				$(error gcc not installed for ledger support, please install or set LEDGER_ENABLED=false)
+			else
+				build_tags += ledger
+			endif
+		endif
+	endif
 endif
+
 build_tags += $(BUILD_TAGS)
 build_tags := $(strip $(build_tags))
 
-# process linker flags
-
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=os \
-          -X github.com/cosmos/cosmos-sdk/version.AppName=$(EXAMPLE_BINARY) \
-          -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
-          -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-          -X github.com/cometbft/cometbft/version.TMCoreSemVer=$(TMVERSION)
-
-# DB backend selection
-ifeq (cleveldb,$(findstring cleveldb,$(COSMOS_BUILD_OPTIONS)))
-  ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
-endif
-
-# add build tags to linker flags
-whitespace := $(subst ,, )
+whitespace :=
+whitespace += $(whitespace)
 comma := ,
 build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
-ldflags += -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 
-ifeq (,$(findstring nostrip,$(COSMOS_BUILD_OPTIONS)))
-  ldflags += -w -s
+# process linker flags
+
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=sei \
+			-X github.com/cosmos/cosmos-sdk/version.ServerName=seid \
+			-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
+			-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
+			-X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
+
+# go 1.23+ needs a workaround to link memsize (see https://github.com/fjl/memsize).
+# NOTE: this is a terribly ugly and unstable way of comparing version numbers,
+# but that's what you get when you do anything nontrivial in a Makefile.
+ifeq ($(firstword $(sort go1.23 $(shell go env GOVERSION))), go1.23)
+	ldflags += -checklinkname=0
+endif
+ifeq ($(LINK_STATICALLY),true)
+	ldflags += -linkmode=external -extldflags "-Wl,-z,muldefs -static"
 endif
 ldflags += $(LDFLAGS)
 ldflags := $(strip $(ldflags))
 
-ifeq (staticlink,$(findstring staticlink,$(COSMOS_BUILD_OPTIONS)))
-  ldflags += -linkmode external -extldflags '-static'
-endif
-
+# BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)' -race
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
-# check for nostrip option
-ifeq (,$(findstring nostrip,$(COSMOS_BUILD_OPTIONS)))
-  BUILD_FLAGS += -trimpath
-endif
+BUILD_FLAGS_MOCK_BALANCES := -tags "$(build_tags) mock_balances" -ldflags '$(ldflags)'
 
-# check if no optimization option is passed
-# used for remote debugging
-ifneq (,$(findstring nooptimization,$(COSMOS_BUILD_OPTIONS)))
-  BUILD_FLAGS += -gcflags "all=-N -l"
-endif
+#### Command List ####
 
-# Build into $(BUILDDIR)
-build: go.sum $(BUILDDIR)/
-	@echo "🏗️  Building aescd to $(BUILDDIR)/$(EXAMPLE_BINARY) ..."
-	@go build $(BUILD_FLAGS) -o $(BUILDDIR)/$(EXAMPLE_BINARY) $(AESCD_MAIN_PKG)
+all: lint install
 
-# Cross-compile for Linux AMD64
-build-linux:
-	GOOS=linux GOARCH=amd64 $(MAKE) build
-
-# Install into $(BINDIR)
 install: go.sum
-	@echo "🚚  Installing aescd to $(BINDIR) ..."
-	@go install $(BUILD_FLAGS) $(AESCD_MAIN_PKG)
+		go install $(BUILD_FLAGS) ./cmd/seid
 
-$(BUILDDIR)/:
-	mkdir -p $(BUILDDIR)/
+install-mock-balances: go.sum
+		go install $(BUILD_FLAGS_MOCK_BALANCES) ./cmd/seid
 
-# Default & all target
-.PHONY: all build build-linux install
-all: build
+install-with-race-detector: go.sum
+		go install -race $(BUILD_FLAGS) ./cmd/seid
 
-###############################################################################
-###                          Tools & Dependencies                           ###
-###############################################################################
+install-price-feeder: go.sum
+		go install $(BUILD_FLAGS) ./oracle/price-feeder
+
+loadtest: go.sum
+		go build $(BUILD_FLAGS) -o ./build/loadtest ./loadtest/
+
+price-feeder: go.sum
+		go build $(BUILD_FLAGS) -o ./build/price-feeder ./oracle/price-feeder
 
 go.sum: go.mod
-	echo "Ensure dependencies have not been modified ..." >&2
+		@echo "--> Ensure dependencies have not been modified"
+		@go mod verify
+
+lint:
+	golangci-lint run
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
 	go mod verify
-	go mod tidy
 
-vulncheck:
-	@go install golang.org/x/vuln/cmd/govulncheck@latest
-	@govulncheck ./...
+build:
+	go build $(BUILD_FLAGS) -o ./build/seid ./cmd/seid
+
+build-verbose:
+	go build -x -v $(BUILD_FLAGS) -o ./build/seid ./cmd/seid
+
+build-price-feeder:
+	go build $(BUILD_FLAGS) -o ./build/price-feeder ./oracle/price-feeder
+
+clean:
+	rm -rf ./build
+
+build-loadtest:
+	go build -o build/loadtest ./loadtest/
+
 
 ###############################################################################
-###                           Tests & Simulation                            ###
+###                       Local testing using docker container              ###
+###############################################################################
+# To start a 4-node cluster from scratch:
+# make clean && make docker-cluster-start
+# To stop the 4-node cluster:
+# make docker-cluster-stop
+# If you have already built the binary, you can skip the build:
+# make docker-cluster-start-skipbuild
 ###############################################################################
 
-PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
-PACKAGES_UNIT := $(shell go list ./... | grep -v '/tests/e2e$$' | grep -v '/simulation')
-PACKAGES_AESCD := $(shell go list ./... | grep -v '/simulation')
-COVERPKG_EVM  := $(shell go list ./... | grep -v '/tests/e2e$$' | grep -v '/simulation' | paste -sd, -)
-COVERPKG_ALL  := $(COVERPKG_EVM)
-COMMON_COVER_ARGS := -timeout=15m -covermode=atomic
 
-TEST_PACKAGES := ./...
-TEST_TARGETS := test-unit test-aescd test-unit-cover test-race
+# Build linux binary on other platforms
+build-linux:
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-linux-gnu-gcc make build
+.PHONY: build-linux
 
-test-unit: ARGS=-timeout=15m
-test-unit: TEST_PACKAGES=$(PACKAGES_UNIT)
-test-unit: run-tests
+build-price-feeder-linux:
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-linux-gnu-gcc make build-price-feeder
+.PHONY: build-price-feeder-linux
 
-test-race: ARGS=-race
-test-race: TEST_PACKAGES=$(PACKAGES_UNIT)
-test-race: run-tests
+# Build docker image
+build-docker-node:
+	@cd docker && docker build --tag sei-chain/localnode localnode --platform linux/x86_64
+.PHONY: build-docker-node
 
-test-aescd: ARGS=-timeout=15m
-test-aescd:
-	@go test -tags=test -mod=readonly $(ARGS) $(EXTRA_ARGS) $(PACKAGES_AESCD)
+build-rpc-node:
+	@cd docker && docker build --tag sei-chain/rpcnode rpcnode --platform linux/x86_64
+.PHONY: build-rpc-node
 
-test-unit-cover: ARGS=-timeout=15m -coverprofile=coverage.txt -covermode=atomic
-test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
-test-unit-cover: run-tests
-	@echo "🔍 Running aescd coverage..."
-	@go test -tags=test $(COMMON_COVER_ARGS) -coverpkg=$(COVERPKG_ALL) -coverprofile=coverage_aescd.txt ./...
-	@echo "🔀 Merging aescd coverage into root coverage..."
-	@tail -n +2 ./coverage_aescd.txt >> coverage.txt && rm ./coverage_aescd.txt
-	@echo "🧹 Filtering ignored files from coverage.txt..."
-	@grep -v -E '/cmd/|/client/|/proto/|/testutil/|/mocks/|/test_.*\.go:|\.pb\.go:|\.pb\.gw\.go:|/x/[^/]+/module\.go:|/scripts/|/ibc/testing/|/version/|\.md:|\.pulsar\.go:' coverage.txt > tmp_coverage.txt && mv tmp_coverage.txt coverage.txt
-	@echo "📊 Coverage summary:"
-	@go tool cover -func=coverage.txt
+# Run a single node docker container
+run-local-node: kill-sei-node build-docker-node
+	@rm -rf $(PROJECT_HOME)/build/generated
+	docker run --rm \
+	--name sei-node \
+	--network host \
+	--user="$(shell id -u):$(shell id -g)" \
+	-v $(PROJECT_HOME):/sei-protocol/sei-chain:Z \
+	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
+	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
+	--platform linux/x86_64 \
+	sei-chain/localnode
+.PHONY: run-local-node
 
-test: test-unit
+# Run a single rpc state sync node docker container
+run-rpc-node: build-rpc-node
+	docker run --rm \
+	--name sei-rpc-node \
+	--network docker_localnet \
+	--user="$(shell id -u):$(shell id -g)" \
+	-v $(PROJECT_HOME):/sei-protocol/sei-chain:Z \
+	-v $(PROJECT_HOME)/../sei-tendermint:/sei-protocol/sei-tendermint:Z \
+    -v $(PROJECT_HOME)/../sei-cosmos:/sei-protocol/sei-cosmos:Z \
+    -v $(PROJECT_HOME)/../sei-db:/sei-protocol/sei-db:Z \
+	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
+	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
+	-p 26668-26670:26656-26658 \
+	--platform linux/x86_64 \
+	sei-chain/rpcnode
+.PHONY: run-rpc-node
 
-test-all:
-	@echo "🔍 Running aescd module tests..."
-	@go test -tags=test -mod=readonly -timeout=15m $(PACKAGES_AESCD)
+run-rpc-node-skipbuild: build-rpc-node
+	docker run --rm \
+	--name sei-rpc-node \
+	--network docker_localnet \
+	--user="$(shell id -u):$(shell id -g)" \
+	-v $(PROJECT_HOME):/sei-protocol/sei-chain:Z \
+	-v $(PROJECT_HOME)/../sei-tendermint:/sei-protocol/sei-tendermint:Z \
+    -v $(PROJECT_HOME)/../sei-cosmos:/sei-protocol/sei-cosmos:Z \
+    -v $(PROJECT_HOME)/../sei-db:/sei-protocol/sei-db:Z \
+	-v $(GO_PKG_PATH)/mod:/root/go/pkg/mod:Z \
+	-v $(shell go env GOCACHE):/root/.cache/go-build:Z \
+	-p 26668-26670:26656-26658 \
+	--platform linux/x86_64 \
+	--env SKIP_BUILD=true \
+	sei-chain/rpcnode
+.PHONY: run-rpc-node
 
-run-tests:
-ifneq (,$(shell which tparse 2>/dev/null))
-	go test -tags=test -mod=readonly -json $(ARGS) $(EXTRA_ARGS) $(TEST_PACKAGES) | tparse
-else
-	go test -tags=test -mod=readonly $(ARGS) $(EXTRA_ARGS) $(TEST_PACKAGES)
-endif
+kill-sei-node:
+	docker ps --filter name=sei-node --filter status=running -aq | xargs docker kill 2> /dev/null || true
 
-# Use the old Apple linker to workaround broken xcode - https://github.com/golang/go/issues/65169
-ifeq ($(OS_FAMILY),Darwin)
-  FUZZLDFLAGS := -ldflags=-extldflags=-Wl,-ld_classic
-endif
+kill-rpc-node:
+	docker ps --filter name=sei-rpc-node --filter status=running -aq | xargs docker kill 2> /dev/null || true
 
-test-fuzz:
-	go test -tags=test $(FUZZLDFLAGS) -run NOTAREALTEST -v -fuzztime 10s -fuzz=FuzzMintCoins ./x/precisebank/keeper
-	go test -tags=test $(FUZZLDFLAGS) -run NOTAREALTEST -v -fuzztime 10s -fuzz=FuzzBurnCoins ./x/precisebank/keeper
-	go test -tags=test $(FUZZLDFLAGS) -run NOTAREALTEST -v -fuzztime 10s -fuzz=FuzzSendCoins ./x/precisebank/keeper
-	go test -tags=test $(FUZZLDFLAGS) -run NOTAREALTEST -v -fuzztime 10s -fuzz=FuzzGenesisStateValidate_NonZeroRemainder ./x/precisebank/types
-	go test -tags=test $(FUZZLDFLAGS) -run NOTAREALTEST -v -fuzztime 10s -fuzz=FuzzGenesisStateValidate_ZeroRemainder ./x/precisebank/types
+# Run a 4-node docker containers
+docker-cluster-start: docker-cluster-stop build-docker-node
+	@rm -rf $(PROJECT_HOME)/build/generated
+	@mkdir -p $(shell go env GOPATH)/pkg/mod
+	@mkdir -p $(shell go env GOCACHE)
+	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 INVARIANT_CHECK_INTERVAL=${INVARIANT_CHECK_INTERVAL} UPGRADE_VERSION_LIST=${UPGRADE_VERSION_LIST} MOCK_BALANCES=${MOCK_BALANCES} docker compose up
 
-test-scripts:
-	@echo "Running scripts tests"
-	@pytest -s -vv ./scripts
+.PHONY: localnet-start
 
-test-solidity:
-	@echo "Beginning solidity tests..."
-	./scripts/run-solidity-tests.sh
+# Use this to skip the seid build process
+docker-cluster-start-skipbuild: docker-cluster-stop build-docker-node
+	@rm -rf $(PROJECT_HOME)/build/generated
+	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 SKIP_BUILD=true docker compose up
+.PHONY: localnet-start
 
-.PHONY: run-tests test test-all $(TEST_TARGETS)
-
-benchmark:
-	@go test -tags=test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)
-
-.PHONY: benchmark
-
-###############################################################################
-###                                Linting                                  ###
-###############################################################################
-golangci_lint_cmd=golangci-lint
-golangci_version=v2.2.2
-
-lint: lint-go lint-python lint-contracts
-
-lint-go:
-	@echo "--> Running linter"
-	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(golangci_version)
-	@$(golangci_lint_cmd) run --timeout=15m
-
-lint-python:
-	find . -name "*.py" -type f -not -path "*/node_modules/*" | xargs pylint
-	flake8
-
-lint-contracts:
-	solhint contracts/**/*.sol
-
-lint-fix:
-	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(golangci_version)
-	@$(golangci_lint_cmd) run --timeout=15m --fix
-
-lint-fix-contracts:
-	solhint --fix contracts/**/*.sol
-
-.PHONY: lint lint-fix lint-contracts lint-go lint-python
-
-format: format-go format-python format-shell
-
-format-go:
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' -not -name '*.pb.gw.go' -not -name '*.pulsar.go' | xargs gofumpt -w -l
-
-format-python: format-isort format-black
-
-format-black:
-	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs black
-
-format-isort:
-	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs isort
-
-format-shell:
-	shfmt -l -w .
-
-.PHONY: format format-go format-python format-black format-isort format-go
-
-###############################################################################
-###                                Protobuf                                 ###
-###############################################################################
-
-protoVer=0.14.0
-protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
-protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace --user 0 $(protoImageName)
-
-protoLintVer=0.44.0
-protoLinterImage=yoheimuta/protolint
-protoLinter=$(DOCKER) run --rm -v "$(CURDIR):/workspace" --workdir /workspace --user 0 $(protoLinterImage):$(protoLintVer)
-
-# ------
-# NOTE: If you are experiencing problems running these commands, try deleting
-#       the docker images and execute the desired command again.
-#
-proto-all: proto-format proto-lint proto-gen
-
-proto-gen:
-	@echo "generating implementations from Protobuf files"
-	@$(protoImage) sh ./scripts/generate_protos.sh
-	@$(protoImage) sh ./scripts/generate_protos_pulsar.sh
-
-proto-format:
-	@echo "formatting Protobuf files"
-	@$(protoImage) find ./ -name *.proto -exec clang-format -i {} \;
-
-proto-lint:
-	@echo "linting Protobuf files"
-	@$(protoImage) buf lint --error-format=json
-	@$(protoLinter) lint ./proto
-
-proto-check-breaking:
-	@echo "checking Protobuf files for breaking changes"
-	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
-
-.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking
-
-###############################################################################
-###                                Releasing                                ###
-###############################################################################
-
-PACKAGE_NAME:=github.com/cosmos/evm
-GOLANG_CROSS_VERSION  = v1.22
-GOPATH ?= '$(HOME)/go'
-release-dry-run:
-	docker run \
-		--rm \
-		--privileged \
-		-e CGO_ENABLED=1 \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v `pwd`:/go/src/$(PACKAGE_NAME) \
-		-v ${GOPATH}/pkg:/go/pkg \
-		-w /go/src/$(PACKAGE_NAME) \
-		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		--clean --skip validate --skip publish --snapshot
-
-release:
-	@if [ ! -f ".release-env" ]; then \
-		echo "\033[91m.release-env is required for release\033[0m";\
-		exit 1;\
-	fi
-	docker run \
-		--rm \
-		--privileged \
-		-e CGO_ENABLED=1 \
-		--env-file .release-env \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v `pwd`:/go/src/$(PACKAGE_NAME) \
-		-w /go/src/$(PACKAGE_NAME) \
-		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
-		release --clean --skip validate
-
-.PHONY: release-dry-run release
-
-###############################################################################
-###                        Compile Solidity Contracts                       ###
-###############################################################################
-
-# Install the necessary dependencies, compile the solidity contracts found in the
-# Cosmos EVM repository and then clean up the contracts data.
-contracts-all: contracts-compile contracts-clean
-
-# Clean smart contract compilation artifacts, dependencies and cache files
-contracts-clean:
-	@echo "Cleaning up the contracts directory..."
-	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --clean
-
-# Compile the solidity contracts found in the Cosmos EVM repository.
-contracts-compile:
-	@echo "Compiling smart contracts..."
-	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --compile
-
-# Add a new solidity contract to be compiled
-contracts-add:
-	@echo "Adding a new smart contract to be compiled..."
-	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --add $(CONTRACT)
-
-###############################################################################
-###                                Localnet                                 ###
-###############################################################################
-
-localnet-build-env:
-	$(MAKE) -C contrib/images $(EXAMPLE_BINARY)-env
-
-localnet-build-nodes:
-	$(DOCKER) run --rm -v $(CURDIR)/.testnets:/data amazing-socrates/aescd \
-			  testnet init-files --validator-count 4 -o /data --starting-ip-address 192.168.10.2 --keyring-backend=test --chain-id=local-4221 --use-docker=true
-	docker compose up -d
-
-localnet-stop:
-	docker compose down
-
-# localnet-start will run a 4-node testnet locally. The nodes are
-# based off the docker images in: ./contrib/images/simd-env
-localnet-start: localnet-stop localnet-build-env localnet-build-nodes
+# Stop 4-node docker containers
+docker-cluster-stop:
+	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) docker compose down
+.PHONY: localnet-stop
 
 
-test-rpc-compat:
-	@./tests/jsonrpc/scripts/run-compat-test.sh
+# Implements test splitting and running. This is pulled directly from
+# the github action workflows for better local reproducibility.
 
-test-rpc-compat-stop:
-	cd tests/jsonrpc && docker compose down
+GO_TEST_FILES != find $(CURDIR) -name "*_test.go"
 
-.PHONY: localnet-start localnet-stop localnet-build-env localnet-build-nodes test-rpc-compat test-rpc-compat-stop
+# default to four splits by default
+NUM_SPLIT ?= 4
 
-test-system: build-v04 build
-	mkdir -p ./tests/systemtests/binaries/
-	cp $(BUILDDIR)/$(EXAMPLE_BINARY) ./tests/systemtests/binaries/
-	$(MAKE) -C tests/systemtests test
+$(BUILDDIR):
+	mkdir -p $@
 
-build-v04:
-	mkdir -p ./tests/systemtests/binaries/v0.4
-	git checkout v0.4.1
-	make build
-	cp $(BUILDDIR)/$(EXAMPLE_BINARY) ./tests/systemtests/binaries/v0.4
-	git checkout -
+# The format statement filters out all packages that don't have tests.
+# Note we need to check for both in-package tests (.TestGoFiles) and
+# out-of-package tests (.XTestGoFiles).
+$(BUILDDIR)/packages.txt:$(GO_TEST_FILES) $(BUILDDIR)
+	go list -f "{{ if (or .TestGoFiles .XTestGoFiles) }}{{ .ImportPath }}{{ end }}" ./... | sort > $@
 
-mocks:
-	@echo "--> generating mocks"
-	@go get github.com/vektra/mockery/v2
-	@go generate ./...
-	@make format-go
+split-test-packages:$(BUILDDIR)/packages.txt
+	split -d -n l/$(NUM_SPLIT) $< $<.
+test-group-%:split-test-packages
+	@echo "🔍 Checking for special package: $(TARGET_PACKAGE)"
+	@if grep -q "$(TARGET_PACKAGE)" $(BUILDDIR)/packages.txt.$*; then \
+		echo "🔒 Found $(TARGET_PACKAGE), running with -parallel=1"; \
+		PARALLEL="-parallel=1"; \
+	else \
+		echo "⚡ Not found, running with -parallel=4"; \
+		PARALLEL="-parallel=4"; \
+	fi; \
+	cat $(BUILDDIR)/packages.txt.$* | xargs go test $$PARALLEL -mod=readonly -timeout=10m -race -coverprofile=$*.profile.out -covermode=atomic -coverpkg=./...

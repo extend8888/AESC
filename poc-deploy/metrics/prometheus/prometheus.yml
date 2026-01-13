@@ -1,0 +1,57 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'sei-poc'
+    environment: 'local'
+
+# Alertmanager configuration (可选)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# 规则文件 (可选)
+# rule_files:
+#   - "alerts/*.yml"
+
+scrape_configs:
+  # Prometheus 自身监控
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          instance: 'prometheus'
+
+  # Sei Chain 节点监控
+  # Tendermint metrics (默认端口 26660)
+  - job_name: 'sei-tendermint'
+    static_configs:
+      - targets: ['host.docker.internal:26660']
+        labels:
+          instance: 'sei-node-poc'
+          component: 'tendermint'
+
+  # Cosmos SDK metrics (默认端口 26660，与 Tendermint 共享)
+  - job_name: 'sei-cosmos'
+    static_configs:
+      - targets: ['host.docker.internal:26660']
+        labels:
+          instance: 'sei-node-poc'
+          component: 'cosmos-sdk'
+
+  # 系统监控 (如果安装了 node_exporter)
+  # - job_name: 'node-exporter'
+  #   static_configs:
+  #     - targets: ['host.docker.internal:9100']
+  #       labels:
+  #         instance: 'sei-host'
+
+  # 自定义应用监控
+  # - job_name: 'custom-app'
+  #   static_configs:
+  #     - targets: ['host.docker.internal:8080']
+  #       labels:
+  #         instance: 'custom-app'
+

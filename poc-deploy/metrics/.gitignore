@@ -1,0 +1,14 @@
+# 环境变量
+.env
+
+# Docker volumes 数据
+data/
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.swp
+*~
+

@@ -1,0 +1,14 @@
+syntax = "proto3";
+package seiprotocol.seichain.execution;
+
+import "gogoproto/gogo.proto";
+import "execution/params.proto";
+
+option go_package = "github.com/sei-protocol/sei-chain/x/execution/types";
+
+// GenesisState defines the execution module's genesis state
+message GenesisState {
+  // params defines the parameters of the module
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+

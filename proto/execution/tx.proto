@@ -1,0 +1,37 @@
+syntax = "proto3";
+package seiprotocol.seichain.execution;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/sei-protocol/sei-chain/x/execution/types";
+
+// Msg defines the execution module's gRPC message service
+service Msg {
+  // BatchIngest batch ingests order data
+  rpc BatchIngest(MsgBatchIngest) returns (MsgBatchIngestResponse);
+}
+
+// MsgBatchIngest defines the message for batch data submission (Blob-like)
+message MsgBatchIngest {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // sender is the address of the sender
+  string sender = 1 [(gogoproto.moretags) = "yaml:\"sender\""];
+
+  // batch_id is the unique identifier for this batch (client-generated)
+  string batch_id = 2 [(gogoproto.moretags) = "yaml:\"batch_id\""];
+
+  // source_data is the base64-encoded raw data (not stored in state)
+  string source_data = 3 [(gogoproto.moretags) = "yaml:\"source_data\""];
+}
+
+// MsgBatchIngestResponse defines the response for batch data submission
+message MsgBatchIngestResponse {
+  // batch_id is the batch identifier
+  string batch_id = 1 [(gogoproto.moretags) = "yaml:\"batch_id\""];
+
+  // tx_hash is the SHA256 hash of the transaction (hex-encoded)
+  string tx_hash = 2 [(gogoproto.moretags) = "yaml:\"tx_hash\""];
+}
+

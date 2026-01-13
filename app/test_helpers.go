@@ -1,144 +1,389 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cosmos/evm/config"
-	"github.com/cosmos/evm/testutil/integration/evm/network"
-	"github.com/cosmos/evm/x/vm/types"
+	"os"
+	"path/filepath"
 	"testing"
+	"time"
 
-	"github.com/stretchr/testify/require"
-
-	abci "github.com/cometbft/cometbft/abci/types"
-	cmttypes "github.com/cometbft/cometbft/types"
-
-	dbm "github.com/cosmos/cosmos-db"
-	feemarkettypes "github.com/cosmos/evm/x/feemarket/types"
-	ibctesting "github.com/cosmos/ibc-go/v10/testing"
-
-	"cosmossdk.io/log"
-	"cosmossdk.io/math"
-
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/cosmos/cosmos-sdk/server"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/testutil/mock"
-	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
+	crptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	seidbtypes "github.com/sei-protocol/sei-db/ss/types"
+	"github.com/stretchr/testify/suite"
+	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/tendermint/tendermint/config"
+	"github.com/tendermint/tendermint/libs/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	dbm "github.com/tendermint/tm-db"
+
+	"github.com/sei-protocol/sei-chain/evmrpc"
+	minttypes "github.com/sei-protocol/sei-chain/x/mint/types"
+	ssconfig "github.com/sei-protocol/sei-db/config"
+	"github.com/sei-protocol/sei-db/ss"
 )
 
-// SetupOptions defines arguments that are passed into `Simapp` constructor.
-type SetupOptions struct {
-	Logger  log.Logger
-	DB      *dbm.MemDB
-	AppOpts servertypes.AppOptions
+const TestContract = "TEST"
+const TestUser = "sei1jdppe6fnj2q7hjsepty5crxtrryzhuqsjrj95y"
+
+type TestTx struct {
+	msgs []sdk.Msg
 }
 
-func init() {
-	// we're setting the minimum gas price to 0 to simplify the tests
-	feemarkettypes.DefaultMinGasPrice = math.LegacyZeroDec()
-
-	// Set the global SDK config for the tests
-	cfg := sdk.GetConfig()
-	config.SetBech32Prefixes(cfg)
-	config.SetBip44CoinType(cfg)
+func NewTestTx(msgs []sdk.Msg) TestTx {
+	return TestTx{msgs: msgs}
 }
 
-func setup(withGenesis bool, invCheckPeriod uint, chainID string, evmChainID uint64) (*AESCApp, GenesisState) {
+func (t TestTx) GetMsgs() []sdk.Msg {
+	return t.msgs
+}
+
+func (t TestTx) ValidateBasic() error {
+	return nil
+}
+
+func (t TestTx) GetGasEstimate() uint64 {
+	return 0
+}
+
+type TestAppOpts struct {
+	useSc bool
+}
+
+func (t TestAppOpts) Get(s string) interface{} {
+	if s == "chain-id" {
+		return "sei-test"
+	}
+	if s == FlagSCEnable {
+		return t.useSc
+	}
+	if s == evmrpc.FlagFlushReceiptSync {
+		return true
+	}
+	return nil
+}
+
+type TestWrapper struct {
+	suite.Suite
+
+	App *App
+	Ctx sdk.Context
+}
+
+func NewTestWrapper(t *testing.T, tm time.Time, valPub crptotypes.PubKey, enableEVMCustomPrecompiles bool, baseAppOptions ...func(*baseapp.BaseApp)) *TestWrapper {
+	return newTestWrapper(t, tm, valPub, enableEVMCustomPrecompiles, false, baseAppOptions...)
+}
+
+func NewTestWrapperWithSc(t *testing.T, tm time.Time, valPub crptotypes.PubKey, enableEVMCustomPrecompiles bool, baseAppOptions ...func(*baseapp.BaseApp)) *TestWrapper {
+	return newTestWrapper(t, tm, valPub, enableEVMCustomPrecompiles, true, baseAppOptions...)
+}
+
+func newTestWrapper(t *testing.T, tm time.Time, valPub crptotypes.PubKey, enableEVMCustomPrecompiles bool, useSc bool, baseAppOptions ...func(*baseapp.BaseApp)) *TestWrapper {
+	var appPtr *App
+	if useSc {
+		appPtr = SetupWithSc(false, enableEVMCustomPrecompiles, baseAppOptions...)
+	} else {
+		appPtr = Setup(false, enableEVMCustomPrecompiles, false, baseAppOptions...)
+	}
+	ctx := appPtr.BaseApp.NewContext(false, tmproto.Header{Height: 1, ChainID: "sei-test", Time: tm})
+	wrapper := &TestWrapper{
+		App: appPtr,
+		Ctx: ctx,
+	}
+	wrapper.SetT(t)
+	wrapper.setupValidator(stakingtypes.Unbonded, valPub)
+	return wrapper
+}
+
+func (s *TestWrapper) FundAcc(acc sdk.AccAddress, amounts sdk.Coins) {
+	err := s.App.BankKeeper.MintCoins(s.Ctx, minttypes.ModuleName, amounts)
+	s.Require().NoError(err)
+
+	err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, minttypes.ModuleName, acc, amounts)
+	s.Require().NoError(err)
+}
+
+func (s *TestWrapper) setupValidator(bondStatus stakingtypes.BondStatus, valPub crptotypes.PubKey) sdk.ValAddress {
+	valAddr := sdk.ValAddress(valPub.Address())
+	bondDenom := s.App.StakingKeeper.GetParams(s.Ctx).BondDenom
+	selfBond := sdk.NewCoins(sdk.Coin{Amount: sdk.NewInt(100), Denom: bondDenom})
+
+	s.FundAcc(sdk.AccAddress(valAddr), selfBond)
+
+	sh := teststaking.NewHelper(s.Suite.T(), s.Ctx, s.App.StakingKeeper)
+	msg := sh.CreateValidatorMsg(valAddr, valPub, selfBond[0].Amount)
+	sh.Handle(msg, true)
+
+	val, found := s.App.StakingKeeper.GetValidator(s.Ctx, valAddr)
+	s.Require().True(found)
+
+	val = val.UpdateStatus(bondStatus)
+	s.App.StakingKeeper.SetValidator(s.Ctx, val)
+
+	consAddr, err := val.GetConsAddr()
+	s.Suite.Require().NoError(err)
+
+	signingInfo := slashingtypes.NewValidatorSigningInfo(
+		consAddr,
+		s.Ctx.BlockHeight(),
+		0,
+		time.Unix(0, 0),
+		false,
+		0,
+	)
+	s.App.SlashingKeeper.SetValidatorSigningInfo(s.Ctx, consAddr, signingInfo)
+
+	return valAddr
+}
+
+func (s *TestWrapper) BeginBlock() {
+	var proposer sdk.ValAddress
+
+	validators := s.App.StakingKeeper.GetAllValidators(s.Ctx)
+	s.Require().Equal(1, len(validators))
+
+	valAddrFancy, err := validators[0].GetConsAddr()
+	s.Require().NoError(err)
+	proposer = valAddrFancy.Bytes()
+
+	validator, found := s.App.StakingKeeper.GetValidator(s.Ctx, proposer)
+	s.Assert().True(found)
+
+	valConsAddr, err := validator.GetConsAddr()
+
+	s.Require().NoError(err)
+
+	valAddr := valConsAddr.Bytes()
+
+	newBlockTime := s.Ctx.BlockTime().Add(2 * time.Second)
+
+	header := tmproto.Header{Height: s.Ctx.BlockHeight() + 1, Time: newBlockTime}
+	newCtx := s.Ctx.WithBlockTime(newBlockTime).WithBlockHeight(s.Ctx.BlockHeight() + 1)
+	s.Ctx = newCtx
+	lastCommitInfo := abci.LastCommitInfo{
+		Votes: []abci.VoteInfo{{
+			Validator:       abci.Validator{Address: valAddr, Power: 1000},
+			SignedLastBlock: true,
+		}},
+	}
+	reqBeginBlock := abci.RequestBeginBlock{Header: header, LastCommitInfo: lastCommitInfo}
+
+	s.App.BeginBlocker(s.Ctx, reqBeginBlock)
+}
+
+func (s *TestWrapper) EndBlock() {
+	reqEndBlock := abci.RequestEndBlock{Height: s.Ctx.BlockHeight()}
+	s.App.EndBlocker(s.Ctx, reqEndBlock)
+}
+
+func setupReceiptStore() (seidbtypes.StateStore, error) {
+	// Create a unique temporary directory per test process to avoid Pebble DB lock conflicts
+	baseDir := filepath.Join(DefaultNodeHome, "test", "sei-testing")
+	if err := os.MkdirAll(baseDir, 0o755); err != nil {
+		return nil, err
+	}
+	tempDir, err := os.MkdirTemp(baseDir, "receipt.db-*")
+	if err != nil {
+		return nil, err
+	}
+
+	ssConfig := ssconfig.DefaultStateStoreConfig()
+	ssConfig.DedicatedChangelog = true
+	ssConfig.KeepRecent = 0 // No min retain blocks in test
+	ssConfig.DBDirectory = tempDir
+	ssConfig.KeepLastVersion = false
+	receiptStore, err := ss.NewStateStore(log.NewNopLogger(), tempDir, ssConfig)
+	if err != nil {
+		return nil, err
+	}
+	return receiptStore, nil
+}
+
+func Setup(isCheckTx bool, enableEVMCustomPrecompiles bool, overrideWasmGasMultiplier bool, baseAppOptions ...func(*baseapp.BaseApp)) (res *App) {
 	db := dbm.NewMemDB()
+	encodingConfig := MakeEncodingConfig()
+	cdc := encodingConfig.Marshaler
 
-	appOptions := make(simtestutil.AppOptionsMap, 0)
-	appOptions[flags.FlagHome] = defaultNodeHome
-	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
-
-	app := NewAescApp(log.NewNopLogger(), db, nil, true, appOptions, baseapp.SetChainID(chainID))
-	if withGenesis {
-		return app, app.DefaultGenesis()
-	}
-
-	return app, GenesisState{}
-}
-
-// Setup initializes a new AESCApp. A Nop logger is set in AESCApp.
-func Setup(t *testing.T, chainID string, evmChainID uint64) *AESCApp {
-	t.Helper()
-
-	privVal := mock.NewPV()
-	pubKey, err := privVal.GetPubKey()
-	require.NoError(t, err)
-
-	// create validator set with single validator
-	validator := cmttypes.NewValidator(pubKey, 1)
-	valSet := cmttypes.NewValidatorSet([]*cmttypes.Validator{validator})
-
-	// generate genesis account
-	senderPrivKey := secp256k1.GenPrivKey()
-	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
-	balance := banktypes.Balance{
-		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(types.DefaultEVMExtendedDenom, math.NewInt(100000000000000))),
-	}
-
-	app := SetupWithGenesisValSet(t, chainID, evmChainID, valSet, []authtypes.GenesisAccount{acc}, balance)
-
-	return app
-}
-
-// SetupWithGenesisValSet initializes a new AESCApp with a validator set and genesis accounts
-// that also act as delegators. For simplicity, each validator is bonded with a delegation
-// of one consensus engine unit in the default token of the simapp from first genesis
-// account. A Nop logger is set in AESCApp.
-func SetupWithGenesisValSet(t *testing.T, chainID string, evmChainID uint64, valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *AESCApp {
-	t.Helper()
-
-	app, genesisState := setup(true, 5, chainID, evmChainID)
-	genesisState, err := simtestutil.GenesisStateWithValSet(app.AppCodec(), genesisState, valSet, genAccs, balances...)
-	var bankGenesis banktypes.GenesisState
-	app.AppCodec().MustUnmarshalJSON(genesisState[banktypes.ModuleName], &bankGenesis)
-	require.NoError(t, err)
-	bankGenesis.DenomMetadata = network.GenerateBankGenesisMetadata(evmChainID)
-	genesisState[banktypes.ModuleName] = app.AppCodec().MustMarshalJSON(&bankGenesis)
-	require.NoError(t, err)
-
-	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
-	require.NoError(t, err)
-
-	// init chain will set the validator set and initialize the genesis accounts
-	if _, err = app.InitChain(
-		&abci.RequestInitChain{
-			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: simtestutil.DefaultConsensusParams,
-			AppStateBytes:   stateBytes,
-			ChainId:         chainID,
+	options := []AppOption{
+		func(app *App) {
+			receiptStore, err := setupReceiptStore()
+			if err != nil {
+				panic(fmt.Sprintf("error while creating receipt store: %s", err))
+			}
+			app.receiptStore = receiptStore
 		},
-	); err != nil {
-		panic(fmt.Sprintf("app.InitChain failed: %v", err))
+	}
+	wasmOpts := EmptyWasmOpts
+	if overrideWasmGasMultiplier {
+		gasRegisterConfig := wasmkeeper.DefaultGasRegisterConfig()
+		gasRegisterConfig.GasMultiplier = 21_000_000
+		wasmOpts = []wasm.Option{
+			wasmkeeper.WithGasRegister(
+				wasmkeeper.NewWasmGasRegister(
+					gasRegisterConfig,
+				),
+			),
+		}
 	}
 
-	// NOTE: we are NOT committing the changes here as opposed to the function from simapp
-	// because that would already adjust e.g. the base fee in the params.
-	// We want to keep the genesis state as is for the tests unless we commit the changes manually.
+	res = New(
+		log.NewNopLogger(),
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		DefaultNodeHome,
+		1,
+		enableEVMCustomPrecompiles,
+		config.TestConfig(),
+		encodingConfig,
+		wasm.EnableAllProposals,
+		TestAppOpts{},
+		wasmOpts,
+		EmptyACLOpts,
+		options,
+		baseAppOptions...,
+	)
+	if !isCheckTx {
+		genesisState := NewDefaultGenesisState(cdc)
+		stateBytes, err := json.MarshalIndent(genesisState, "", " ")
+		if err != nil {
+			panic(err)
+		}
 
-	return app
+		_, err = res.InitChain(
+			context.Background(), &abci.RequestInitChain{
+				Validators:      []abci.ValidatorUpdate{},
+				ConsensusParams: simapp.DefaultConsensusParams,
+				AppStateBytes:   stateBytes,
+			},
+		)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return res
 }
 
-// SetupTestingApp initializes the IBC-go testing application
-// need to keep this design to comply with the ibctesting SetupTestingApp func
-// and be able to set the chainID for the tests properly
-func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) {
-	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
-		db := dbm.NewMemDB()
-		app := NewAescApp(
-			log.NewNopLogger(),
-			db, nil, true,
-			simtestutil.NewAppOptionsWithFlagHome(defaultNodeHome),
-			baseapp.SetChainID(chainID),
-		)
-		return app, app.DefaultGenesis()
+func SetupWithSc(isCheckTx bool, enableEVMCustomPrecompiles bool, baseAppOptions ...func(*baseapp.BaseApp)) (res *App) {
+	db := dbm.NewMemDB()
+	encodingConfig := MakeEncodingConfig()
+	cdc := encodingConfig.Marshaler
+
+	options := []AppOption{
+		func(app *App) {
+			receiptStore, err := setupReceiptStore()
+			if err != nil {
+				panic(fmt.Sprintf("error while creating receipt store: %s", err))
+			}
+			app.receiptStore = receiptStore
+		},
 	}
+
+	res = New(
+		log.NewNopLogger(),
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		DefaultNodeHome,
+		1,
+		enableEVMCustomPrecompiles,
+		config.TestConfig(),
+		encodingConfig,
+		wasm.EnableAllProposals,
+		TestAppOpts{true},
+		EmptyWasmOpts,
+		EmptyACLOpts,
+		options,
+		baseAppOptions...,
+	)
+	if !isCheckTx {
+		genesisState := NewDefaultGenesisState(cdc)
+		stateBytes, err := json.MarshalIndent(genesisState, "", " ")
+		if err != nil {
+			panic(err)
+		}
+
+		// TODO: remove once init chain works with SC
+		defer func() { _ = recover() }()
+
+		_, err = res.InitChain(
+			context.Background(), &abci.RequestInitChain{
+				Validators:      []abci.ValidatorUpdate{},
+				ConsensusParams: simapp.DefaultConsensusParams,
+				AppStateBytes:   stateBytes,
+			},
+		)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return res
+}
+
+func SetupTestingAppWithLevelDb(isCheckTx bool, enableEVMCustomPrecompiles bool) (*App, func()) {
+	dir := "sei_testing"
+	db, err := sdk.NewLevelDB("sei_leveldb_testing", dir)
+	if err != nil {
+		panic(err)
+	}
+	encodingConfig := MakeEncodingConfig()
+	cdc := encodingConfig.Marshaler
+	app := New(
+		log.NewNopLogger(),
+		db,
+		nil,
+		true,
+		map[int64]bool{},
+		DefaultNodeHome,
+		5,
+		enableEVMCustomPrecompiles,
+		nil,
+		encodingConfig,
+		wasm.EnableAllProposals,
+		TestAppOpts{},
+		EmptyWasmOpts,
+		EmptyACLOpts,
+		nil,
+	)
+	if !isCheckTx {
+		genesisState := NewDefaultGenesisState(cdc)
+		stateBytes, err := json.MarshalIndent(genesisState, "", " ")
+		if err != nil {
+			panic(err)
+		}
+
+		_, err = app.InitChain(
+			context.Background(), &abci.RequestInitChain{
+				Validators:      []abci.ValidatorUpdate{},
+				ConsensusParams: simapp.DefaultConsensusParams,
+				AppStateBytes:   stateBytes,
+			},
+		)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	cleanupFn := func() {
+		_ = db.Close()
+		err = os.RemoveAll(dir)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return app, cleanupFn
 }

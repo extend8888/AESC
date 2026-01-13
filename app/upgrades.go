@@ -1,83 +1,97 @@
 package app
 
 import (
-	"context"
-
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/evm/x/vm/types"
+	"embed"
+	"log"
+	"os"
+	"sort"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-
-	storetypes "cosmossdk.io/store/types"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
-// UpgradeName defines the on-chain upgrade name for the sample AESCApp upgrade
-// from v0.4.0 to v0.5.0.
-//
-// NOTE: This upgrade defines a reference implementation of what an upgrade
-// could look like when an application is migrating from AESCApp version
-// v0.4.0 to v0.5.x
-const UpgradeName = "v0.4.0-to-v0.5.0"
+//go:embed tags
+var f embed.FS
 
-func (app AESCApp) RegisterUpgradeHandlers() {
-	app.UpgradeKeeper.SetUpgradeHandler(
-		UpgradeName,
-		func(ctx context.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-			sdkCtx := sdk.UnwrapSDKContext(ctx)
-			sdkCtx.Logger().Debug("this is a debug level message to test that verbose logging mode has properly been enabled during a chain upgrade")
+// NOTE: When performing upgrades, make sure to keep / register the handlers
+// for both the current (n) and the previous (n-1) upgrade name. There is a bug
+// in a missing value in a log statement for which the fix is not released
+var upgradesList []string
 
-			app.BankKeeper.SetDenomMetaData(ctx, banktypes.Metadata{
-				Description: "Example description",
-				DenomUnits: []*banktypes.DenomUnit{
-					{
-						Denom:    "atest",
-						Exponent: 0,
-						Aliases:  nil,
-					},
-					{
-						Denom:    "test",
-						Exponent: 18,
-						Aliases:  nil,
-					},
-				},
-				Base:    "atest",
-				Display: "test",
-				Name:    "Test Token",
-				Symbol:  "TEST",
-				URI:     "example_uri",
-				URIHash: "example_uri_hash",
-			})
+var LatestUpgrade string
 
-			// (Required for NON-18 denom chains *only)
-			// Update EVM params to add Extended denom options
-			// Ensure that this corresponds to the EVM denom
-			// (tyically the bond denom)
-			evmParams := app.EVMKeeper.GetParams(sdkCtx)
-			evmParams.ExtendedDenomOptions = &types.ExtendedDenomOptions{ExtendedDenom: "atest"}
-			err := app.EVMKeeper.SetParams(sdkCtx, evmParams)
-			if err != nil {
-				return nil, err
-			}
-			// Initialize EvmCoinInfo in the module store
-			if err := app.EVMKeeper.InitEvmCoinInfo(sdkCtx); err != nil {
-				return nil, err
-			}
-			return app.ModuleManager.RunMigrations(ctx, app.Configurator(), fromVM)
-		},
-	)
-
-	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+func init() {
+	content, err := f.ReadFile("tags")
 	if err != nil {
 		panic(err)
 	}
+	upgradesList = strings.Split(strings.TrimSpace(string(content)), "\n")
+	LatestUpgrade = upgradesList[len(upgradesList)-1]
+}
 
-	if upgradeInfo.Name == UpgradeName && !app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
-		storeUpgrades := storetypes.StoreUpgrades{
-			Added: []string{},
-		}
-		// configure store loader that checks if version == upgradeHeight and applies store upgrades
-		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &storeUpgrades))
+// if there is an override list, use that instead, for integration tests
+func overrideList() {
+	// if there is an override list, use that instead, for integration tests
+	envList := os.Getenv("UPGRADE_VERSION_LIST")
+	if envList != "" {
+		upgradesList = strings.Split(envList, ",")
 	}
 }
+
+func (app App) RegisterUpgradeHandlers() {
+	// Upgrades names must be in alphabetical order
+	// https://github.com/cosmos/cosmos-sdk/issues/11707
+	if !sort.StringsAreSorted(upgradesList) {
+		log.Fatal("New upgrades must be appended to 'upgradesList' in alphabetical order")
+	}
+
+	// if there is an override list, use that instead, for integration tests
+	overrideList()
+	for _, upgradeName := range upgradesList {
+		app.UpgradeKeeper.SetUpgradeHandler(upgradeName, func(ctx sdk.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
+			// Set params to Distribution here when migrating
+			if upgradeName == "1.2.3beta" {
+				newVM, err := app.mm.RunMigrations(ctx, app.configurator, fromVM)
+				if err != nil {
+					return newVM, err
+				}
+
+				params := app.DistrKeeper.GetParams(ctx)
+				params.CommunityTax = sdk.NewDec(0)
+				app.DistrKeeper.SetParams(ctx, params)
+
+				return newVM, err
+			}
+
+			if upgradeName == "v6.0.2" {
+				newVM, err := app.mm.RunMigrations(ctx, app.configurator, fromVM)
+				if err != nil {
+					return newVM, err
+				}
+
+				cp := app.GetConsensusParams(ctx)
+				cp.Block.MinTxsInBlock = 10
+				app.StoreConsensusParams(ctx, cp)
+				return newVM, err
+			}
+
+			if upgradeName == "v6.0.5" {
+				newVM, err := app.mm.RunMigrations(ctx, app.configurator, fromVM)
+				if err != nil {
+					return newVM, err
+				}
+
+				cp := app.GetConsensusParams(ctx)
+				cp.Block.MaxGasWanted = 50000000 // 50 mil
+				app.StoreConsensusParams(ctx, cp)
+				return newVM, err
+			}
+
+			return app.mm.RunMigrations(ctx, app.configurator, fromVM)
+		})
+	}
+}
+
+const v606UpgradeHeight = 151573570
