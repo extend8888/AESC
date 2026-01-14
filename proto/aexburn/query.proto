@@ -20,9 +20,19 @@ service Query {
     option (google.api.http).get = "/aesc/aexburn/v1/burn_stats";
   }
 
-  // MonthlyBurnData returns the 12-month rolling window burn data
+  // InflationStats returns the cumulative inflation statistics
+  rpc InflationStats(QueryInflationStatsRequest) returns (QueryInflationStatsResponse) {
+    option (google.api.http).get = "/aesc/aexburn/v1/inflation_stats";
+  }
+
+  // MonthlyBurnData returns the 12-month rolling window supply data
   rpc MonthlyBurnData(QueryMonthlyBurnDataRequest) returns (QueryMonthlyBurnDataResponse) {
     option (google.api.http).get = "/aesc/aexburn/v1/monthly_burn_data";
+  }
+
+  // NetSupply returns the current net supply change in the 12-month window
+  rpc NetSupply(QueryNetSupplyRequest) returns (QueryNetSupplyResponse) {
+    option (google.api.http).get = "/aesc/aexburn/v1/net_supply";
   }
 }
 
@@ -42,6 +52,14 @@ message QueryBurnStatsResponse {
   BurnStats burn_stats = 1 [(gogoproto.nullable) = false];
 }
 
+// QueryInflationStatsRequest is the request type for the Query/InflationStats RPC method.
+message QueryInflationStatsRequest {}
+
+// QueryInflationStatsResponse is the response type for the Query/InflationStats RPC method.
+message QueryInflationStatsResponse {
+  InflationStats inflation_stats = 1 [(gogoproto.nullable) = false];
+}
+
 // QueryMonthlyBurnDataRequest is the request type for the Query/MonthlyBurnData RPC method.
 message QueryMonthlyBurnDataRequest {}
 
@@ -50,3 +68,39 @@ message QueryMonthlyBurnDataResponse {
   repeated MonthlyBurnData monthly_burn_data = 1 [(gogoproto.nullable) = false];
 }
 
+// QueryNetSupplyRequest is the request type for the Query/NetSupply RPC method.
+message QueryNetSupplyRequest {}
+
+// QueryNetSupplyResponse is the response type for the Query/NetSupply RPC method.
+message QueryNetSupplyResponse {
+  // total_minted_12m is the total minted in the 12-month window
+  string total_minted_12m = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  // total_burned_12m is the total burned in the 12-month window
+  string total_burned_12m = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  // net_supply_change is the net supply change (minted - burned)
+  string net_supply_change = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  // net_supply_rate is the net supply change as a percentage of initial supply
+  string net_supply_rate = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // max_allowed_net_supply is the maximum allowed net supply (5% of initial)
+  string max_allowed_net_supply = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  // remaining_mint_capacity is how much more can be minted within constraints
+  string remaining_mint_capacity = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+}

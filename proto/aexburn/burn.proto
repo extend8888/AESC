@@ -77,10 +77,77 @@ message MonthlyBurnData {
     (gogoproto.moretags) = "yaml:\"burned_amount\""
   ];
 
+  // minted_amount is the total amount minted (inflated) in this month
+  string minted_amount = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"minted_amount\""
+  ];
+
   // start_height is the starting block height of this month
-  int64 start_height = 3 [(gogoproto.moretags) = "yaml:\"start_height\""];
+  int64 start_height = 4 [(gogoproto.moretags) = "yaml:\"start_height\""];
 
   // end_height is the ending block height of this month
-  int64 end_height = 4 [(gogoproto.moretags) = "yaml:\"end_height\""];
+  int64 end_height = 5 [(gogoproto.moretags) = "yaml:\"end_height\""];
+
+  // start_epoch is the starting epoch of this month
+  uint64 start_epoch = 6 [(gogoproto.moretags) = "yaml:\"start_epoch\""];
+
+  // end_epoch is the ending epoch of this month
+  uint64 end_epoch = 7 [(gogoproto.moretags) = "yaml:\"end_epoch\""];
+}
+
+// ========== Inflation Types ==========
+
+// InflationStats contains cumulative inflation statistics
+message InflationStats {
+  // total_minted is the total amount of tokens minted through inflation (in base units)
+  string total_minted = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"total_minted\""
+  ];
+
+  // annual_minted is the amount minted in the current year (resets annually)
+  string annual_minted = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"annual_minted\""
+  ];
+
+  // last_annual_reset_epoch is the epoch when annual_minted was last reset
+  uint64 last_annual_reset_epoch = 3 [(gogoproto.moretags) = "yaml:\"last_annual_reset_epoch\""];
+
+  // last_mint_epoch is the epoch when the last inflation occurred
+  uint64 last_mint_epoch = 4 [(gogoproto.moretags) = "yaml:\"last_mint_epoch\""];
+
+  // last_mint_block_height is the block height when the last inflation occurred
+  int64 last_mint_block_height = 5 [(gogoproto.moretags) = "yaml:\"last_mint_block_height\""];
+}
+
+// MintRecord represents a single inflation/mint event
+message MintRecord {
+  // epoch_number is the epoch when the mint occurred
+  uint64 epoch_number = 1 [(gogoproto.moretags) = "yaml:\"epoch_number\""];
+
+  // block_height is the block height when the mint occurred
+  int64 block_height = 2 [(gogoproto.moretags) = "yaml:\"block_height\""];
+
+  // minted_amount is the amount minted in this event (in base units)
+  string minted_amount = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"minted_amount\""
+  ];
+
+  // trigger_reason describes why inflation was triggered
+  string trigger_reason = 4 [(gogoproto.moretags) = "yaml:\"trigger_reason\""];
+
+  // gas_usage_rate is the gas usage rate at the time of mint
+  string gas_usage_rate = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"gas_usage_rate\""
+  ];
 }
 

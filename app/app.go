@@ -571,7 +571,9 @@ func New(
 		keys[epochmoduletypes.MemStoreKey],
 		app.GetSubspace(epochmoduletypes.ModuleName),
 	).SetHooks(epochmoduletypes.NewMultiEpochHooks(
-		app.MintKeeper.Hooks()))
+		app.MintKeeper.Hooks(),
+		app.AexburnKeeper.Hooks(),
+	))
 
 	app.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
 		appCodec,

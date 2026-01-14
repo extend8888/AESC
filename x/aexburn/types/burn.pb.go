@@ -152,10 +152,16 @@ type MonthlyBurnData struct {
 	MonthIndex uint32 `protobuf:"varint,1,opt,name=month_index,json=monthIndex,proto3" json:"month_index,omitempty" yaml:"month_index"`
 	// burned_amount is the total amount burned in this month
 	BurnedAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=burned_amount,json=burnedAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"burned_amount" yaml:"burned_amount"`
+	// minted_amount is the total amount minted (inflated) in this month
+	MintedAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=minted_amount,json=mintedAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"minted_amount" yaml:"minted_amount"`
 	// start_height is the starting block height of this month
-	StartHeight int64 `protobuf:"varint,3,opt,name=start_height,json=startHeight,proto3" json:"start_height,omitempty" yaml:"start_height"`
+	StartHeight int64 `protobuf:"varint,4,opt,name=start_height,json=startHeight,proto3" json:"start_height,omitempty" yaml:"start_height"`
 	// end_height is the ending block height of this month
-	EndHeight int64 `protobuf:"varint,4,opt,name=end_height,json=endHeight,proto3" json:"end_height,omitempty" yaml:"end_height"`
+	EndHeight int64 `protobuf:"varint,5,opt,name=end_height,json=endHeight,proto3" json:"end_height,omitempty" yaml:"end_height"`
+	// start_epoch is the starting epoch of this month
+	StartEpoch uint64 `protobuf:"varint,6,opt,name=start_epoch,json=startEpoch,proto3" json:"start_epoch,omitempty" yaml:"start_epoch"`
+	// end_epoch is the ending epoch of this month
+	EndEpoch uint64 `protobuf:"varint,7,opt,name=end_epoch,json=endEpoch,proto3" json:"end_epoch,omitempty" yaml:"end_epoch"`
 }
 
 func (m *MonthlyBurnData) Reset()         { *m = MonthlyBurnData{} }
@@ -212,53 +218,219 @@ func (m *MonthlyBurnData) GetEndHeight() int64 {
 	return 0
 }
 
+func (m *MonthlyBurnData) GetStartEpoch() uint64 {
+	if m != nil {
+		return m.StartEpoch
+	}
+	return 0
+}
+
+func (m *MonthlyBurnData) GetEndEpoch() uint64 {
+	if m != nil {
+		return m.EndEpoch
+	}
+	return 0
+}
+
+// InflationStats contains cumulative inflation statistics
+type InflationStats struct {
+	// total_minted is the total amount of tokens minted through inflation (in base units)
+	TotalMinted github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,1,opt,name=total_minted,json=totalMinted,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_minted" yaml:"total_minted"`
+	// annual_minted is the amount minted in the current year (resets annually)
+	AnnualMinted github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=annual_minted,json=annualMinted,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"annual_minted" yaml:"annual_minted"`
+	// last_annual_reset_epoch is the epoch when annual_minted was last reset
+	LastAnnualResetEpoch uint64 `protobuf:"varint,3,opt,name=last_annual_reset_epoch,json=lastAnnualResetEpoch,proto3" json:"last_annual_reset_epoch,omitempty" yaml:"last_annual_reset_epoch"`
+	// last_mint_epoch is the epoch when the last inflation occurred
+	LastMintEpoch uint64 `protobuf:"varint,4,opt,name=last_mint_epoch,json=lastMintEpoch,proto3" json:"last_mint_epoch,omitempty" yaml:"last_mint_epoch"`
+	// last_mint_block_height is the block height when the last inflation occurred
+	LastMintBlockHeight int64 `protobuf:"varint,5,opt,name=last_mint_block_height,json=lastMintBlockHeight,proto3" json:"last_mint_block_height,omitempty" yaml:"last_mint_block_height"`
+}
+
+func (m *InflationStats) Reset()         { *m = InflationStats{} }
+func (m *InflationStats) String() string { return proto.CompactTextString(m) }
+func (*InflationStats) ProtoMessage()    {}
+func (*InflationStats) Descriptor() ([]byte, []int) {
+	return fileDescriptor_806573cb0cb9804e, []int{3}
+}
+func (m *InflationStats) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *InflationStats) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_InflationStats.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *InflationStats) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InflationStats.Merge(m, src)
+}
+func (m *InflationStats) XXX_Size() int {
+	return m.Size()
+}
+func (m *InflationStats) XXX_DiscardUnknown() {
+	xxx_messageInfo_InflationStats.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InflationStats proto.InternalMessageInfo
+
+func (m *InflationStats) GetLastAnnualResetEpoch() uint64 {
+	if m != nil {
+		return m.LastAnnualResetEpoch
+	}
+	return 0
+}
+
+func (m *InflationStats) GetLastMintEpoch() uint64 {
+	if m != nil {
+		return m.LastMintEpoch
+	}
+	return 0
+}
+
+func (m *InflationStats) GetLastMintBlockHeight() int64 {
+	if m != nil {
+		return m.LastMintBlockHeight
+	}
+	return 0
+}
+
+// MintRecord represents a single inflation/mint event
+type MintRecord struct {
+	// epoch_number is the epoch when the mint occurred
+	EpochNumber uint64 `protobuf:"varint,1,opt,name=epoch_number,json=epochNumber,proto3" json:"epoch_number,omitempty" yaml:"epoch_number"`
+	// block_height is the block height when the mint occurred
+	BlockHeight int64 `protobuf:"varint,2,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty" yaml:"block_height"`
+	// minted_amount is the amount minted in this event (in base units)
+	MintedAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=minted_amount,json=mintedAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"minted_amount" yaml:"minted_amount"`
+	// trigger_reason describes why inflation was triggered
+	TriggerReason string `protobuf:"bytes,4,opt,name=trigger_reason,json=triggerReason,proto3" json:"trigger_reason,omitempty" yaml:"trigger_reason"`
+	// gas_usage_rate is the gas usage rate at the time of mint
+	GasUsageRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=gas_usage_rate,json=gasUsageRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"gas_usage_rate" yaml:"gas_usage_rate"`
+}
+
+func (m *MintRecord) Reset()         { *m = MintRecord{} }
+func (m *MintRecord) String() string { return proto.CompactTextString(m) }
+func (*MintRecord) ProtoMessage()    {}
+func (*MintRecord) Descriptor() ([]byte, []int) {
+	return fileDescriptor_806573cb0cb9804e, []int{4}
+}
+func (m *MintRecord) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MintRecord) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MintRecord.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MintRecord) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MintRecord.Merge(m, src)
+}
+func (m *MintRecord) XXX_Size() int {
+	return m.Size()
+}
+func (m *MintRecord) XXX_DiscardUnknown() {
+	xxx_messageInfo_MintRecord.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MintRecord proto.InternalMessageInfo
+
+func (m *MintRecord) GetEpochNumber() uint64 {
+	if m != nil {
+		return m.EpochNumber
+	}
+	return 0
+}
+
+func (m *MintRecord) GetBlockHeight() int64 {
+	if m != nil {
+		return m.BlockHeight
+	}
+	return 0
+}
+
+func (m *MintRecord) GetTriggerReason() string {
+	if m != nil {
+		return m.TriggerReason
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*BurnStats)(nil), "seiprotocol.seichain.aexburn.BurnStats")
 	proto.RegisterType((*BurnRecord)(nil), "seiprotocol.seichain.aexburn.BurnRecord")
 	proto.RegisterType((*MonthlyBurnData)(nil), "seiprotocol.seichain.aexburn.MonthlyBurnData")
+	proto.RegisterType((*InflationStats)(nil), "seiprotocol.seichain.aexburn.InflationStats")
+	proto.RegisterType((*MintRecord)(nil), "seiprotocol.seichain.aexburn.MintRecord")
 }
 
 func init() { proto.RegisterFile("aexburn/burn.proto", fileDescriptor_806573cb0cb9804e) }
 
 var fileDescriptor_806573cb0cb9804e = []byte{
-	// 586 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x31, 0x6f, 0xd3, 0x40,
-	0x14, 0x8e, 0xd3, 0x50, 0xe1, 0x8b, 0xdb, 0x52, 0xd3, 0x82, 0x85, 0x2a, 0xbb, 0xf2, 0x80, 0xb2,
-	0x34, 0x16, 0x02, 0x09, 0x29, 0x1b, 0xa6, 0x2d, 0xad, 0x10, 0x0c, 0x46, 0x2c, 0x2c, 0xd6, 0xd9,
-	0x3e, 0x6c, 0x2b, 0xb6, 0x2f, 0xf2, 0x9d, 0xa5, 0xe4, 0x5f, 0xf0, 0x27, 0x18, 0xf8, 0x27, 0x1d,
-	0x3b, 0x22, 0x06, 0x0b, 0x25, 0xff, 0x20, 0x13, 0x23, 0xba, 0x67, 0x07, 0xdb, 0x74, 0x8a, 0x10,
-	0x4b, 0x72, 0xdf, 0x7b, 0xef, 0xbe, 0xef, 0xf3, 0xbd, 0x77, 0x87, 0x54, 0x4c, 0xe6, 0x5e, 0x91,
-	0x67, 0x96, 0xf8, 0x19, 0xcf, 0x72, 0xca, 0xa9, 0x7a, 0xc2, 0x48, 0x0c, 0x2b, 0x9f, 0x26, 0x63,
-	0x46, 0x62, 0x3f, 0xc2, 0x71, 0x36, 0xae, 0x0b, 0x9f, 0x1c, 0x85, 0x34, 0xa4, 0x90, 0xb6, 0xc4,
-	0xaa, 0xda, 0x63, 0xfe, 0xea, 0x23, 0xd9, 0x2e, 0xf2, 0xec, 0x03, 0xc7, 0x9c, 0xa9, 0x11, 0x52,
-	0x38, 0xe5, 0x38, 0x71, 0xc5, 0x0e, 0x12, 0x68, 0xd2, 0xa9, 0x34, 0x92, 0xed, 0x8b, 0x9b, 0xd2,
-	0xe8, 0xfd, 0x28, 0x8d, 0xa7, 0x61, 0xcc, 0xa3, 0xc2, 0x1b, 0xfb, 0x34, 0xb5, 0x7c, 0xca, 0x52,
-	0xca, 0xea, 0xbf, 0x33, 0x16, 0x4c, 0x2d, 0xbe, 0x98, 0x11, 0x36, 0xbe, 0xce, 0xf8, 0xba, 0x34,
-	0x1e, 0x2e, 0x70, 0x9a, 0x4c, 0xcc, 0x36, 0x97, 0xe9, 0x0c, 0x01, 0xda, 0x80, 0xd4, 0x14, 0xed,
-	0x27, 0x98, 0x71, 0x48, 0xba, 0x39, 0xe6, 0x44, 0xeb, 0x83, 0xd6, 0x9b, 0x2d, 0xb4, 0xce, 0x89,
-	0xbf, 0x2e, 0x8d, 0xe3, 0x4a, 0xab, 0xcb, 0x66, 0x3a, 0x8a, 0x08, 0x08, 0x31, 0x07, 0x73, 0xa2,
-	0x5e, 0xa1, 0x43, 0x28, 0x20, 0x33, 0xea, 0x47, 0x6e, 0x56, 0xa4, 0x1e, 0xc9, 0xb5, 0x9d, 0x53,
-	0x69, 0x34, 0xb0, 0x4f, 0xd6, 0xa5, 0xa1, 0xb5, 0x38, 0xda, 0x25, 0xa6, 0x73, 0x20, 0x62, 0x17,
-	0x22, 0xf4, 0x1e, 0x22, 0x7f, 0x98, 0xbc, 0x84, 0xfa, 0x53, 0x37, 0x22, 0x71, 0x18, 0x71, 0x6d,
-	0x70, 0x2a, 0x8d, 0x76, 0xee, 0x30, 0xb5, 0x4b, 0x6a, 0x26, 0x5b, 0x84, 0xae, 0xaa, 0xc8, 0xd7,
-	0x01, 0x42, 0x60, 0x90, 0xf8, 0x34, 0x0f, 0xd4, 0x09, 0x52, 0x3a, 0xee, 0x24, 0x70, 0xf7, 0xb8,
-	0x39, 0xcd, 0xae, 0xb1, 0x21, 0x69, 0x99, 0x9a, 0x20, 0xa5, 0xe3, 0xa7, 0x0f, 0x7e, 0x5a, 0x7b,
-	0xbb, 0x56, 0x86, 0x5e, 0x63, 0x43, 0x9d, 0xa2, 0xbd, 0xaa, 0x43, 0x2e, 0x4e, 0x69, 0x91, 0x71,
-	0x38, 0x16, 0xd9, 0xbe, 0xdc, 0xba, 0xe9, 0x47, 0xb5, 0x54, 0x9b, 0xcc, 0x74, 0x94, 0x0a, 0xbf,
-	0x02, 0xa8, 0xba, 0x48, 0x6e, 0x3a, 0x3e, 0x00, 0x21, 0x7b, 0xeb, 0x8e, 0x3f, 0x68, 0x84, 0xea,
-	0x66, 0xdf, 0xf7, 0x36, 0x8d, 0x4e, 0xd1, 0x7e, 0x88, 0x99, 0x5b, 0x30, 0x1c, 0x92, 0x4a, 0xe5,
-	0xde, 0xbf, 0xcd, 0x55, 0x97, 0xcd, 0x74, 0x94, 0x10, 0xb3, 0x8f, 0x02, 0x83, 0x9c, 0x87, 0x50,
-	0x35, 0xe4, 0x9f, 0x09, 0x61, 0xda, 0x2e, 0x48, 0xbd, 0xde, 0xfa, 0xe4, 0x0e, 0xdb, 0xd7, 0x45,
-	0x30, 0x99, 0x8e, 0x0c, 0xe0, 0x52, 0xac, 0xbf, 0xf5, 0xd1, 0xc1, 0x3b, 0x9a, 0xf1, 0x28, 0x59,
-	0x88, 0x71, 0x39, 0xc7, 0x1c, 0xab, 0x2f, 0xd1, 0x30, 0x15, 0x21, 0x37, 0xce, 0x02, 0x32, 0x87,
-	0x59, 0xd9, 0xb3, 0x1f, 0xad, 0x4b, 0x43, 0xad, 0xa8, 0x5a, 0x49, 0xd3, 0x41, 0x80, 0xae, 0x05,
-	0xb8, 0xdb, 0xed, 0xfe, 0x7f, 0xec, 0xf6, 0x04, 0x29, 0x8c, 0xe3, 0x9c, 0x6f, 0xc6, 0x72, 0xe7,
-	0xef, 0xb1, 0x6c, 0x67, 0x4d, 0x67, 0x08, 0xb0, 0x1e, 0xcb, 0x17, 0x08, 0x91, 0x2c, 0xe8, 0x5e,
-	0xb0, 0xe3, 0xe6, 0xac, 0x9a, 0x9c, 0xe9, 0xc8, 0x24, 0x0b, 0xaa, 0x5d, 0xf6, 0xdb, 0x9b, 0xa5,
-	0x2e, 0xdd, 0x2e, 0x75, 0xe9, 0xe7, 0x52, 0x97, 0xbe, 0xac, 0xf4, 0xde, 0xed, 0x4a, 0xef, 0x7d,
-	0x5f, 0xe9, 0xbd, 0x4f, 0xcf, 0x5a, 0x5f, 0xc6, 0x48, 0x7c, 0xb6, 0x79, 0x28, 0x01, 0xc0, 0x4b,
-	0x69, 0xcd, 0xad, 0xcd, 0xa3, 0x0a, 0x1f, 0xea, 0xed, 0x42, 0xcd, 0xf3, 0xdf, 0x01, 0x00, 0x00,
-	0xff, 0xff, 0xc8, 0xcf, 0x32, 0xb5, 0x6c, 0x05, 0x00, 0x00,
+	// 815 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x56, 0x4f, 0x6f, 0xdb, 0x36,
+	0x14, 0xb7, 0x6c, 0xb7, 0xab, 0x69, 0xd9, 0x5d, 0x55, 0x37, 0xf5, 0x8a, 0xce, 0xca, 0x78, 0x18,
+	0x72, 0xa9, 0x8d, 0x62, 0x03, 0x0a, 0xf8, 0xb4, 0x6a, 0x6d, 0x97, 0x60, 0xc8, 0x0e, 0x1c, 0x36,
+	0x60, 0xbb, 0x08, 0x94, 0xcc, 0xc8, 0x82, 0x2d, 0x32, 0x10, 0x69, 0x20, 0xb9, 0xee, 0x13, 0xec,
+	0x33, 0x0c, 0xd8, 0x77, 0xc9, 0x31, 0xc7, 0x61, 0x07, 0x61, 0x48, 0xbe, 0x81, 0x4f, 0x3b, 0x0e,
+	0x7c, 0x94, 0x23, 0x2a, 0x39, 0x19, 0xc9, 0xd2, 0x8b, 0xad, 0xdf, 0xfb, 0xf3, 0xfb, 0x3d, 0xf0,
+	0x3d, 0x3e, 0x09, 0x79, 0x94, 0x9d, 0x44, 0xab, 0x9c, 0x4f, 0xf4, 0xcf, 0xf8, 0x38, 0x17, 0x4a,
+	0x78, 0x2f, 0x25, 0x4b, 0xe1, 0x29, 0x16, 0xcb, 0xb1, 0x64, 0x69, 0x3c, 0xa7, 0x29, 0x1f, 0x97,
+	0x81, 0x2f, 0x06, 0x89, 0x48, 0x04, 0xb8, 0x27, 0xfa, 0xc9, 0xe4, 0xe0, 0x7f, 0x9b, 0xa8, 0x13,
+	0xac, 0x72, 0xfe, 0xa3, 0xa2, 0x4a, 0x7a, 0x73, 0xe4, 0x2a, 0xa1, 0xe8, 0x32, 0xd4, 0x19, 0x6c,
+	0x36, 0x74, 0x76, 0x9d, 0xbd, 0x4e, 0xf0, 0xfe, 0xac, 0xf0, 0x1b, 0x7f, 0x17, 0xfe, 0x97, 0x49,
+	0xaa, 0xe6, 0xab, 0x68, 0x1c, 0x8b, 0x6c, 0x12, 0x0b, 0x99, 0x09, 0x59, 0xfe, 0xbd, 0x92, 0xb3,
+	0xc5, 0x44, 0x9d, 0x1e, 0x33, 0x39, 0x3e, 0xe0, 0x6a, 0x5d, 0xf8, 0x4f, 0x4f, 0x69, 0xb6, 0x9c,
+	0x62, 0x9b, 0x0b, 0x93, 0x2e, 0xc0, 0x00, 0x90, 0x97, 0xa1, 0xfe, 0x92, 0x4a, 0x05, 0xce, 0x30,
+	0xa7, 0x8a, 0x0d, 0x9b, 0xa0, 0xf5, 0xdd, 0x16, 0x5a, 0xef, 0x58, 0xbc, 0x2e, 0xfc, 0x67, 0x46,
+	0xab, 0xce, 0x86, 0x89, 0xab, 0x0d, 0x5a, 0x8c, 0x50, 0xc5, 0xbc, 0x7d, 0xf4, 0x04, 0x02, 0xd8,
+	0xb1, 0x88, 0xe7, 0x21, 0x5f, 0x65, 0x11, 0xcb, 0x87, 0xad, 0x5d, 0x67, 0xaf, 0x1d, 0xbc, 0x5c,
+	0x17, 0xfe, 0xd0, 0xe2, 0xb0, 0x43, 0x30, 0x79, 0xac, 0x6d, 0xef, 0xb5, 0xe9, 0x07, 0xb0, 0x5c,
+	0x31, 0x45, 0x4b, 0x11, 0x2f, 0xc2, 0x39, 0x4b, 0x93, 0xb9, 0x1a, 0xb6, 0x77, 0x9d, 0xbd, 0xd6,
+	0x0d, 0x26, 0x3b, 0xa4, 0x64, 0x0a, 0xb4, 0x69, 0xdf, 0x58, 0xfe, 0x6c, 0x23, 0x04, 0x05, 0xb2,
+	0x58, 0xe4, 0x33, 0x6f, 0x8a, 0xdc, 0x5a, 0x75, 0x0e, 0x54, 0xf7, 0xbc, 0x3a, 0xcd, 0x7a, 0x61,
+	0x5d, 0x66, 0x15, 0x35, 0x45, 0x6e, 0xad, 0x9e, 0x26, 0xd4, 0x63, 0xe5, 0xd6, 0x4b, 0xe9, 0x46,
+	0x55, 0x19, 0xde, 0x02, 0xf5, 0x4c, 0x87, 0x42, 0x9a, 0x89, 0x15, 0x57, 0x70, 0x2c, 0x9d, 0xe0,
+	0xc3, 0xd6, 0x4d, 0x1f, 0x94, 0x52, 0x36, 0x19, 0x26, 0xae, 0xc1, 0x6f, 0x01, 0x7a, 0x21, 0xea,
+	0x54, 0x1d, 0x6f, 0x83, 0x50, 0xb0, 0x75, 0xc7, 0x3f, 0xad, 0x84, 0xca, 0x66, 0x3f, 0x8a, 0x36,
+	0x8d, 0xce, 0x50, 0x3f, 0xa1, 0x32, 0x5c, 0x49, 0x9a, 0x30, 0xa3, 0xf2, 0xe0, 0x76, 0x73, 0x55,
+	0x67, 0xc3, 0xc4, 0x4d, 0xa8, 0xfc, 0x49, 0x63, 0x90, 0x8b, 0x10, 0x32, 0x43, 0x7e, 0xc4, 0x98,
+	0x1c, 0x3e, 0x04, 0xa9, 0x6f, 0xb7, 0x3e, 0xb9, 0x27, 0xf6, 0x75, 0xd1, 0x4c, 0x98, 0x74, 0x00,
+	0x7c, 0xd0, 0xcf, 0xbf, 0xb5, 0xd1, 0xe3, 0x43, 0xc1, 0xd5, 0x7c, 0x79, 0xaa, 0xc7, 0xe5, 0x1d,
+	0x55, 0xd4, 0x7b, 0x83, 0xba, 0x99, 0x36, 0x85, 0x29, 0x9f, 0xb1, 0x13, 0x98, 0x95, 0x5e, 0xb0,
+	0xb3, 0x2e, 0x7c, 0xcf, 0x50, 0x59, 0x4e, 0x4c, 0x10, 0xa0, 0x03, 0x0d, 0x6e, 0x76, 0xbb, 0xf9,
+	0x3f, 0x76, 0x7b, 0x81, 0x7a, 0x59, 0xca, 0xd5, 0x9d, 0x8d, 0x56, 0x8d, 0x0c, 0x13, 0xd7, 0xe0,
+	0x52, 0x6c, 0x8a, 0x5c, 0xa9, 0x68, 0xae, 0xea, 0x77, 0xd2, 0xba, 0x03, 0xb6, 0x17, 0x93, 0x2e,
+	0xc0, 0xf2, 0x0e, 0x7c, 0x8d, 0x10, 0xe3, 0xb3, 0x4d, 0xe6, 0x03, 0xc8, 0x7c, 0x56, 0x35, 0xa6,
+	0xf2, 0x61, 0xd2, 0x61, 0x7c, 0x56, 0x66, 0xbd, 0x41, 0x86, 0xc4, 0xac, 0x0c, 0xe8, 0x7e, 0xdb,
+	0x6e, 0x82, 0xe5, 0xc4, 0x04, 0x01, 0x82, 0x4d, 0xe2, 0xbd, 0x46, 0x9a, 0xa5, 0x4c, 0xfb, 0x04,
+	0xd2, 0x06, 0xd5, 0x5c, 0x5f, 0xb9, 0x30, 0x79, 0xc4, 0xf8, 0x0c, 0x52, 0x70, 0xd1, 0x42, 0xfd,
+	0x03, 0x7e, 0xb4, 0xa4, 0x2a, 0x15, 0xd7, 0x97, 0xb5, 0x39, 0x86, 0xbb, 0x59, 0xd6, 0x86, 0x6b,
+	0xb3, 0xac, 0x0f, 0x01, 0xe9, 0x3e, 0x52, 0xce, 0x57, 0x95, 0xd4, 0x2d, 0x87, 0xa6, 0x46, 0x86,
+	0x89, 0x6b, 0x70, 0x29, 0xf6, 0x0b, 0x7a, 0x0e, 0xdb, 0xb3, 0x0c, 0xca, 0x99, 0x64, 0x9b, 0x13,
+	0x36, 0x0b, 0x1b, 0xaf, 0x0b, 0x7f, 0x64, 0xad, 0xd9, 0x9b, 0x81, 0x98, 0x0c, 0xb4, 0xe7, 0x2d,
+	0x38, 0x88, 0xb6, 0x9b, 0x73, 0x0f, 0x10, 0x2c, 0x61, 0x10, 0x2e, 0x29, 0xdb, 0x40, 0xf9, 0x62,
+	0x5d, 0xf8, 0x3b, 0x16, 0x65, 0x15, 0x80, 0x49, 0x4f, 0x5b, 0x74, 0x6d, 0x86, 0xe3, 0x67, 0xb4,
+	0x53, 0x85, 0xd4, 0x96, 0xae, 0x19, 0x9b, 0x2f, 0xd6, 0x85, 0xff, 0xf9, 0x75, 0xaa, 0xfa, 0xfa,
+	0x7d, 0xba, 0x61, 0xb4, 0xdf, 0x06, 0x7f, 0xb4, 0x10, 0xd2, 0xb6, 0x8f, 0xff, 0x36, 0xb8, 0xbf,
+	0x2b, 0xfb, 0x0d, 0xea, 0xab, 0x3c, 0x4d, 0x12, 0x96, 0x87, 0x39, 0xa3, 0x52, 0xf0, 0xf2, 0x95,
+	0xf0, 0x59, 0xb5, 0x7e, 0xeb, 0x7e, 0x4c, 0x7a, 0xa5, 0x81, 0x00, 0xbe, 0xe7, 0x75, 0x1f, 0x7c,
+	0x7f, 0x76, 0x31, 0x72, 0xce, 0x2f, 0x46, 0xce, 0x3f, 0x17, 0x23, 0xe7, 0xf7, 0xcb, 0x51, 0xe3,
+	0xfc, 0x72, 0xd4, 0xf8, 0xeb, 0x72, 0xd4, 0xf8, 0xf5, 0xb5, 0x25, 0x24, 0x59, 0xfa, 0x6a, 0xf3,
+	0x1d, 0x06, 0x00, 0x3e, 0xc4, 0x26, 0x27, 0x93, 0xcd, 0x37, 0x1b, 0xe8, 0x46, 0x0f, 0x21, 0xe6,
+	0xab, 0xff, 0x02, 0x00, 0x00, 0xff, 0xff, 0x40, 0x2e, 0xdb, 0x04, 0xcb, 0x09, 0x00, 0x00,
 }
 
 func (m *BurnStats) Marshal() (dAtA []byte, err error) {
@@ -407,16 +579,36 @@ func (m *MonthlyBurnData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.EndEpoch != 0 {
+		i = encodeVarintBurn(dAtA, i, uint64(m.EndEpoch))
+		i--
+		dAtA[i] = 0x38
+	}
+	if m.StartEpoch != 0 {
+		i = encodeVarintBurn(dAtA, i, uint64(m.StartEpoch))
+		i--
+		dAtA[i] = 0x30
+	}
 	if m.EndHeight != 0 {
 		i = encodeVarintBurn(dAtA, i, uint64(m.EndHeight))
 		i--
-		dAtA[i] = 0x20
+		dAtA[i] = 0x28
 	}
 	if m.StartHeight != 0 {
 		i = encodeVarintBurn(dAtA, i, uint64(m.StartHeight))
 		i--
-		dAtA[i] = 0x18
+		dAtA[i] = 0x20
 	}
+	{
+		size := m.MintedAmount.Size()
+		i -= size
+		if _, err := m.MintedAmount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintBurn(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
 	{
 		size := m.BurnedAmount.Size()
 		i -= size
@@ -429,6 +621,124 @@ func (m *MonthlyBurnData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	dAtA[i] = 0x12
 	if m.MonthIndex != 0 {
 		i = encodeVarintBurn(dAtA, i, uint64(m.MonthIndex))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *InflationStats) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *InflationStats) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InflationStats) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.LastMintBlockHeight != 0 {
+		i = encodeVarintBurn(dAtA, i, uint64(m.LastMintBlockHeight))
+		i--
+		dAtA[i] = 0x28
+	}
+	if m.LastMintEpoch != 0 {
+		i = encodeVarintBurn(dAtA, i, uint64(m.LastMintEpoch))
+		i--
+		dAtA[i] = 0x20
+	}
+	if m.LastAnnualResetEpoch != 0 {
+		i = encodeVarintBurn(dAtA, i, uint64(m.LastAnnualResetEpoch))
+		i--
+		dAtA[i] = 0x18
+	}
+	{
+		size := m.AnnualMinted.Size()
+		i -= size
+		if _, err := m.AnnualMinted.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintBurn(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size := m.TotalMinted.Size()
+		i -= size
+		if _, err := m.TotalMinted.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintBurn(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *MintRecord) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MintRecord) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MintRecord) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.GasUsageRate.Size()
+		i -= size
+		if _, err := m.GasUsageRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintBurn(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
+	if len(m.TriggerReason) > 0 {
+		i -= len(m.TriggerReason)
+		copy(dAtA[i:], m.TriggerReason)
+		i = encodeVarintBurn(dAtA, i, uint64(len(m.TriggerReason)))
+		i--
+		dAtA[i] = 0x22
+	}
+	{
+		size := m.MintedAmount.Size()
+		i -= size
+		if _, err := m.MintedAmount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintBurn(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	if m.BlockHeight != 0 {
+		i = encodeVarintBurn(dAtA, i, uint64(m.BlockHeight))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.EpochNumber != 0 {
+		i = encodeVarintBurn(dAtA, i, uint64(m.EpochNumber))
 		i--
 		dAtA[i] = 0x8
 	}
@@ -499,12 +809,65 @@ func (m *MonthlyBurnData) Size() (n int) {
 	}
 	l = m.BurnedAmount.Size()
 	n += 1 + l + sovBurn(uint64(l))
+	l = m.MintedAmount.Size()
+	n += 1 + l + sovBurn(uint64(l))
 	if m.StartHeight != 0 {
 		n += 1 + sovBurn(uint64(m.StartHeight))
 	}
 	if m.EndHeight != 0 {
 		n += 1 + sovBurn(uint64(m.EndHeight))
 	}
+	if m.StartEpoch != 0 {
+		n += 1 + sovBurn(uint64(m.StartEpoch))
+	}
+	if m.EndEpoch != 0 {
+		n += 1 + sovBurn(uint64(m.EndEpoch))
+	}
+	return n
+}
+
+func (m *InflationStats) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.TotalMinted.Size()
+	n += 1 + l + sovBurn(uint64(l))
+	l = m.AnnualMinted.Size()
+	n += 1 + l + sovBurn(uint64(l))
+	if m.LastAnnualResetEpoch != 0 {
+		n += 1 + sovBurn(uint64(m.LastAnnualResetEpoch))
+	}
+	if m.LastMintEpoch != 0 {
+		n += 1 + sovBurn(uint64(m.LastMintEpoch))
+	}
+	if m.LastMintBlockHeight != 0 {
+		n += 1 + sovBurn(uint64(m.LastMintBlockHeight))
+	}
+	return n
+}
+
+func (m *MintRecord) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.EpochNumber != 0 {
+		n += 1 + sovBurn(uint64(m.EpochNumber))
+	}
+	if m.BlockHeight != 0 {
+		n += 1 + sovBurn(uint64(m.BlockHeight))
+	}
+	l = m.MintedAmount.Size()
+	n += 1 + l + sovBurn(uint64(l))
+	l = len(m.TriggerReason)
+	if l > 0 {
+		n += 1 + l + sovBurn(uint64(l))
+	}
+	l = m.GasUsageRate.Size()
+	n += 1 + l + sovBurn(uint64(l))
 	return n
 }
 
@@ -977,6 +1340,40 @@ func (m *MonthlyBurnData) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MintedAmount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthBurn
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthBurn
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MintedAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field StartHeight", wireType)
 			}
@@ -995,7 +1392,7 @@ func (m *MonthlyBurnData) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 4:
+		case 5:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EndHeight", wireType)
 			}
@@ -1014,6 +1411,407 @@ func (m *MonthlyBurnData) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartEpoch", wireType)
+			}
+			m.StartEpoch = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.StartEpoch |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndEpoch", wireType)
+			}
+			m.EndEpoch = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EndEpoch |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipBurn(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthBurn
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *InflationStats) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowBurn
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: InflationStats: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: InflationStats: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalMinted", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthBurn
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthBurn
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TotalMinted.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AnnualMinted", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthBurn
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthBurn
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.AnnualMinted.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastAnnualResetEpoch", wireType)
+			}
+			m.LastAnnualResetEpoch = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LastAnnualResetEpoch |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastMintEpoch", wireType)
+			}
+			m.LastMintEpoch = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LastMintEpoch |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastMintBlockHeight", wireType)
+			}
+			m.LastMintBlockHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LastMintBlockHeight |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipBurn(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthBurn
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MintRecord) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowBurn
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MintRecord: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MintRecord: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EpochNumber", wireType)
+			}
+			m.EpochNumber = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EpochNumber |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BlockHeight", wireType)
+			}
+			m.BlockHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.BlockHeight |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MintedAmount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthBurn
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthBurn
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MintedAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TriggerReason", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthBurn
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthBurn
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TriggerReason = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GasUsageRate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBurn
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthBurn
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthBurn
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.GasUsageRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipBurn(dAtA[iNdEx:])

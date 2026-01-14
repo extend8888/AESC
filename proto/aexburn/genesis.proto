@@ -15,7 +15,10 @@ message GenesisState {
   // burn_stats contains the cumulative burn statistics
   BurnStats burn_stats = 2 [(gogoproto.nullable) = false];
 
-  // monthly_burn_data contains the 12-month rolling window burn data
-  repeated MonthlyBurnData monthly_burn_data = 3 [(gogoproto.nullable) = false];
+  // inflation_stats contains the cumulative inflation statistics
+  InflationStats inflation_stats = 3 [(gogoproto.nullable) = false];
+
+  // monthly_burn_data contains the 12-month rolling window supply data (burn + mint)
+  repeated MonthlyBurnData monthly_burn_data = 4 [(gogoproto.nullable) = false];
 }
 

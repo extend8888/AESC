@@ -15,6 +15,9 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 	// Set burn statistics
 	k.SetBurnStats(ctx, genState.BurnStats)
 
+	// Set inflation statistics
+	k.SetInflationStats(ctx, genState.InflationStats)
+
 	// Set monthly burn data
 	for _, data := range genState.MonthlyBurnData {
 		k.SetMonthlyBurnData(ctx, data)
@@ -26,7 +29,7 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params:          k.GetParams(ctx),
 		BurnStats:       k.GetBurnStats(ctx),
+		InflationStats:  k.GetInflationStats(ctx),
 		MonthlyBurnData: k.GetAllMonthlyBurnData(ctx),
 	}
 }
-

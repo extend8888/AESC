@@ -119,3 +119,68 @@ func (k Keeper) GetAllMonthlyBurnData(ctx sdk.Context) []types.MonthlyBurnData {
 	return allData
 }
 
+// ========== Inflation Stats ==========
+
+// GetInflationStats returns the inflation statistics
+func (k Keeper) GetInflationStats(ctx sdk.Context) types.InflationStats {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.InflationStatsKey)
+	if bz == nil {
+		return types.InflationStats{
+			TotalMinted:          sdk.ZeroInt(),
+			AnnualMinted:         sdk.ZeroInt(),
+			LastAnnualResetEpoch: 0,
+			LastMintEpoch:        0,
+			LastMintBlockHeight:  0,
+		}
+	}
+
+	var stats types.InflationStats
+	k.cdc.MustUnmarshal(bz, &stats)
+	return stats
+}
+
+// SetInflationStats sets the inflation statistics
+func (k Keeper) SetInflationStats(ctx sdk.Context, stats types.InflationStats) {
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshal(&stats)
+	store.Set(types.InflationStatsKey, bz)
+}
+
+// SaveMintRecord saves a mint record
+func (k Keeper) SaveMintRecord(ctx sdk.Context, record types.MintRecord) {
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshal(&record)
+	store.Set(types.GetMintRecordKey(record.EpochNumber), bz)
+}
+
+// GetMintRecord returns a mint record for a specific epoch
+func (k Keeper) GetMintRecord(ctx sdk.Context, epochNumber uint64) (types.MintRecord, bool) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.GetMintRecordKey(epochNumber))
+	if bz == nil {
+		return types.MintRecord{}, false
+	}
+
+	var record types.MintRecord
+	k.cdc.MustUnmarshal(bz, &record)
+	return record, true
+}
+
+// Get12MonthNetSupply calculates the net supply change over the last 12 months
+// Net supply = minted - burned over the period
+func (k Keeper) Get12MonthNetSupply(ctx sdk.Context) sdk.Int {
+	monthlyData := k.GetAllMonthlyBurnData(ctx)
+
+	totalBurned := sdk.ZeroInt()
+	totalMinted := sdk.ZeroInt()
+
+	// Sum up last 12 months of data
+	for _, data := range monthlyData {
+		totalBurned = totalBurned.Add(data.BurnedAmount)
+		totalMinted = totalMinted.Add(data.MintedAmount)
+	}
+
+	// Net supply change = minted - burned
+	return totalMinted.Sub(totalBurned)
+}

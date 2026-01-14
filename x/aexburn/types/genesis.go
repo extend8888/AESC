@@ -14,6 +14,13 @@ func DefaultGenesis() *GenesisState {
 			LastEpochNumber: 0,
 			LastBlockHeight: 0,
 		},
+		InflationStats: InflationStats{
+			TotalMinted:          sdk.ZeroInt(),
+			AnnualMinted:         sdk.ZeroInt(),
+			LastAnnualResetEpoch: 0,
+			LastMintEpoch:        0,
+			LastMintBlockHeight:  0,
+		},
 		MonthlyBurnData: make([]MonthlyBurnData, 0),
 	}
 }

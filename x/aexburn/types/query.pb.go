@@ -6,6 +6,7 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
@@ -193,6 +194,88 @@ func (m *QueryBurnStatsResponse) GetBurnStats() BurnStats {
 	return BurnStats{}
 }
 
+// QueryInflationStatsRequest is the request type for the Query/InflationStats RPC method.
+type QueryInflationStatsRequest struct {
+}
+
+func (m *QueryInflationStatsRequest) Reset()         { *m = QueryInflationStatsRequest{} }
+func (m *QueryInflationStatsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryInflationStatsRequest) ProtoMessage()    {}
+func (*QueryInflationStatsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8c657c48b078c0ed, []int{4}
+}
+func (m *QueryInflationStatsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryInflationStatsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryInflationStatsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryInflationStatsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryInflationStatsRequest.Merge(m, src)
+}
+func (m *QueryInflationStatsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryInflationStatsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryInflationStatsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryInflationStatsRequest proto.InternalMessageInfo
+
+// QueryInflationStatsResponse is the response type for the Query/InflationStats RPC method.
+type QueryInflationStatsResponse struct {
+	InflationStats InflationStats `protobuf:"bytes,1,opt,name=inflation_stats,json=inflationStats,proto3" json:"inflation_stats"`
+}
+
+func (m *QueryInflationStatsResponse) Reset()         { *m = QueryInflationStatsResponse{} }
+func (m *QueryInflationStatsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryInflationStatsResponse) ProtoMessage()    {}
+func (*QueryInflationStatsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8c657c48b078c0ed, []int{5}
+}
+func (m *QueryInflationStatsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryInflationStatsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryInflationStatsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryInflationStatsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryInflationStatsResponse.Merge(m, src)
+}
+func (m *QueryInflationStatsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryInflationStatsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryInflationStatsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryInflationStatsResponse proto.InternalMessageInfo
+
+func (m *QueryInflationStatsResponse) GetInflationStats() InflationStats {
+	if m != nil {
+		return m.InflationStats
+	}
+	return InflationStats{}
+}
+
 // QueryMonthlyBurnDataRequest is the request type for the Query/MonthlyBurnData RPC method.
 type QueryMonthlyBurnDataRequest struct {
 }
@@ -201,7 +284,7 @@ func (m *QueryMonthlyBurnDataRequest) Reset()         { *m = QueryMonthlyBurnDat
 func (m *QueryMonthlyBurnDataRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryMonthlyBurnDataRequest) ProtoMessage()    {}
 func (*QueryMonthlyBurnDataRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8c657c48b078c0ed, []int{4}
+	return fileDescriptor_8c657c48b078c0ed, []int{6}
 }
 func (m *QueryMonthlyBurnDataRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -239,7 +322,7 @@ func (m *QueryMonthlyBurnDataResponse) Reset()         { *m = QueryMonthlyBurnDa
 func (m *QueryMonthlyBurnDataResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryMonthlyBurnDataResponse) ProtoMessage()    {}
 func (*QueryMonthlyBurnDataResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_8c657c48b078c0ed, []int{5}
+	return fileDescriptor_8c657c48b078c0ed, []int{7}
 }
 func (m *QueryMonthlyBurnDataResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -275,48 +358,156 @@ func (m *QueryMonthlyBurnDataResponse) GetMonthlyBurnData() []MonthlyBurnData {
 	return nil
 }
 
+// QueryNetSupplyRequest is the request type for the Query/NetSupply RPC method.
+type QueryNetSupplyRequest struct {
+}
+
+func (m *QueryNetSupplyRequest) Reset()         { *m = QueryNetSupplyRequest{} }
+func (m *QueryNetSupplyRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryNetSupplyRequest) ProtoMessage()    {}
+func (*QueryNetSupplyRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8c657c48b078c0ed, []int{8}
+}
+func (m *QueryNetSupplyRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryNetSupplyRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryNetSupplyRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryNetSupplyRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryNetSupplyRequest.Merge(m, src)
+}
+func (m *QueryNetSupplyRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryNetSupplyRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryNetSupplyRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryNetSupplyRequest proto.InternalMessageInfo
+
+// QueryNetSupplyResponse is the response type for the Query/NetSupply RPC method.
+type QueryNetSupplyResponse struct {
+	// total_minted_12m is the total minted in the 12-month window
+	TotalMinted_12M github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,1,opt,name=total_minted_12m,json=totalMinted12m,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_minted_12m"`
+	// total_burned_12m is the total burned in the 12-month window
+	TotalBurned_12M github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=total_burned_12m,json=totalBurned12m,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_burned_12m"`
+	// net_supply_change is the net supply change (minted - burned)
+	NetSupplyChange github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=net_supply_change,json=netSupplyChange,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"net_supply_change"`
+	// net_supply_rate is the net supply change as a percentage of initial supply
+	NetSupplyRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=net_supply_rate,json=netSupplyRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"net_supply_rate"`
+	// max_allowed_net_supply is the maximum allowed net supply (5% of initial)
+	MaxAllowedNetSupply github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=max_allowed_net_supply,json=maxAllowedNetSupply,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"max_allowed_net_supply"`
+	// remaining_mint_capacity is how much more can be minted within constraints
+	RemainingMintCapacity github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,6,opt,name=remaining_mint_capacity,json=remainingMintCapacity,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"remaining_mint_capacity"`
+}
+
+func (m *QueryNetSupplyResponse) Reset()         { *m = QueryNetSupplyResponse{} }
+func (m *QueryNetSupplyResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryNetSupplyResponse) ProtoMessage()    {}
+func (*QueryNetSupplyResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_8c657c48b078c0ed, []int{9}
+}
+func (m *QueryNetSupplyResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryNetSupplyResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryNetSupplyResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryNetSupplyResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryNetSupplyResponse.Merge(m, src)
+}
+func (m *QueryNetSupplyResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryNetSupplyResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryNetSupplyResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryNetSupplyResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*QueryParamsRequest)(nil), "seiprotocol.seichain.aexburn.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "seiprotocol.seichain.aexburn.QueryParamsResponse")
 	proto.RegisterType((*QueryBurnStatsRequest)(nil), "seiprotocol.seichain.aexburn.QueryBurnStatsRequest")
 	proto.RegisterType((*QueryBurnStatsResponse)(nil), "seiprotocol.seichain.aexburn.QueryBurnStatsResponse")
+	proto.RegisterType((*QueryInflationStatsRequest)(nil), "seiprotocol.seichain.aexburn.QueryInflationStatsRequest")
+	proto.RegisterType((*QueryInflationStatsResponse)(nil), "seiprotocol.seichain.aexburn.QueryInflationStatsResponse")
 	proto.RegisterType((*QueryMonthlyBurnDataRequest)(nil), "seiprotocol.seichain.aexburn.QueryMonthlyBurnDataRequest")
 	proto.RegisterType((*QueryMonthlyBurnDataResponse)(nil), "seiprotocol.seichain.aexburn.QueryMonthlyBurnDataResponse")
+	proto.RegisterType((*QueryNetSupplyRequest)(nil), "seiprotocol.seichain.aexburn.QueryNetSupplyRequest")
+	proto.RegisterType((*QueryNetSupplyResponse)(nil), "seiprotocol.seichain.aexburn.QueryNetSupplyResponse")
 }
 
 func init() { proto.RegisterFile("aexburn/query.proto", fileDescriptor_8c657c48b078c0ed) }
 
 var fileDescriptor_8c657c48b078c0ed = []byte{
-	// 464 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x92, 0xc1, 0x8a, 0xd3, 0x40,
-	0x18, 0xc7, 0x33, 0xae, 0x16, 0x76, 0xf6, 0xb0, 0x38, 0x5b, 0xdd, 0x35, 0xdb, 0xcd, 0x2e, 0x71,
-	0xc1, 0x45, 0xd8, 0x8c, 0xed, 0x7a, 0xd1, 0x63, 0xf0, 0xa6, 0x82, 0xd6, 0x93, 0x5e, 0xca, 0x24,
-	0x8e, 0x69, 0xa0, 0x99, 0x49, 0x33, 0x13, 0x69, 0x4f, 0x82, 0x0f, 0x20, 0x82, 0x47, 0x5f, 0xc3,
-	0x87, 0xe8, 0xb1, 0xe0, 0xc5, 0x93, 0x48, 0xeb, 0xd5, 0x77, 0x90, 0x4c, 0x26, 0x91, 0x26, 0x25,
-	0xb4, 0x5e, 0xca, 0xf4, 0xff, 0xcd, 0xf7, 0xff, 0xff, 0xf2, 0xcd, 0x07, 0x0f, 0x08, 0x9d, 0x78,
-	0x69, 0xc2, 0xf0, 0x38, 0xa5, 0xc9, 0xd4, 0x89, 0x13, 0x2e, 0x39, 0xea, 0x08, 0x1a, 0xaa, 0x93,
-	0xcf, 0x47, 0x8e, 0xa0, 0xa1, 0x3f, 0x24, 0x21, 0x73, 0xf4, 0x4d, 0xb3, 0x1d, 0xf0, 0x80, 0xab,
-	0x32, 0xce, 0x4e, 0x79, 0x8f, 0xd9, 0x09, 0x38, 0x0f, 0x46, 0x14, 0x93, 0x38, 0xc4, 0x84, 0x31,
-	0x2e, 0x89, 0x0c, 0x39, 0x13, 0xba, 0xda, 0x2e, 0x62, 0x62, 0x92, 0x90, 0xa8, 0x50, 0x51, 0xa1,
-	0x66, 0x3f, 0xb9, 0x66, 0xb7, 0x21, 0x7a, 0x99, 0xa1, 0xbc, 0x50, 0x17, 0xfb, 0x74, 0x9c, 0x52,
-	0x21, 0xed, 0xd7, 0xf0, 0x60, 0x45, 0x15, 0x31, 0x67, 0x82, 0x22, 0x17, 0xb6, 0x72, 0xc3, 0x23,
-	0x70, 0x06, 0x2e, 0xf6, 0x7a, 0xe7, 0x4e, 0x13, 0xb9, 0x93, 0x77, 0xbb, 0xd7, 0x67, 0x3f, 0x4f,
-	0x8d, 0xbe, 0xee, 0xb4, 0x0f, 0xe1, 0x2d, 0x65, 0xed, 0xa6, 0x09, 0x7b, 0x25, 0x89, 0x2c, 0x33,
-	0xdf, 0xc1, 0xdb, 0xd5, 0x82, 0x8e, 0x7d, 0x06, 0x61, 0xe6, 0x37, 0x10, 0x99, 0xaa, 0xa3, 0xef,
-	0x35, 0x47, 0x97, 0x26, 0x3a, 0x7d, 0xd7, 0x2b, 0x04, 0xfb, 0x04, 0x1e, 0xab, 0x9c, 0xe7, 0x9c,
-	0xc9, 0xe1, 0x48, 0xc5, 0x3d, 0x21, 0x92, 0x14, 0x18, 0x1f, 0x60, 0x67, 0x7d, 0x59, 0xc3, 0x0c,
-	0xe0, 0xcd, 0x28, 0x2f, 0x0d, 0x14, 0xd4, 0x5b, 0x22, 0xc9, 0x11, 0x38, 0xdb, 0xb9, 0xd8, 0xeb,
-	0x5d, 0x36, 0x33, 0x55, 0x1c, 0x35, 0xd9, 0x7e, 0xb4, 0x2a, 0xf7, 0xfe, 0xec, 0xc0, 0x1b, 0x8a,
-	0x00, 0x7d, 0x02, 0xb0, 0x95, 0xcf, 0x10, 0x3d, 0x68, 0xb6, 0xae, 0x3f, 0xa1, 0xd9, 0xdd, 0xa2,
-	0x23, 0xff, 0x34, 0xfb, 0xf4, 0xe3, 0xf7, 0xdf, 0x5f, 0xae, 0xdd, 0x41, 0x87, 0x98, 0x50, 0xe1,
-	0xe3, 0x62, 0x5b, 0xde, 0x77, 0xf5, 0x1a, 0xa1, 0xaf, 0x00, 0xee, 0x96, 0x93, 0x45, 0x57, 0x1b,
-	0x24, 0x54, 0x5f, 0xd9, 0x7c, 0xb8, 0x5d, 0x93, 0x26, 0xbb, 0xab, 0xc8, 0x4e, 0xd0, 0x71, 0x8d,
-	0xec, 0xdf, 0x62, 0xa0, 0x6f, 0x00, 0xee, 0x57, 0x66, 0x8c, 0x1e, 0x6d, 0x10, 0xb7, 0x7e, 0x11,
-	0xcc, 0xc7, 0xff, 0xd3, 0xaa, 0x79, 0xef, 0x2b, 0xde, 0x73, 0x64, 0xd7, 0x78, 0x6b, 0xbb, 0xe3,
-	0x3e, 0x9d, 0x2d, 0x2c, 0x30, 0x5f, 0x58, 0xe0, 0xd7, 0xc2, 0x02, 0x9f, 0x97, 0x96, 0x31, 0x5f,
-	0x5a, 0xc6, 0x8f, 0xa5, 0x65, 0xbc, 0xe9, 0x06, 0xa1, 0x1c, 0xa6, 0x9e, 0xe3, 0xf3, 0x08, 0x0b,
-	0x1a, 0x5e, 0x16, 0x30, 0xea, 0x8f, 0xa2, 0xc1, 0x93, 0xd2, 0x5b, 0x4e, 0x63, 0x2a, 0xbc, 0x96,
-	0xba, 0x73, 0xf5, 0x37, 0x00, 0x00, 0xff, 0xff, 0x6c, 0xc0, 0x78, 0x53, 0x68, 0x04, 0x00, 0x00,
+	// 747 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x94, 0x4f, 0x6f, 0xd3, 0x30,
+	0x18, 0xc6, 0x9b, 0xfd, 0xa9, 0x34, 0x4f, 0xac, 0xcc, 0xfb, 0x57, 0xb2, 0xae, 0x9b, 0xc2, 0x04,
+	0x13, 0x62, 0x09, 0xed, 0x38, 0x00, 0x37, 0xba, 0x5d, 0x26, 0x18, 0x82, 0x4e, 0x42, 0x30, 0x0e,
+	0x91, 0x9b, 0x7a, 0x69, 0x44, 0x62, 0x67, 0xb1, 0x0b, 0x2d, 0x17, 0x24, 0x3e, 0x00, 0x42, 0xe2,
+	0xc8, 0x87, 0xe0, 0xc2, 0x95, 0xfb, 0x2e, 0x48, 0x93, 0xb8, 0x20, 0x0e, 0x13, 0xda, 0xf8, 0x20,
+	0x28, 0x8e, 0x93, 0x2e, 0x6d, 0x55, 0x75, 0xe5, 0xb2, 0xa5, 0xef, 0x1b, 0x3f, 0xcf, 0x2f, 0xf6,
+	0xeb, 0x07, 0xcc, 0x21, 0xdc, 0xaa, 0x35, 0x03, 0x62, 0x1c, 0x35, 0x71, 0xd0, 0xd6, 0xfd, 0x80,
+	0x72, 0x0a, 0x0b, 0x0c, 0x3b, 0xe2, 0xc9, 0xa2, 0xae, 0xce, 0xb0, 0x63, 0x35, 0x90, 0x43, 0x74,
+	0xf9, 0xa6, 0x3a, 0x6f, 0x53, 0x9b, 0x8a, 0xb6, 0x11, 0x3e, 0x45, 0x6b, 0xd4, 0x82, 0x4d, 0xa9,
+	0xed, 0x62, 0x03, 0xf9, 0x8e, 0x81, 0x08, 0xa1, 0x1c, 0x71, 0x87, 0x12, 0x26, 0xbb, 0xf3, 0xb1,
+	0x8d, 0x8f, 0x02, 0xe4, 0xc5, 0x55, 0x18, 0x57, 0xc3, 0x3f, 0x51, 0x4d, 0x9b, 0x07, 0xf0, 0x59,
+	0x88, 0xf2, 0x54, 0xbc, 0x58, 0xc5, 0x47, 0x4d, 0xcc, 0xb8, 0xf6, 0x12, 0xcc, 0xa5, 0xaa, 0xcc,
+	0xa7, 0x84, 0x61, 0x58, 0x01, 0xd9, 0x48, 0x30, 0xaf, 0xac, 0x29, 0x1b, 0xd3, 0xe5, 0x75, 0x7d,
+	0x10, 0xb9, 0x1e, 0xad, 0xae, 0x4c, 0x1c, 0x9f, 0xae, 0x66, 0xaa, 0x72, 0xa5, 0xb6, 0x04, 0x16,
+	0x84, 0x74, 0xa5, 0x19, 0x90, 0x7d, 0x8e, 0x78, 0xe2, 0x79, 0x08, 0x16, 0xbb, 0x1b, 0xd2, 0xf6,
+	0x31, 0x00, 0xa1, 0x9e, 0xc9, 0xc2, 0xaa, 0xb4, 0xbe, 0x39, 0xd8, 0x3a, 0x11, 0x91, 0xee, 0x53,
+	0xb5, 0xb8, 0xa0, 0x15, 0x80, 0x2a, 0x7c, 0x76, 0xc9, 0xa1, 0x2b, 0x36, 0x2d, 0x45, 0xf1, 0x0e,
+	0x2c, 0xf7, 0xed, 0x4a, 0x94, 0x57, 0x20, 0xe7, 0xc4, 0x9d, 0x14, 0xcf, 0xed, 0xc1, 0x3c, 0x69,
+	0x39, 0x09, 0x35, 0xe3, 0xa4, 0xaa, 0xda, 0x8a, 0xf4, 0xde, 0xa3, 0x84, 0x37, 0x5c, 0xb1, 0x11,
+	0x3b, 0x88, 0xa3, 0x18, 0xed, 0x3d, 0x28, 0xf4, 0x6f, 0x4b, 0x36, 0x13, 0xcc, 0x7a, 0x51, 0xcb,
+	0x14, 0xdb, 0x55, 0x47, 0x1c, 0xe5, 0x95, 0xb5, 0xf1, 0x8d, 0xe9, 0xf2, 0xe6, 0x60, 0xba, 0x2e,
+	0x45, 0x89, 0x97, 0xf3, 0xd2, 0xe5, 0xe4, 0xe8, 0x9e, 0x60, 0xbe, 0xdf, 0xf4, 0x7d, 0xb7, 0x1d,
+	0x93, 0xfd, 0x98, 0x90, 0x67, 0x77, 0xa1, 0x23, 0xa1, 0x5e, 0x80, 0xab, 0x9c, 0x72, 0xe4, 0x9a,
+	0x9e, 0x43, 0x38, 0xae, 0x9b, 0xa5, 0xb2, 0x27, 0x76, 0x6c, 0xaa, 0xa2, 0x87, 0x26, 0xbf, 0x4f,
+	0x57, 0x6f, 0xd8, 0x0e, 0x6f, 0x34, 0x6b, 0xba, 0x45, 0x3d, 0xc3, 0xa2, 0xcc, 0xa3, 0x4c, 0xfe,
+	0xdb, 0x64, 0xf5, 0xd7, 0x06, 0x6f, 0xfb, 0x98, 0xe9, 0xbb, 0x84, 0x57, 0x67, 0x84, 0xce, 0x9e,
+	0x90, 0x29, 0x95, 0xbd, 0x8e, 0x72, 0xf8, 0x09, 0x52, 0x79, 0xec, 0x3f, 0x94, 0x2b, 0x42, 0x26,
+	0x54, 0x3e, 0x00, 0xb3, 0x04, 0x73, 0x93, 0x89, 0x2f, 0x31, 0xad, 0x06, 0x22, 0x36, 0xce, 0x8f,
+	0x8f, 0x24, 0x9d, 0x23, 0xf1, 0x8e, 0x6c, 0x0b, 0x19, 0xf8, 0x1c, 0xe4, 0x2e, 0x68, 0x07, 0x88,
+	0xe3, 0xfc, 0xc4, 0xa5, 0x95, 0x77, 0xb0, 0x55, 0xbd, 0x92, 0x28, 0x57, 0x11, 0xc7, 0xd0, 0x02,
+	0x8b, 0x1e, 0x6a, 0x99, 0xc8, 0x75, 0xe9, 0x5b, 0x5c, 0x37, 0x3b, 0x1e, 0xf9, 0xc9, 0x91, 0xc0,
+	0xe7, 0x3c, 0xd4, 0x7a, 0x18, 0x89, 0x25, 0x87, 0x0a, 0x0f, 0xc1, 0x52, 0x80, 0x3d, 0xe4, 0x10,
+	0x87, 0xd8, 0xe2, 0x40, 0x4d, 0x0b, 0xf9, 0xc8, 0x72, 0x78, 0x3b, 0x9f, 0x1d, 0xc9, 0x65, 0x21,
+	0x91, 0x0b, 0xcf, 0x75, 0x5b, 0x8a, 0x95, 0xbf, 0x67, 0xc1, 0xa4, 0x98, 0x27, 0xf8, 0x51, 0x01,
+	0xd9, 0x28, 0x46, 0xe0, 0x9d, 0xc1, 0x33, 0xdc, 0x9b, 0x62, 0x6a, 0xe9, 0x12, 0x2b, 0xa2, 0x71,
+	0xd5, 0x56, 0x3f, 0xfc, 0xfc, 0xfb, 0x79, 0xec, 0x1a, 0x5c, 0x32, 0x10, 0x66, 0x96, 0x11, 0x07,
+	0xe6, 0x9b, 0x92, 0x4c, 0x52, 0xf8, 0x45, 0x01, 0x53, 0x49, 0xb8, 0xc0, 0xad, 0x21, 0x1c, 0xba,
+	0x83, 0x4e, 0xbd, 0x7b, 0xb9, 0x45, 0x92, 0xec, 0xba, 0x20, 0x5b, 0x81, 0xcb, 0x3d, 0x64, 0x9d,
+	0x6c, 0x84, 0x5f, 0x15, 0x30, 0x93, 0x8e, 0x1a, 0x78, 0x6f, 0x08, 0xb7, 0xbe, 0x51, 0xa8, 0xde,
+	0x1f, 0x61, 0xa5, 0x84, 0xdd, 0x10, 0xb0, 0x1a, 0x5c, 0xeb, 0x81, 0xed, 0x4a, 0x4f, 0xf8, 0x4d,
+	0x01, 0xb9, 0xae, 0xf8, 0x81, 0xc3, 0x18, 0xf7, 0xcf, 0x48, 0xf5, 0xc1, 0x28, 0x4b, 0x25, 0xf4,
+	0x2d, 0x01, 0xbd, 0x0e, 0xb5, 0x1e, 0xe8, 0x9e, 0x58, 0x15, 0x63, 0xd0, 0xb9, 0x17, 0xc3, 0x8c,
+	0x41, 0x77, 0x68, 0x0e, 0x35, 0x06, 0x3d, 0x79, 0x3a, 0x60, 0x0c, 0x3a, 0x57, 0xbe, 0xf2, 0xe8,
+	0xf8, 0xac, 0xa8, 0x9c, 0x9c, 0x15, 0x95, 0x3f, 0x67, 0x45, 0xe5, 0xd3, 0x79, 0x31, 0x73, 0x72,
+	0x5e, 0xcc, 0xfc, 0x3a, 0x2f, 0x66, 0x0e, 0x4a, 0x17, 0x2e, 0x26, 0xc3, 0xce, 0x66, 0xec, 0x2f,
+	0x7e, 0x08, 0x00, 0xa3, 0x95, 0x88, 0x8a, 0x7b, 0x5a, 0xcb, 0x8a, 0x77, 0xb6, 0xfe, 0x05, 0x00,
+	0x00, 0xff, 0xff, 0x48, 0x4f, 0xdc, 0x64, 0xbb, 0x08, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -335,8 +526,12 @@ type QueryClient interface {
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	// BurnStats returns the cumulative burn statistics
 	BurnStats(ctx context.Context, in *QueryBurnStatsRequest, opts ...grpc.CallOption) (*QueryBurnStatsResponse, error)
-	// MonthlyBurnData returns the 12-month rolling window burn data
+	// InflationStats returns the cumulative inflation statistics
+	InflationStats(ctx context.Context, in *QueryInflationStatsRequest, opts ...grpc.CallOption) (*QueryInflationStatsResponse, error)
+	// MonthlyBurnData returns the 12-month rolling window supply data
 	MonthlyBurnData(ctx context.Context, in *QueryMonthlyBurnDataRequest, opts ...grpc.CallOption) (*QueryMonthlyBurnDataResponse, error)
+	// NetSupply returns the current net supply change in the 12-month window
+	NetSupply(ctx context.Context, in *QueryNetSupplyRequest, opts ...grpc.CallOption) (*QueryNetSupplyResponse, error)
 }
 
 type queryClient struct {
@@ -365,9 +560,27 @@ func (c *queryClient) BurnStats(ctx context.Context, in *QueryBurnStatsRequest, 
 	return out, nil
 }
 
+func (c *queryClient) InflationStats(ctx context.Context, in *QueryInflationStatsRequest, opts ...grpc.CallOption) (*QueryInflationStatsResponse, error) {
+	out := new(QueryInflationStatsResponse)
+	err := c.cc.Invoke(ctx, "/seiprotocol.seichain.aexburn.Query/InflationStats", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *queryClient) MonthlyBurnData(ctx context.Context, in *QueryMonthlyBurnDataRequest, opts ...grpc.CallOption) (*QueryMonthlyBurnDataResponse, error) {
 	out := new(QueryMonthlyBurnDataResponse)
 	err := c.cc.Invoke(ctx, "/seiprotocol.seichain.aexburn.Query/MonthlyBurnData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) NetSupply(ctx context.Context, in *QueryNetSupplyRequest, opts ...grpc.CallOption) (*QueryNetSupplyResponse, error) {
+	out := new(QueryNetSupplyResponse)
+	err := c.cc.Invoke(ctx, "/seiprotocol.seichain.aexburn.Query/NetSupply", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -380,8 +593,12 @@ type QueryServer interface {
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	// BurnStats returns the cumulative burn statistics
 	BurnStats(context.Context, *QueryBurnStatsRequest) (*QueryBurnStatsResponse, error)
-	// MonthlyBurnData returns the 12-month rolling window burn data
+	// InflationStats returns the cumulative inflation statistics
+	InflationStats(context.Context, *QueryInflationStatsRequest) (*QueryInflationStatsResponse, error)
+	// MonthlyBurnData returns the 12-month rolling window supply data
 	MonthlyBurnData(context.Context, *QueryMonthlyBurnDataRequest) (*QueryMonthlyBurnDataResponse, error)
+	// NetSupply returns the current net supply change in the 12-month window
+	NetSupply(context.Context, *QueryNetSupplyRequest) (*QueryNetSupplyResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -394,8 +611,14 @@ func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsReq
 func (*UnimplementedQueryServer) BurnStats(ctx context.Context, req *QueryBurnStatsRequest) (*QueryBurnStatsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BurnStats not implemented")
 }
+func (*UnimplementedQueryServer) InflationStats(ctx context.Context, req *QueryInflationStatsRequest) (*QueryInflationStatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InflationStats not implemented")
+}
 func (*UnimplementedQueryServer) MonthlyBurnData(ctx context.Context, req *QueryMonthlyBurnDataRequest) (*QueryMonthlyBurnDataResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MonthlyBurnData not implemented")
+}
+func (*UnimplementedQueryServer) NetSupply(ctx context.Context, req *QueryNetSupplyRequest) (*QueryNetSupplyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NetSupply not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -438,6 +661,24 @@ func _Query_BurnStats_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_InflationStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryInflationStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).InflationStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/seiprotocol.seichain.aexburn.Query/InflationStats",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).InflationStats(ctx, req.(*QueryInflationStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Query_MonthlyBurnData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryMonthlyBurnDataRequest)
 	if err := dec(in); err != nil {
@@ -456,6 +697,24 @@ func _Query_MonthlyBurnData_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_NetSupply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryNetSupplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).NetSupply(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/seiprotocol.seichain.aexburn.Query/NetSupply",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).NetSupply(ctx, req.(*QueryNetSupplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "seiprotocol.seichain.aexburn.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -469,8 +728,16 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_BurnStats_Handler,
 		},
 		{
+			MethodName: "InflationStats",
+			Handler:    _Query_InflationStats_Handler,
+		},
+		{
 			MethodName: "MonthlyBurnData",
 			Handler:    _Query_MonthlyBurnData_Handler,
+		},
+		{
+			MethodName: "NetSupply",
+			Handler:    _Query_NetSupply_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -589,6 +856,62 @@ func (m *QueryBurnStatsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryInflationStatsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryInflationStatsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryInflationStatsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryInflationStatsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryInflationStatsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryInflationStatsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.InflationStats.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
 func (m *QueryMonthlyBurnDataRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -649,6 +972,112 @@ func (m *QueryMonthlyBurnDataResponse) MarshalToSizedBuffer(dAtA []byte) (int, e
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryNetSupplyRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryNetSupplyRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryNetSupplyRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryNetSupplyResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryNetSupplyResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryNetSupplyResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.RemainingMintCapacity.Size()
+		i -= size
+		if _, err := m.RemainingMintCapacity.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x32
+	{
+		size := m.MaxAllowedNetSupply.Size()
+		i -= size
+		if _, err := m.MaxAllowedNetSupply.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
+	{
+		size := m.NetSupplyRate.Size()
+		i -= size
+		if _, err := m.NetSupplyRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	{
+		size := m.NetSupplyChange.Size()
+		i -= size
+		if _, err := m.NetSupplyChange.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	{
+		size := m.TotalBurned_12M.Size()
+		i -= size
+		if _, err := m.TotalBurned_12M.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size := m.TotalMinted_12M.Size()
+		i -= size
+		if _, err := m.TotalMinted_12M.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -700,6 +1129,26 @@ func (m *QueryBurnStatsResponse) Size() (n int) {
 	return n
 }
 
+func (m *QueryInflationStatsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryInflationStatsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.InflationStats.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
 func (m *QueryMonthlyBurnDataRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -721,6 +1170,36 @@ func (m *QueryMonthlyBurnDataResponse) Size() (n int) {
 			n += 1 + l + sovQuery(uint64(l))
 		}
 	}
+	return n
+}
+
+func (m *QueryNetSupplyRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryNetSupplyResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.TotalMinted_12M.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	l = m.TotalBurned_12M.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	l = m.NetSupplyChange.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	l = m.NetSupplyRate.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	l = m.MaxAllowedNetSupply.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	l = m.RemainingMintCapacity.Size()
+	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
 
@@ -996,6 +1475,139 @@ func (m *QueryBurnStatsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *QueryInflationStatsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryInflationStatsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryInflationStatsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryInflationStatsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryInflationStatsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryInflationStatsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InflationStats", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.InflationStats.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *QueryMonthlyBurnDataRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1106,6 +1718,310 @@ func (m *QueryMonthlyBurnDataResponse) Unmarshal(dAtA []byte) error {
 			}
 			m.MonthlyBurnData = append(m.MonthlyBurnData, MonthlyBurnData{})
 			if err := m.MonthlyBurnData[len(m.MonthlyBurnData)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryNetSupplyRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryNetSupplyRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryNetSupplyRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryNetSupplyResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryNetSupplyResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryNetSupplyResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalMinted_12M", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TotalMinted_12M.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalBurned_12M", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TotalBurned_12M.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NetSupplyChange", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.NetSupplyChange.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NetSupplyRate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.NetSupplyRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxAllowedNetSupply", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MaxAllowedNetSupply.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RemainingMintCapacity", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.RemainingMintCapacity.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

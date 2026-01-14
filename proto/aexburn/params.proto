@@ -46,5 +46,41 @@ message Params {
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"high_gas_threshold\""
   ];
+
+  // ========== Inflation Parameters ==========
+
+  // inflation_enabled determines whether inflation is enabled
+  bool inflation_enabled = 10 [(gogoproto.moretags) = "yaml:\"inflation_enabled\""];
+
+  // max_annual_inflation_rate is the maximum annual inflation rate (0.03 = 3%)
+  string max_annual_inflation_rate = 11 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"max_annual_inflation_rate\""
+  ];
+
+  // max_net_supply_rate_per_year is the maximum net supply change rate per 12 months (0.05 = 5%)
+  string max_net_supply_rate_per_year = 12 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"max_net_supply_rate_per_year\""
+  ];
+
+  // initial_supply is the initial AEX supply for calculating constraints (500M * 10^6 = 500000000000000)
+  string initial_supply = 13 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"initial_supply\""
+  ];
+
+  // min_gas_usage_for_inflation is the minimum gas usage rate to trigger inflation (0.50 = 50%)
+  string min_gas_usage_for_inflation = 14 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"min_gas_usage_for_inflation\""
+  ];
+
+  // epochs_per_year is the number of epochs per year for calculating annual limits
+  uint64 epochs_per_year = 15 [(gogoproto.moretags) = "yaml:\"epochs_per_year\""];
 }
 
