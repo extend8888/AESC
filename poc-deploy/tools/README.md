@@ -48,7 +48,7 @@
   "orders": [
     {
       "order_id": "order-1-0-1234567890123",
-      "owner": "sei1shavtcw5w6rem6mtje5z3meuy889hj0yuplp4z",
+      "owner": "aesc1shavtcw5w6rem6mtje5z3meuy889hj0yuplp4z",
       "side": "buy",
       "price": "45.23",
       "quantity": "123.45",
@@ -82,9 +82,9 @@ go run batch-submit.go [选项]
 | `-dir` | `test-orders` | 订单文件目录 |
 | `-concurrency` | `5` | 并发数 |
 | `-from` | `validator` | 发送账户名称 |
-| `-chain-id` | `sei-poc` | 链 ID |
+| `-chain-id` | `aesc-poc` | 链 ID |
 | `-node` | `tcp://localhost:26657` | 节点地址 |
-| `-fees` | `1000usei` | 交易费用 |
+| `-fees` | `1000uaex` | 交易费用 |
 | `-gas` | `auto` | Gas 限制 |
 | `-gas-adjustment` | `1.5` | Gas 调整系数 |
 | `-broadcast-mode` | `sync` | 广播模式 (sync, async, block) |
@@ -107,8 +107,8 @@ go run batch-submit.go \
   -dir test-orders \
   -concurrency 10 \
   -from validator \
-  -chain-id sei-poc \
-  -fees 2000usei \
+  -chain-id aesc-poc \
+  -fees 2000uaex \
   -gas auto \
   -broadcast-mode sync
 ```
@@ -226,7 +226,7 @@ seid keys list
 **解决方案**:
 ```bash
 # 增加费用
-go run batch-submit.go -fees 5000usei
+go run batch-submit.go -fees 5000uaex
 ```
 
 **错误**: `account sequence mismatch`

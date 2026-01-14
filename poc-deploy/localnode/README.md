@@ -44,7 +44,7 @@ chmod +x poc-deploy/localnode/scripts/*.sh
 这将执行以下步骤：
 - **Step 0**: 构建 seid 二进制文件
 - **Step 1**: 初始化节点和创建验证人账户
-  - 初始化链配置（chain-id: sei-poc）
+  - 初始化链配置（chain-id: aesc-poc）
   - 创建 validator 账户（余额: 10 USEI）
   - 生成 gentx（质押: 10 USEI，voting power: 10）
 - **Step 2**: 准备 genesis 文件
@@ -99,10 +99,10 @@ tail -f build/generated/logs/seid.log
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| **Chain ID** | `sei-poc` | 链标识符 |
-| **Moniker** | `sei-node-poc` | 节点名称 |
-| **初始余额** | `10000000usei` | 10 USEI（与 docker/localnode 一致）|
-| **质押金额** | `10000000usei` | 10 USEI |
+| **Chain ID** | `aesc-poc` | 链标识符 |
+| **Moniker** | `aesc-node-poc` | 节点名称 |
+| **初始余额** | `10000000uaex` | 10 USEI（与 docker/localnode 一致）|
+| **质押金额** | `10000000uaex` | 10 USEI |
 | **Voting Power** | `10` | delegation / 1,000,000 |
 | **测试账户** | `5` | 自动创建的测试账户数量 |
 
@@ -111,10 +111,10 @@ tail -f build/generated/logs/seid.log
 可以通过环境变量自定义部署：
 
 ```bash
-# 设置链 ID（默认: sei-poc）
+# 设置链 ID（默认: aesc-poc）
 export CHAIN_ID=my-chain
 
-# 设置节点名称（默认: sei-node-poc）
+# 设置节点名称（默认: aesc-node-poc）
 export MONIKER=my-node
 
 # 设置测试账户数量（默认: 5）
@@ -133,17 +133,17 @@ export MOCK_BALANCES=true
 
 1. **validator** - 验证人账户
    - 密码: `12345678`
-   - 初始余额: `10000000usei` (10 USEI) + `10000000uusdc` + `10000000uatom`
-   - 质押金额: `10000000usei` (10 USEI)
+   - 初始余额: `10000000uaex` (10 USEI) + `10000000uusdc` + `10000000uatom`
+   - 质押金额: `10000000uaex` (10 USEI)
    - Voting Power: `10`
 
 2. **admin** - 管理员账户
    - 密码: `12345678`
-   - 初始余额: `1000000000000000000000usei` + `1000000000000000000000uusdc` + `1000000000000000000000uatom`
+   - 初始余额: `1000000000000000000000uaex` + `1000000000000000000000uusdc` + `1000000000000000000000uatom`
 
 3. **测试账户** - 由 `populate_genesis_accounts.py` 创建
    - 数量: 由 `NUM_ACCOUNTS` 环境变量控制（默认 5 个）
-   - 每个账户余额: `1000000000000000000000usei` + uusdc + uatom
+   - 每个账户余额: `1000000000000000000000uaex` + uusdc + uatom
 
 ## 查看账户
 
@@ -166,7 +166,7 @@ seid query bank balances $(seid keys show validator -a)
 seid query staking validators
 
 # 发送交易
-seid tx bank send validator <recipient-address> 1000usei --chain-id sei-poc --fees 1000usei
+seid tx bank send validator <recipient-address> 1000uaex --chain-id aesc-poc --fees 1000uaex
 ```
 
 ## 生成的文件
@@ -255,8 +255,8 @@ POWER=$(echo "$DELEGATION / 1000000" | bc)  # 结果: 100000000000000000 (正确
 **问题**: 初始使用过大的质押金额导致 power 值溢出。
 
 **修复**: 改为与 `docker/localnode` 一致的配置：
-- 初始余额: `10000000usei` (10 USEI)
-- 质押金额: `10000000usei` (10 USEI)
+- 初始余额: `10000000uaex` (10 USEI)
+- 质押金额: `10000000uaex` (10 USEI)
 - Voting Power: `10`
 
 ## 与 docker/localnode 的区别

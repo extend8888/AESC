@@ -2,7 +2,7 @@
 
 set -e
 
-CHAIN_ID=${CHAIN_ID:-sei-poc}
+CHAIN_ID=${CHAIN_ID:-aesc-poc}
 
 echo "Preparing genesis file..."
 
@@ -19,9 +19,9 @@ override_genesis() {
 echo "Configuring genesis parameters..."
 
 # Basic parameters
-override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="usei"'
-override_genesis '.app_state["mint"]["params"]["mint_denom"]="usei"'
-override_genesis '.app_state["staking"]["params"]["bond_denom"]="usei"'
+override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="uaex"'
+override_genesis '.app_state["mint"]["params"]["mint_denom"]="uaex"'
+override_genesis '.app_state["staking"]["params"]["bond_denom"]="uaex"'
 override_genesis '.app_state["oracle"]["params"]["vote_period"]="2"'
 # Disable Oracle slashing to prevent validator from being jailed without price feeder
 override_genesis '.app_state["oracle"]["params"]["min_valid_per_window"]="0"'
@@ -44,8 +44,8 @@ override_genesis '.app_state["genutil"]["gen_txs"]=[]'
 override_genesis '.app_state["bank"]["denom_metadata"]=[{"denom_units":[{"denom":"UATOM","exponent":6,"aliases":["UATOM"]}],"base":"uatom","display":"uatom","name":"UATOM","symbol":"UATOM"}]'
 
 # Gov parameters
-override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="usei"'
-override_genesis '.app_state["gov"]["deposit_params"]["min_expedited_deposit"][0]["denom"]="usei"'
+override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="uaex"'
+override_genesis '.app_state["gov"]["deposit_params"]["min_expedited_deposit"][0]["denom"]="uaex"'
 override_genesis '.app_state["gov"]["deposit_params"]["max_deposit_period"]="100s"'
 override_genesis '.app_state["gov"]["voting_params"]["voting_period"]="30s"'
 override_genesis '.app_state["gov"]["voting_params"]["expedited_voting_period"]="15s"'
@@ -58,10 +58,10 @@ echo "Adding genesis accounts..."
 
 # Add validator account (大额余额用于测试)
 VALIDATOR_ADDRESS=$(printf "12345678\n" | seid keys show validator -a)
-seid add-genesis-account "$VALIDATOR_ADDRESS" 1000000000000000000000usei,1000000000000000000000uusdc,1000000000000000000000uatom
+seid add-genesis-account "$VALIDATOR_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom
 
 # Add admin account
-printf "12345678\n" | seid add-genesis-account admin 1000000000000000000000usei,1000000000000000000000uusdc,1000000000000000000000uatom
+printf "12345678\n" | seid add-genesis-account admin 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom
 
 # Add admin1-admin10 accounts for batch testing
 echo "Adding admin1-admin10 accounts to genesis..."
@@ -70,7 +70,7 @@ for i in {1..10}; do
     ADMIN_ADDRESS=$(printf "12345678\n" | seid keys show "$ADMIN_NAME" -a 2>/dev/null)
     if [ -n "$ADMIN_ADDRESS" ]; then
         echo "Adding $ADMIN_NAME: $ADMIN_ADDRESS"
-        seid add-genesis-account "$ADMIN_ADDRESS" 1000000000000000000000usei,1000000000000000000000uusdc,1000000000000000000000uatom
+        seid add-genesis-account "$ADMIN_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom
     else
         echo "Warning: $ADMIN_NAME key not found, skipping"
     fi
@@ -81,7 +81,7 @@ echo "Admin accounts added to genesis"
 if [ -f build/generated/genesis_accounts.txt ]; then
     while read account; do
       echo "Adding: $account"
-      seid add-genesis-account "$account" 1000000000000000000000usei,1000000000000000000000uusdc,1000000000000000000000uatom
+      seid add-genesis-account "$account" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom
     done <build/generated/genesis_accounts.txt
 fi
 

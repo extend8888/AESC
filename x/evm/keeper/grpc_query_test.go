@@ -163,17 +163,17 @@ func TestQueryPointee(t *testing.T) {
 	require.Equal(t, types.QueryPointeeResponse{Pointee: "", Version: 0, Exists: false}, *res)
 
 	// Test for not registered ERC20 Pointee
-	res, err = q.Pointee(goCtx, &types.QueryPointeeRequest{PointerType: types.PointerType_ERC20, Pointer: "sei1notregistered"})
+	res, err = q.Pointee(goCtx, &types.QueryPointeeRequest{PointerType: types.PointerType_ERC20, Pointer: "aesc1notregistered"})
 	require.Nil(t, err)
 	require.Equal(t, types.QueryPointeeResponse{Pointee: "", Version: 0, Exists: false}, *res)
 
 	// Test for not registered ERC721 Pointee
-	res, err = q.Pointee(goCtx, &types.QueryPointeeRequest{PointerType: types.PointerType_ERC721, Pointer: "sei1notregistered"})
+	res, err = q.Pointee(goCtx, &types.QueryPointeeRequest{PointerType: types.PointerType_ERC721, Pointer: "aesc1notregistered"})
 	require.Nil(t, err)
 	require.Equal(t, types.QueryPointeeResponse{Pointee: "", Version: 0, Exists: false}, *res)
 
 	// Test for not registered ERC1155 Pointee
-	res, err = q.Pointee(goCtx, &types.QueryPointeeRequest{PointerType: types.PointerType_ERC1155, Pointer: "sei1notregistered"})
+	res, err = q.Pointee(goCtx, &types.QueryPointeeRequest{PointerType: types.PointerType_ERC1155, Pointer: "aesc1notregistered"})
 	require.Nil(t, err)
 	require.Equal(t, types.QueryPointeeResponse{Pointee: "", Version: 0, Exists: false}, *res)
 

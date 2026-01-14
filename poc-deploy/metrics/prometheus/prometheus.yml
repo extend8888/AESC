@@ -2,7 +2,7 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    cluster: 'sei-poc'
+    cluster: 'aesc-poc'
     environment: 'local'
 
 # Alertmanager configuration (可选)

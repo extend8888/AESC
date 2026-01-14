@@ -38,7 +38,7 @@
 │                                                                   │
 │  ┌──────────────┐                                                │
 │  │  validator0  │  ← Genesis 验证者（deploy.sh 启动）            │
-│  │  (Genesis)   │     CHAIN_ID: sei-poc                          │
+│  │  (Genesis)   │     CHAIN_ID: aesc-poc                          │
 │  └──────┬───────┘                                                │
 │         │                                                         │
 │         │ P2P 连接                                                │
@@ -93,7 +93,7 @@ cd ~/sei-chain
 make install
 
 # 初始化（每个节点使用不同的名称）
-seid init validator1 --chain-id sei-poc
+seid init validator1 --chain-id aesc-poc
 
 # 复制 genesis.json
 scp root@192.168.1.10:~/.sei/config/genesis.json ~/.sei/config/genesis.json
@@ -103,7 +103,7 @@ sed -i "s/persistent_peers = \"\"/persistent_peers = \"<node_id>@192.168.1.10:26
 
 # 启动节点
 mkdir -p build/generated/logs
-nohup seid start --chain-id sei-poc > build/generated/logs/seid.log 2>&1 &
+nohup seid start --chain-id aesc-poc > build/generated/logs/seid.log 2>&1 &
 echo $! > build/generated/seid.pid
 ```
 
@@ -114,20 +114,20 @@ echo $! > build/generated/seid.pid
 printf "12345678\n" | seid keys add validator1
 
 # 在 validator0 上转账
-seid tx bank send admin <validator1_address> 100000000usei --chain-id sei-poc --fees 2000usei -y
+seid tx bank send admin <validator1_address> 100000000uaex --chain-id aesc-poc --fees 2000uaex -y
 
 # 创建验证者
 printf "12345678\n" | seid tx staking create-validator \
-  --amount=10000000usei \
+  --amount=10000000uaex \
   --pubkey=$(seid tendermint show-validator) \
   --moniker="validator1" \
-  --chain-id="sei-poc" \
+  --chain-id="aesc-poc" \
   --commission-rate="0.10" \
   --commission-max-rate="0.20" \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1" \
   --from="validator1" \
-  --fees=2000usei \
+  --fees=2000uaex \
   -y
 ```
 
@@ -226,7 +226,7 @@ cd ~/sei-chain
 
 **脚本会自动完成**：
 - 编译 seid
-- 初始化节点（CHAIN_ID=sei-poc, MONIKER=sei-node-poc）
+- 初始化节点（CHAIN_ID=aesc-poc, MONIKER=aesc-node-poc）
 - 创建 validator 账户和 admin 账户
 - 配置 genesis 参数（包括禁用 Oracle 惩罚）
 - 启动链
@@ -283,7 +283,7 @@ seid version
 NODE_NAME="validator1"  # validator1, validator2, validator3, rpc
 
 # 初始化节点（使用与 validator0 相同的 CHAIN_ID）
-seid init "$NODE_NAME" --chain-id sei-poc
+seid init "$NODE_NAME" --chain-id aesc-poc
 ```
 
 #### 2.3 复制 genesis.json
@@ -324,7 +324,7 @@ sed -i "s/persistent_peers = \"\"/persistent_peers = \"$VALIDATOR0_NODE_ID@$VALI
 mkdir -p build/generated/logs
 
 # 启动节点（作为全节点同步）
-nohup seid start --chain-id sei-poc > build/generated/logs/seid.log 2>&1 &
+nohup seid start --chain-id aesc-poc > build/generated/logs/seid.log 2>&1 &
 
 # 保存 PID
 echo $! > build/generated/seid.pid
@@ -373,21 +373,21 @@ seid tendermint show-validator
 
 ```bash
 # 给每个验证者账户转账（用于质押）
-# 注意：使用 admin 账户转账，CHAIN_ID 是 sei-poc
+# 注意：使用 admin 账户转账，CHAIN_ID 是 aesc-poc
 
-seid tx bank send admin <validator1_address> 100000000usei \
-  --chain-id sei-poc \
-  --fees 2000usei \
+seid tx bank send admin <validator1_address> 100000000uaex \
+  --chain-id aesc-poc \
+  --fees 2000uaex \
   -y
 
-seid tx bank send admin <validator2_address> 100000000usei \
-  --chain-id sei-poc \
-  --fees 2000usei \
+seid tx bank send admin <validator2_address> 100000000uaex \
+  --chain-id aesc-poc \
+  --fees 2000uaex \
   -y
 
-seid tx bank send admin <validator3_address> 100000000usei \
-  --chain-id sei-poc \
-  --fees 2000usei \
+seid tx bank send admin <validator3_address> 100000000uaex \
+  --chain-id aesc-poc \
+  --fees 2000uaex \
   -y
 ```
 
@@ -413,16 +413,16 @@ VALIDATOR_NAME="validator1"  # validator1, validator2, validator3
 
 # 创建验证者
 printf "12345678\n" | seid tx staking create-validator \
-  --amount=10000000usei \
+  --amount=10000000uaex \
   --pubkey=$(seid tendermint show-validator) \
   --moniker="$VALIDATOR_NAME" \
-  --chain-id="sei-poc" \
+  --chain-id="aesc-poc" \
   --commission-rate="0.10" \
   --commission-max-rate="0.20" \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1" \
   --from="$VALIDATOR_NAME" \
-  --fees=2000usei \
+  --fees=2000uaex \
   -y
 
 # 等待交易被打包（约 2-4 秒）
@@ -491,9 +491,9 @@ curl http://localhost:26657/validators | jq '.result.validators[] | {address, vo
 printf "12345678\n" | seid keys add test_user
 
 # 转账测试（使用 admin 账户）
-seid tx bank send admin $(seid keys show test_user -a) 1000000usei \
-  --chain-id sei-poc \
-  --fees 2000usei \
+seid tx bank send admin $(seid keys show test_user -a) 1000000uaex \
+  --chain-id aesc-poc \
+  --fees 2000uaex \
   -y
 
 # 查询余额
@@ -606,10 +606,10 @@ echo $! > build/generated/seid.pid
 
 ```bash
 # 解绑验证者（需要等待 21 天）
-seid tx staking unbond $(seid keys show "$VALIDATOR_NAME" --bech val -a) 10000000usei \
+seid tx staking unbond $(seid keys show "$VALIDATOR_NAME" --bech val -a) 10000000uaex \
   --from="$VALIDATOR_NAME" \
-  --chain-id sei-poc \
-  --fees 2000usei \
+  --chain-id aesc-poc \
+  --fees 2000uaex \
   -y
 ```
 
@@ -622,7 +622,7 @@ RPC 节点只需要同步区块，不需要执行 create-validator：
 kill $(cat build/generated/seid.pid)
 
 # 重启 RPC 节点
-nohup seid start --chain-id sei-poc > build/generated/logs/seid.log 2>&1 &
+nohup seid start --chain-id aesc-poc > build/generated/logs/seid.log 2>&1 &
 echo $! > build/generated/seid.pid
 
 # 检查同步状态
@@ -649,7 +649,7 @@ tail -f build/generated/logs/seid.log
 kill $(cat build/generated/seid.pid)
 
 # 启动节点
-nohup seid start --chain-id sei-poc > build/generated/logs/seid.log 2>&1 &
+nohup seid start --chain-id aesc-poc > build/generated/logs/seid.log 2>&1 &
 echo $! > build/generated/seid.pid
 
 # 查看账户余额
@@ -663,8 +663,8 @@ seid query staking validator <validator_address>
 
 | 配置项 | 值 | 说明 |
 |--------|-----|------|
-| CHAIN_ID | sei-poc | 链 ID（deploy.sh 默认值） |
-| MONIKER | sei-node-poc | validator0 的节点名称 |
+| CHAIN_ID | aesc-poc | 链 ID（deploy.sh 默认值） |
+| MONIKER | aesc-node-poc | validator0 的节点名称 |
 | P2P 端口 | 26656 | 节点间通信端口 |
 | RPC 端口 | 26657 | RPC 服务端口 |
 | Genesis 验证者质押 | 100 USEI | validator0 的初始质押 |
@@ -704,10 +704,10 @@ export MONIKER="validator0"
 **A**: 使用 `delegate` 命令：
 
 ```bash
-seid tx staking delegate <validator_address> 10000000usei \
+seid tx staking delegate <validator_address> 10000000uaex \
   --from=<account_name> \
-  --chain-id sei-poc \
-  --fees 2000usei \
+  --chain-id aesc-poc \
+  --fees 2000uaex \
   -y
 ```
 
@@ -760,7 +760,7 @@ seid keys export validator > ~/backup/validator.key
 - ✅ **validator0**：使用 `deploy.sh` 一键启动，无需手动配置
 - ✅ **validator1-3**：通过 create-validator 动态加入
 - ✅ **rpc**：专门的 RPC 节点，不参与共识
-- ✅ **CHAIN_ID**：统一使用 `sei-poc`（deploy.sh 的默认值）
+- ✅ **CHAIN_ID**：统一使用 `aesc-poc`（deploy.sh 的默认值）
 - ✅ 模拟真实的验证者加入流程
 - ✅ 适合测试环境和快速部署
 

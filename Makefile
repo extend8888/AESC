@@ -249,3 +249,12 @@ test-group-%:split-test-packages
 		PARALLEL="-parallel=4"; \
 	fi; \
 	cat $(BUILDDIR)/packages.txt.$* | xargs go test $$PARALLEL -mod=readonly -timeout=10m -race -coverprofile=$*.profile.out -covermode=atomic -coverpkg=./...
+
+###############################################################################
+###                                Protobuf                                 ###
+###############################################################################
+
+proto-gen:
+	@echo "Generating protobuf files..."
+	@bash scripts/protoc.sh
+.PHONY: proto-gen

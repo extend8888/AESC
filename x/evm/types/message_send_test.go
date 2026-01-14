@@ -10,7 +10,7 @@ import (
 )
 
 func TestMessageSendValidate(t *testing.T) {
-	fromAddr, err := sdk.AccAddressFromBech32("sei1yezq49upxhunjjhudql2fnj5dgvcwjj87pn2wx")
+	fromAddr, err := sdk.AccAddressFromBech32("aesc1yezq49upxhunjjhudql2fnj5dgvcwjj8rwjvtw")
 	require.Nil(t, err)
 	msg := types.NewMsgSend(fromAddr, common.HexToAddress("to"), sdk.Coins{sdk.Coin{
 		Denom:  "sei",

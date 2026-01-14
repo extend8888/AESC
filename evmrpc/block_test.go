@@ -63,7 +63,7 @@ func TestEncodeBankMsg(t *testing.T) {
 	fromSeiAddr, _ := testkeeper.MockAddressPair()
 	toSeiAddr, _ := testkeeper.MockAddressPair()
 	b := TxConfig.NewTxBuilder()
-	b.SetMsgs(banktypes.NewMsgSend(fromSeiAddr, toSeiAddr, sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(10)))))
+	b.SetMsgs(banktypes.NewMsgSend(fromSeiAddr, toSeiAddr, sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(10)))))
 	tx := b.GetTx()
 	resBlock := coretypes.ResultBlock{
 		BlockID: MockBlockID,
@@ -175,7 +175,7 @@ func TestEncodeBankTransferMsg(t *testing.T) {
 	b.SetMsgs(&banktypes.MsgSend{
 		FromAddress: fromSeiAddr.String(),
 		ToAddress:   toSeiAddr.String(),
-		Amount:      sdk.NewCoins(sdk.NewCoin("usei", sdk.OneInt())),
+		Amount:      sdk.NewCoins(sdk.NewCoin("uaex", sdk.OneInt())),
 	})
 	ti := uint64(0)
 	tx := b.GetTx()

@@ -103,7 +103,7 @@ go run generate-orders.go <账户数> <每账户文件数> <每文件订单数>
 总订单数: 20000
 
 获取账户信息...
-账户 1: admin1 (sei15ehe3ffhp6wun6lhlxrh3xkvpgta6v4h302rq7)
+账户 1: admin1 (aesc15ehe3ffhp6wun6lhlxrh3xkvpgta6v4h302rq7)
 账户 2: admin2 (sei1mzv7acyaj37zags3aupu3fuzw50avrjhq0y66q)
 
 [账户 1] 开始生成 50 个文件...
@@ -154,7 +154,7 @@ poc-deploy/tools/
   "orders": [
     {
       "order_id": "order1-1-0-1699876543210",
-      "owner": "sei15ehe3ffhp6wun6lhlxrh3xkvpgta6v4h302rq7",
+      "owner": "aesc15ehe3ffhp6wun6lhlxrh3xkvpgta6v4h302rq7",
       "side": "buy",
       "price": "45.23",
       "quantity": "123.45",

@@ -2,9 +2,12 @@ package utils
 
 const (
 	MicroUsdcDenom = "uusdc"
-	MicroSeiDenom  = "usei"
+	MicroAexDenom  = "uaex"
 	MicroAtomDenom = "uatom"
 	MicroEthDenom  = "ueth"
 
 	MicroUnit = int64(1e6)
+
+	// Deprecated: Use MicroAexDenom instead
+	MicroSeiDenom = MicroAexDenom
 )

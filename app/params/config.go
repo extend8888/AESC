@@ -11,14 +11,14 @@ import (
 )
 
 const (
-	HumanCoinUnit = "sei"
-	BaseCoinUnit  = "usei"
-	UseiExponent  = 6
+	HumanCoinUnit = "aex"
+	BaseCoinUnit  = "uaex"
+	UaexExponent  = 6
 
 	DefaultBondDenom = BaseCoinUnit
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address.
-	Bech32PrefixAccAddr = "sei"
+	Bech32PrefixAccAddr = "aesc"
 )
 
 // UnsafeBypassCommitTimeoutOverride commits block as soon as we reach consensus instead of waiting
@@ -48,7 +48,7 @@ func RegisterDenoms() {
 	if err != nil {
 		panic(err)
 	}
-	err = sdk.RegisterDenom(BaseCoinUnit, sdk.NewDecWithPrec(1, UseiExponent))
+	err = sdk.RegisterDenom(BaseCoinUnit, sdk.NewDecWithPrec(1, UaexExponent))
 	if err != nil {
 		panic(err)
 	}

@@ -28,7 +28,7 @@ func TestIsTxPrioritized(t *testing.T) {
 			tx: createTestTx([]sdk.Msg{
 				&oracletypes.MsgAggregateExchangeRateVote{
 					ExchangeRates: "1.0usei,2.0uusd",
-					Feeder:        "sei1abc123",
+					Feeder:        "aesc1abc123",
 					Validator:     "seivaloper1abc123",
 				},
 			}),
@@ -39,7 +39,7 @@ func TestIsTxPrioritized(t *testing.T) {
 			tx: createTestTx([]sdk.Msg{
 				&oracletypes.MsgDelegateFeedConsent{
 					Operator: "seivaloper1abc123",
-					Delegate: "sei1abc123",
+					Delegate: "aesc1abc123",
 				},
 			}),
 			expected: true,
@@ -49,12 +49,12 @@ func TestIsTxPrioritized(t *testing.T) {
 			tx: createTestTx([]sdk.Msg{
 				&oracletypes.MsgAggregateExchangeRateVote{
 					ExchangeRates: "1.0usei",
-					Feeder:        "sei1abc123",
+					Feeder:        "aesc1abc123",
 					Validator:     "seivaloper1abc123",
 				},
 				&oracletypes.MsgDelegateFeedConsent{
 					Operator: "seivaloper1abc123",
-					Delegate: "sei1abc123",
+					Delegate: "aesc1abc123",
 				},
 			}),
 			expected: true,
@@ -63,9 +63,9 @@ func TestIsTxPrioritized(t *testing.T) {
 			name: "Bank send message (not prioritized)",
 			tx: createTestTx([]sdk.Msg{
 				&banktypes.MsgSend{
-					FromAddress: "sei1abc123",
-					ToAddress:   "sei1def456",
-					Amount:      sdk.NewCoins(sdk.NewInt64Coin("usei", 100)),
+					FromAddress: "aesc1abc123",
+					ToAddress:   "aesc1def456",
+					Amount:      sdk.NewCoins(sdk.NewInt64Coin("uaex", 100)),
 				},
 			}),
 			expected: false,
@@ -75,13 +75,13 @@ func TestIsTxPrioritized(t *testing.T) {
 			tx: createTestTx([]sdk.Msg{
 				&oracletypes.MsgAggregateExchangeRateVote{
 					ExchangeRates: "1.0usei",
-					Feeder:        "sei1abc123",
+					Feeder:        "aesc1abc123",
 					Validator:     "seivaloper1abc123",
 				},
 				&banktypes.MsgSend{
-					FromAddress: "sei1abc123",
-					ToAddress:   "sei1def456",
-					Amount:      sdk.NewCoins(sdk.NewInt64Coin("usei", 100)),
+					FromAddress: "aesc1abc123",
+					ToAddress:   "aesc1def456",
+					Amount:      sdk.NewCoins(sdk.NewInt64Coin("uaex", 100)),
 				},
 			}),
 			expected: false,

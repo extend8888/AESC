@@ -21,7 +21,7 @@ func TestEVMAddressToSeiAddressKey(t *testing.T) {
 }
 
 func TestSeiAddressToEVMAddressKey(t *testing.T) {
-	seiAddr := sdk.AccAddress("sei1234567890abcdef1234567890abcdef12345678")
+	seiAddr := sdk.AccAddress("aesc1234567890abcdef1234567890abcdef12345678")
 	expectedPrefix := types.SeiAddressToEVMAddressKeyPrefix
 	key := types.SeiAddressToEVMAddressKey(seiAddr)
 

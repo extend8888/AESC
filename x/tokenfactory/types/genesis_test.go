@@ -24,9 +24,9 @@ func TestGenesisState_Validate(t *testing.T) {
 			genState: &types.GenesisState{
 				FactoryDenoms: []types.GenesisDenom{
 					{
-						Denom: "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/bitcoin",
+						Denom: "factory/aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx/bitcoin",
 						AuthorityMetadata: types.DenomAuthorityMetadata{
-							Admin: "sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw",
+							Admin: "aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx",
 						},
 					},
 				},
@@ -38,9 +38,9 @@ func TestGenesisState_Validate(t *testing.T) {
 			genState: &types.GenesisState{
 				FactoryDenoms: []types.GenesisDenom{
 					{
-						Denom: "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/bitcoin",
+						Denom: "factory/aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx/bitcoin",
 						AuthorityMetadata: types.DenomAuthorityMetadata{
-							Admin: "sei1hjfwcza3e3uzeznf3qthhakdr9juetl7g6esl4",
+							Admin: "aesc1hjfwcza3e3uzeznf3qthhakdr9juetl744ck6a",
 						},
 					},
 				},
@@ -52,7 +52,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			genState: &types.GenesisState{
 				FactoryDenoms: []types.GenesisDenom{
 					{
-						Denom: "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/bitcoin",
+						Denom: "factory/aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx/bitcoin",
 						AuthorityMetadata: types.DenomAuthorityMetadata{
 							Admin: "",
 						},
@@ -66,7 +66,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			genState: &types.GenesisState{
 				FactoryDenoms: []types.GenesisDenom{
 					{
-						Denom: "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/bitcoin",
+						Denom: "factory/aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx/bitcoin",
 					},
 				},
 			},
@@ -77,7 +77,7 @@ func TestGenesisState_Validate(t *testing.T) {
 			genState: &types.GenesisState{
 				FactoryDenoms: []types.GenesisDenom{
 					{
-						Denom: "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/bitcoin",
+						Denom: "factory/aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx/bitcoin",
 						AuthorityMetadata: types.DenomAuthorityMetadata{
 							Admin: "moose",
 						},
@@ -91,13 +91,13 @@ func TestGenesisState_Validate(t *testing.T) {
 			genState: &types.GenesisState{
 				FactoryDenoms: []types.GenesisDenom{
 					{
-						Denom: "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/bitcoin",
+						Denom: "factory/aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx/bitcoin",
 						AuthorityMetadata: types.DenomAuthorityMetadata{
 							Admin: "",
 						},
 					},
 					{
-						Denom: "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/litecoin",
+						Denom: "factory/aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx/litecoin",
 						AuthorityMetadata: types.DenomAuthorityMetadata{
 							Admin: "",
 						},
@@ -111,13 +111,13 @@ func TestGenesisState_Validate(t *testing.T) {
 			genState: &types.GenesisState{
 				FactoryDenoms: []types.GenesisDenom{
 					{
-						Denom: "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/bitcoin",
+						Denom: "factory/aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx/bitcoin",
 						AuthorityMetadata: types.DenomAuthorityMetadata{
 							Admin: "",
 						},
 					},
 					{
-						Denom: "factory/sei1y3pxq5dp900czh0mkudhjdqjq5m8cpmmps8yjw/bitcoin",
+						Denom: "factory/aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx/bitcoin",
 						AuthorityMetadata: types.DenomAuthorityMetadata{
 							Admin: "",
 						},

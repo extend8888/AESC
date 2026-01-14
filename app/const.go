@@ -2,9 +2,9 @@ package app
 
 const (
 	// Prefix of bech32 encoded address
-	AccountAddressPrefix = "sei"
+	AccountAddressPrefix = "aesc"
 	// Application name
-	AppName = "sei"
+	AppName = "aesc"
 
 	OptimisticProcessingTimeoutInSeconds = 5
 )

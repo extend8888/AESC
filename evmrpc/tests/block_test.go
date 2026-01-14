@@ -26,7 +26,7 @@ func TestGetBlockByHash(t *testing.T) {
 }
 
 func TestGetSeiBlockByHash(t *testing.T) {
-	cw20 := "sei18cszlvm6pze0x9sz32qnjq4vtd45xehqs8dq7cwy8yhq35wfnn3quh5sau" // hardcoded
+	cw20 := "aesc18cszlvm6pze0x9sz32qnjq4vtd45xehqs8dq7cwy8yhq35wfnn3qr9wwgy" // hardcoded
 	tx1 := signAndEncodeTx(registerCW20Pointer(0, cw20), mnemonic1)
 	tx2 := signAndEncodeCosmosTx(transferCW20Msg(mnemonic1, cw20), mnemonic1, 7, 0)
 	SetupTestServer([][][]byte{{tx1}, {tx2}}, mnemonicInitializer(mnemonic1), cw20Initializer(mnemonic1, true)).Run(
@@ -162,7 +162,7 @@ func TestBlockBloom(t *testing.T) {
 	signedTx2 := signTxWithMnemonic(txdata2, erc20DeployerMnemonics)
 	tx1 := encodeEvmTx(txdata1, signedTx1)
 	tx2 := encodeEvmTx(txdata2, signedTx2)
-	cw20 := "sei18cszlvm6pze0x9sz32qnjq4vtd45xehqs8dq7cwy8yhq35wfnn3quh5sau" // hardcoded
+	cw20 := "aesc18cszlvm6pze0x9sz32qnjq4vtd45xehqs8dq7cwy8yhq35wfnn3qr9wwgy" // hardcoded
 	tx3 := signAndEncodeCosmosTx(transferCW20Msg(mnemonic1, cw20), mnemonic1, 9, 0)
 	SetupTestServer([][][]byte{{tx1, tx2, tx3}}, erc20Initializer(), mnemonicInitializer(mnemonic1), cw20Initializer(mnemonic1, true)).Run(
 		func(port int) {

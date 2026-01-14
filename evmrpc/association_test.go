@@ -36,11 +36,11 @@ func TestAssocation(t *testing.T) {
 
 func TestGetSeiAddress(t *testing.T) {
 	body := sendRequestGoodWithNamespace(t, "sei", "getSeiAddress", "0x1df809C639027b465B931BD63Ce71c8E5834D9d6")
-	require.Equal(t, "sei1mf0llhmqane5w2y8uynmghmk2w4mh0xll9seym", body["result"])
+	require.Equal(t, "aesc1mf0llhmqane5w2y8uynmghmk2w4mh0xlz23lpn", body["result"])
 }
 
 func TestGetEvmAddress(t *testing.T) {
-	body := sendRequestGoodWithNamespace(t, "sei", "getEVMAddress", "sei1mf0llhmqane5w2y8uynmghmk2w4mh0xll9seym")
+	body := sendRequestGoodWithNamespace(t, "sei", "getEVMAddress", "aesc1mf0llhmqane5w2y8uynmghmk2w4mh0xlz23lpn")
 	require.Equal(t, "0x1df809C639027b465B931BD63Ce71c8E5834D9d6", body["result"])
 }
 

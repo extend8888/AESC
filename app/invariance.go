@@ -94,7 +94,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 				seimetrics.SafeMetricsIncrCounterWithLabels([]string{"sei", "lightinvariance_supply", "unmarshal_failure"}, 1, []metrics.Label{
 					{
 						Name:  "type",
-						Value: "usei",
+						Value: "uaex",
 					}, {
 						Name:  "step",
 						Value: "post_block",
@@ -122,7 +122,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 			seimetrics.SafeMetricsIncrCounterWithLabels([]string{"sei", "lightinvariance_supply", "unmarshal_failure"}, 1, []metrics.Label{
 				{
 					Name:  "type",
-					Value: "usei",
+					Value: "uaex",
 				}, {
 					Name:  "step",
 					Value: "pre_block",

@@ -162,7 +162,7 @@ providers = [
 
 [[currency_pairs]]
 base = "SEI"
-chain_denom = "usei"
+chain_denom = "uaex"
 quote = "USDT"
 providers = [
 	"kraken",
@@ -181,7 +181,7 @@ providers = [
 ]
 
 [account]
-address = "sei15nejfgcaanqpw25ru4arvfd0fwy6j8clccvwx4"
+address = "aesc15nejfgcaanqpw25ru4arvfd0fwy6j8clccvwx4"
 validator = "seivalcons14rjlkfzp56733j5l5nfk6fphjxymgf8mj04d5p"
 chain_id = "sei-local-testnet"
 prefix = "sei"
@@ -254,7 +254,7 @@ providers = [
 
 [[currency_pairs]]
 base = "SEI"
-chain_denom = "usei"
+chain_denom = "uaex"
 quote = "USDT"
 providers = [
 	"kraken",
@@ -273,7 +273,7 @@ providers = [
 ]
 
 [account]
-address = "sei15nejfgcaanqpw25ru4arvfd0fwy6j8clccvwx4"
+address = "aesc15nejfgcaanqpw25ru4arvfd0fwy6j8clccvwx4"
 validator = "seivalcons14rjlkfzp56733j5l5nfk6fphjxymgf8mj04d5p"
 chain_id = "sei-local-testnet"
 prefix = "sei"
@@ -409,7 +409,7 @@ providers = [
 
 [[currency_pairs]]
 base = "sei"
-chain_denom = "usei"
+chain_denom = "uaex"
 quote = "USDT"
 providers = [
 	"kraken",
@@ -428,7 +428,7 @@ providers = [
 ]
 
 [account]
-address = "sei15nejfgcaanqpw25ru4arvfd0fwy6j8clccvwx4"
+address = "aesc15nejfgcaanqpw25ru4arvfd0fwy6j8clccvwx4"
 validator = "seivalcons14rjlkfzp56733j5l5nfk6fphjxymgf8mj04d5p"
 chain_id = "sei-local-testnet"
 prefix = "sei"

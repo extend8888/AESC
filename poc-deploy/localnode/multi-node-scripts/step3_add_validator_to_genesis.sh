@@ -39,7 +39,7 @@ do
     DELEGATION=$(jq -r '.body.messages[0].value.amount' $FILE)
     
     # 使用 bc 来处理大数字，避免 bash 整数溢出
-    DELEGATION_NUM=${DELEGATION%usei}
+    DELEGATION_NUM=${DELEGATION%uaex}
     POWER=$(echo "$DELEGATION_NUM / 1000000" | bc)
     
     jq '.validators['$IDX'] += {"power":"'$POWER'"}' ~/.sei/config/tmp_genesis_step_1.json > ~/.sei/config/tmp_genesis_step_2.json && rm ~/.sei/config/tmp_genesis_step_1.json

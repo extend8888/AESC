@@ -76,9 +76,9 @@ func parseFlags() *Config {
 	config := &Config{}
 
 	flag.IntVar(&config.Count, "count", 1, "使用的账户数量（1-10）")
-	flag.StringVar(&config.ChainID, "chain-id", "sei-poc", "链 ID")
+	flag.StringVar(&config.ChainID, "chain-id", "aesc-poc", "链 ID")
 	flag.StringVar(&config.Node, "node", "tcp://localhost:26657", "节点地址")
-	flag.StringVar(&config.Fees, "fees", "2000000usei", "交易费用")
+	flag.StringVar(&config.Fees, "fees", "2000000uaex", "交易费用")
 	flag.StringVar(&config.Gas, "gas", "50000000", "Gas 限制")
 	flag.StringVar(&config.GasAdjust, "gas-adjustment", "1.5", "Gas 调整系数")
 

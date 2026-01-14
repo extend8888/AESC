@@ -40,7 +40,7 @@ func TestInstantiate(t *testing.T) {
 	require.Nil(t, err)
 	instantiateMethod, err := p.ABI.MethodById(p.GetExecutor().(*wasmd.PrecompileExecutor).InstantiateID)
 	require.Nil(t, err)
-	amts := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000)))
+	amts := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000)))
 	amtsbz, err := amts.MarshalJSON()
 	testApp.BankKeeper.MintCoins(ctx, "evm", amts)
 	testApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", mockAddr, amts)
@@ -66,7 +66,7 @@ func TestInstantiate(t *testing.T) {
 	outputs, err := instantiateMethod.Outputs.Unpack(res)
 	require.Nil(t, err)
 	require.Equal(t, 2, len(outputs))
-	require.Equal(t, "sei18cszlvm6pze0x9sz32qnjq4vtd45xehqs8dq7cwy8yhq35wfnn3quh5sau", outputs[0].(string))
+	require.Equal(t, "aesc18cszlvm6pze0x9sz32qnjq4vtd45xehqs8dq7cwy8yhq35wfnn3qr9wwgy", outputs[0].(string))
 	require.Empty(t, outputs[1].([]byte))
 	require.NotZero(t, g)
 
@@ -89,7 +89,7 @@ func TestInstantiate(t *testing.T) {
 	outputs, err = instantiateMethod.Outputs.Unpack(res)
 	require.Nil(t, err)
 	require.Equal(t, 2, len(outputs))
-	require.Equal(t, "sei18cszlvm6pze0x9sz32qnjq4vtd45xehqs8dq7cwy8yhq35wfnn3quh5sau", outputs[0].(string))
+	require.Equal(t, "aesc18cszlvm6pze0x9sz32qnjq4vtd45xehqs8dq7cwy8yhq35wfnn3qr9wwgy", outputs[0].(string))
 	require.Empty(t, outputs[1].([]byte))
 	require.NotZero(t, g)
 
@@ -135,7 +135,7 @@ func TestExecute(t *testing.T) {
 	contractAddr, _, err := wasmKeeper.Instantiate(ctx, codeID, mockAddr, mockAddr, []byte("{}"), "test", sdk.NewCoins())
 	require.Nil(t, err)
 
-	amts := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000)))
+	amts := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000)))
 	testApp.BankKeeper.MintCoins(ctx, "evm", amts)
 	testApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", mockAddr, amts)
 	testApp.BankKeeper.MintCoins(ctx, "evm", amts)
@@ -166,7 +166,7 @@ func TestExecute(t *testing.T) {
 	require.Equal(t, 1, len(outputs))
 	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string(outputs[0].([]byte)))
 	require.NotZero(t, g)
-	require.Equal(t, int64(1000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "usei").Amount.Int64())
+	require.Equal(t, int64(1000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "uaex").Amount.Int64())
 
 	amtsbz, err = sdk.NewCoins().MarshalJSON()
 	require.Nil(t, err)
@@ -289,7 +289,7 @@ func TestExecuteBatchOneMessage(t *testing.T) {
 	contractAddr, _, err := wasmKeeper.Instantiate(ctx, codeID, mockAddr, mockAddr, []byte("{}"), "test", sdk.NewCoins())
 	require.Nil(t, err)
 
-	amts := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000)))
+	amts := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000)))
 	testApp.BankKeeper.MintCoins(ctx, "evm", amts)
 	testApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", mockAddr, amts)
 	testApp.BankKeeper.MintCoins(ctx, "evm", amts)
@@ -318,7 +318,7 @@ func TestExecuteBatchOneMessage(t *testing.T) {
 	require.Equal(t, 1, len(outputs))
 	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string((outputs[0].([][]byte))[0]))
 	require.NotZero(t, g)
-	require.Equal(t, int64(1000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "usei").Amount.Int64())
+	require.Equal(t, int64(1000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "uaex").Amount.Int64())
 
 	amtsbz, err = sdk.NewCoins().MarshalJSON()
 	require.Nil(t, err)
@@ -391,7 +391,7 @@ func TestExecuteBatchValueImmutability(t *testing.T) {
 	contractAddr, _, err := wasmKeeper.Instantiate(ctx, codeID, mockAddr, mockAddr, []byte("{}"), "test", sdk.NewCoins())
 	require.Nil(t, err)
 
-	amts := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000)))
+	amts := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000)))
 	testApp.BankKeeper.MintCoins(ctx, "evm", amts)
 	testApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", mockAddr, amts)
 	testApp.BankKeeper.MintCoins(ctx, "evm", amts)
@@ -436,10 +436,10 @@ func TestExecuteBatchMultipleMessages(t *testing.T) {
 	contractAddr, _, err := wasmKeeper.Instantiate(ctx, codeID, mockAddr, mockAddr, []byte("{}"), "test", sdk.NewCoins())
 	require.Nil(t, err)
 
-	amts := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000)))
-	largeAmts := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(3000)))
-	testApp.BankKeeper.MintCoins(ctx, "evm", sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(13000))))
-	testApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", mockAddr, sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(13000))))
+	amts := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000)))
+	largeAmts := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(3000)))
+	testApp.BankKeeper.MintCoins(ctx, "evm", sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(13000))))
+	testApp.BankKeeper.SendCoinsFromModuleToAccount(ctx, "evm", mockAddr, sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(13000))))
 	amtsbz, err := amts.MarshalJSON()
 	require.Nil(t, err)
 	executeMethod, err := p.ABI.MethodById(p.GetExecutor().(*wasmd.PrecompileExecutor).ExecuteBatchID)
@@ -469,7 +469,7 @@ func TestExecuteBatchMultipleMessages(t *testing.T) {
 	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string(parsedOutputs[1]))
 	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string(parsedOutputs[2]))
 	require.NotZero(t, g)
-	require.Equal(t, int64(3000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "usei").Amount.Int64())
+	require.Equal(t, int64(3000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "uaex").Amount.Int64())
 
 	amtsbz2, err := sdk.NewCoins().MarshalJSON()
 	require.Nil(t, err)
@@ -496,7 +496,7 @@ func TestExecuteBatchMultipleMessages(t *testing.T) {
 	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string(parsedOutputs[1]))
 	require.Equal(t, fmt.Sprintf("received test msg from %s with", mockAddr.String()), string(parsedOutputs[2]))
 	require.NotZero(t, g)
-	require.Equal(t, int64(1000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "usei").Amount.Int64())
+	require.Equal(t, int64(1000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "uaex").Amount.Int64())
 
 	// allowed delegatecall
 	args, err = executeMethod.Inputs.Pack([]wasmd.ExecuteMsg{executeMsgWithNoCoins, executeMsgWithNoCoins})

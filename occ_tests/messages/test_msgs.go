@@ -18,8 +18,8 @@ import (
 	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
 )
 
-const instantiateMsg = `{"whitelist": ["sei1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx8s5kag"],
-    "use_whitelist":false,"admin":"sei1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx8s5kag",
+const instantiateMsg = `{"whitelist": ["aesc1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx6l4scq"],
+    "use_whitelist":false,"admin":"aesc1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx6l4scq",
 	"limit_order_fee":{"decimal":"0.0001","negative":false},
 	"market_order_fee":{"decimal":"0.0001","negative":false},
 	"liquidation_order_fee":{"decimal":"0.0001","negative":false},
@@ -27,12 +27,12 @@ const instantiateMsg = `{"whitelist": ["sei1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx8s5k
 	"max_leverage":{"decimal":"4","negative":false},
 	"default_base":"USDC",
 	"native_token":"USDC","denoms": ["SEI","ATOM","USDC","SOL","ETH","OSMO","AVAX","BTC"],
-	"full_denom_mapping": [["usei","SEI","0.000001"],["uatom","ATOM","0.000001"],["uusdc","USDC","0.000001"]],
-	"funding_payment_lookback":3600,"spot_market_contract":"sei1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx8s5kag",
+	"full_denom_mapping": [["uaex","AEX","0.000001"],["uatom","ATOM","0.000001"],["uusdc","USDC","0.000001"]],
+	"funding_payment_lookback":3600,"spot_market_contract":"aesc1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx6l4scq",
 	"supported_collateral_denoms": ["USDC"],
 	"supported_multicollateral_denoms": ["ATOM"],
-	"oracle_denom_mapping": [["usei","SEI","1"],["uatom","ATOM","1"],["uusdc","USDC","1"],["ueth","ETH","1"]],
-	"multicollateral_whitelist": ["sei1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx8s5kag"],
+	"oracle_denom_mapping": [["uaex","AEX","1"],["uatom","ATOM","1"],["uusdc","USDC","1"],["ueth","ETH","1"]],
+	"multicollateral_whitelist": ["aesc1h9yjz89tl0dl6zu65dpxcqnxfhq60wxx6l4scq"],
 	"multicollateral_whitelist_enable": true,
 	"funding_payment_pairs": [["USDC","ETH"]],
 	"default_margin_ratios":{

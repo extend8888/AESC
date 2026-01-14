@@ -52,7 +52,7 @@ func TestEvmEventsForCw20(t *testing.T) {
 	k.SetERC20CW20Pointer(ctx, contractAddr.String(), mockPointerAddr)
 
 	// calling CW contract directly
-	amt := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000000000)))
+	amt := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000000000)))
 	k.BankKeeper().MintCoins(ctx, "evm", amt)
 	k.BankKeeper().SendCoinsFromModuleToAccount(ctx, "evm", creator, amt)
 	recipient, _ := testkeeper.MockAddressPair()
@@ -64,7 +64,7 @@ func TestEvmEventsForCw20(t *testing.T) {
 	}
 	txBuilder := testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx := signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err := testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -132,7 +132,7 @@ func TestEvmEventsForCw20(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -167,7 +167,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	k.SetERC721CW721Pointer(ctx, contractAddr.String(), mockPointerAddr)
 
 	// calling CW contract directly
-	amt := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000000000)))
+	amt := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000000000)))
 	k.BankKeeper().MintCoins(ctx, "evm", amt)
 	k.BankKeeper().SendCoinsFromModuleToAccount(ctx, "evm", creator, amt)
 	privKeyRecipient := testkeeper.MockPrivateKey()
@@ -180,7 +180,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder := testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx := signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err := testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -249,7 +249,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -278,7 +278,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -306,7 +306,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -334,7 +334,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKeyRecipient, k.AccountKeeper().GetAccount(ctx, recipient))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -365,7 +365,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKeyRecipient, k.AccountKeeper().GetAccount(ctx, recipient))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -392,7 +392,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 		Msg:      []byte(fmt.Sprintf("{\"transfer_nft\":{\"token_id\":\"2\",\"recipient\":\"%s\"}}", creator.String())),
 	}
 	txBuilder.SetMsgs(msg1, msg2, msg3)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(1000000)
 	tx = signTxMultiple(txBuilder, []cryptotypes.PrivKey{privKeyRecipient, privKey}, []authtypes.AccountI{k.AccountKeeper().GetAccount(ctx, recipient), k.AccountKeeper().GetAccount(ctx, creator)})
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -418,7 +418,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKeyRecipient, k.AccountKeeper().GetAccount(ctx, recipient))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -449,7 +449,7 @@ func TestEvmEventsForCw721(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -484,7 +484,7 @@ func TestEvmEventsForMultipleCW721Transfers(t *testing.T) {
 	_, mockPointerAddr := testkeeper.MockAddressPair()
 	k.SetERC721CW721Pointer(ctx, contractAddr.String(), mockPointerAddr)
 
-	amt := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000000000)))
+	amt := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000000000)))
 	k.BankKeeper().MintCoins(ctx, "evm", amt)
 	k.BankKeeper().SendCoinsFromModuleToAccount(ctx, "evm", creator, amt)
 	privKeyRecipient := testkeeper.MockPrivateKey()
@@ -497,7 +497,7 @@ func TestEvmEventsForMultipleCW721Transfers(t *testing.T) {
 	}
 	txBuilder := testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx := signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err := testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -511,12 +511,12 @@ func TestEvmEventsForMultipleCW721Transfers(t *testing.T) {
 				Attributes: []abci.EventAttribute{
 					{Key: []byte("_contract_address"), Value: []byte(contractAddr.String())},
 					{Key: []byte("action"), Value: []byte("transfer_nft")},
-					{Key: []byte("sender"), Value: []byte("sei1n5n56lvfsda29hm38a2tn5pnf6nx84a3kje530")},
-					{Key: []byte("recipient"), Value: []byte("sei1n5n56lvfsda29hm38a2tn5pnf6nx84a3kje530")},
+					{Key: []byte("sender"), Value: []byte("aesc1n5n56lvfsda29hm38a2tn5pnf6nx84a3tacj58")},
+					{Key: []byte("recipient"), Value: []byte("aesc1n5n56lvfsda29hm38a2tn5pnf6nx84a3tacj58")},
 					{Key: []byte("token_id"), Value: []byte("0")},
 					{Key: []byte("action"), Value: []byte("transfer_nft")},
-					{Key: []byte("sender"), Value: []byte("sei1xj2la8suyhfxjzdv3fc2w4upag32mc6392suyf")},
-					{Key: []byte("recipient"), Value: []byte("sei1xj2la8suyhfxjzdv3fc2w4upag32mc6392suyf")},
+					{Key: []byte("sender"), Value: []byte("aesc1xj2la8suyhfxjzdv3fc2w4upag32mc63c936pp")},
+					{Key: []byte("recipient"), Value: []byte("aesc1xj2la8suyhfxjzdv3fc2w4upag32mc63c936pp")},
 					{Key: []byte("token_id"), Value: []byte("1")},
 				},
 			},
@@ -537,7 +537,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	wasmKeeper := k.WasmKeeper()
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now()).WithChainID("sei-test").WithBlockHeight(1)
 	// Create account 1 and associate its addresses
-	amt := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000000000)))
+	amt := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000000000)))
 	privKey := testkeeper.MockPrivateKey()
 	creator, creatorEvmAddr := testkeeper.PrivateKeyToAddresses(privKey)
 	creatorHash := common.BytesToHash(creatorEvmAddr[:]).Hex()
@@ -570,7 +570,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder := testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx := signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err := testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -655,7 +655,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -685,7 +685,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -716,7 +716,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -744,7 +744,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKeyRecipient, k.AccountKeeper().GetAccount(ctx, recipient))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -772,7 +772,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKeyRecipient, k.AccountKeeper().GetAccount(ctx, recipient))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -801,7 +801,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKeyRecipient, k.AccountKeeper().GetAccount(ctx, recipient))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -829,7 +829,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKeyRecipient, k.AccountKeeper().GetAccount(ctx, recipient))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -858,7 +858,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -886,7 +886,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)
@@ -916,7 +916,7 @@ func TestEvmEventsForCw1155(t *testing.T) {
 	}
 	txBuilder = testkeeper.EVMTestApp.GetTxConfig().NewTxBuilder()
 	txBuilder.SetMsgs(msg)
-	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(1000000))))
+	txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000))))
 	txBuilder.SetGasLimit(300000)
 	tx = signTx(txBuilder, privKey, k.AccountKeeper().GetAccount(ctx, creator))
 	txbz, err = testkeeper.EVMTestApp.GetTxConfig().TxEncoder()(tx)

@@ -20,9 +20,9 @@ override_genesis() {
 echo "Configuring genesis parameters..."
 
 # Basic parameters
-override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="usei"'
-override_genesis '.app_state["mint"]["params"]["mint_denom"]="usei"'
-override_genesis '.app_state["staking"]["params"]["bond_denom"]="usei"'
+override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="uaex"'
+override_genesis '.app_state["mint"]["params"]["mint_denom"]="uaex"'
+override_genesis '.app_state["staking"]["params"]["bond_denom"]="uaex"'
 override_genesis '.app_state["oracle"]["params"]["vote_period"]="2"'
 
 # Disable Oracle slashing to prevent validator from being jailed without price feeder
@@ -46,8 +46,8 @@ override_genesis '.app_state["genutil"]["gen_txs"]=[]'
 override_genesis '.app_state["bank"]["denom_metadata"]=[{"denom_units":[{"denom":"UATOM","exponent":6,"aliases":["UATOM"]}],"base":"uatom","display":"uatom","name":"UATOM","symbol":"UATOM"}]'
 
 # Gov parameters
-override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="usei"'
-override_genesis '.app_state["gov"]["deposit_params"]["min_expedited_deposit"][0]["denom"]="usei"'
+override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="uaex"'
+override_genesis '.app_state["gov"]["deposit_params"]["min_expedited_deposit"][0]["denom"]="uaex"'
 override_genesis '.app_state["gov"]["deposit_params"]["max_deposit_period"]="100s"'
 override_genesis '.app_state["gov"]["voting_params"]["voting_period"]="30s"'
 override_genesis '.app_state["gov"]["voting_params"]["expedited_voting_period"]="15s"'
@@ -60,7 +60,7 @@ echo "Adding genesis accounts..."
 
 # Add validator account
 VALIDATOR_ADDRESS=$(printf "12345678\n" | seid keys show "$VALIDATOR_NAME" -a)
-seid add-genesis-account "$VALIDATOR_ADDRESS" 10000000usei,10000000uusdc,10000000uatom
+seid add-genesis-account "$VALIDATOR_ADDRESS" 10000000uaex,10000000uusdc,10000000uatom
 
 echo ""
 echo "=========================================="

@@ -55,7 +55,7 @@ func TestModuleExportGenesis(t *testing.T) {
 	cdc := app.MakeEncodingConfig().Marshaler
 	jsonMsg := module.ExportGenesis(ctx, cdc)
 	jsonStr := string(jsonMsg)
-	assert.Equal(t, `{"params":{"priority_normalizer":"1.000000000000000000","base_fee_per_gas":"0.000000000000000000","minimum_fee_per_gas":"1000000000.000000000000000000","whitelisted_cw_code_hashes_for_delegate_call":[],"deliver_tx_hook_wasm_gas_limit":"300000","max_dynamic_base_fee_upward_adjustment":"0.018900000000000000","max_dynamic_base_fee_downward_adjustment":"0.003900000000000000","target_gas_used_per_block":"250000","maximum_fee_per_gas":"1000000000000.000000000000000000","register_pointer_disabled":false},"address_associations":[{"sei_address":"sei17xpfvakm2amg962yls6f84z3kell8c5la4jkdu","eth_address":"0x27F7B8B8B5A4e71E8E9aA671f4e4031E3773303F"}],"codes":[],"states":[],"nonces":[],"serialized":[{"prefix":"Fg==","key":"AwAC","value":"AAAAAAAAAAQ="},{"prefix":"Fg==","key":"BAAG","value":"AAAAAAAAAAU="},{"prefix":"Fg==","key":"BgAB","value":"AAAAAAAAAAY="}]}`, jsonStr)
+	assert.Equal(t, `{"params":{"priority_normalizer":"1.000000000000000000","base_fee_per_gas":"0.000000000000000000","minimum_fee_per_gas":"1000000000.000000000000000000","whitelisted_cw_code_hashes_for_delegate_call":[],"deliver_tx_hook_wasm_gas_limit":"300000","max_dynamic_base_fee_upward_adjustment":"0.018900000000000000","max_dynamic_base_fee_downward_adjustment":"0.003900000000000000","target_gas_used_per_block":"250000","maximum_fee_per_gas":"1000000000000.000000000000000000","register_pointer_disabled":false},"address_associations":[{"sei_address":"aesc17xpfvakm2amg962yls6f84z3kell8c5lq6nsg5","eth_address":"0x27F7B8B8B5A4e71E8E9aA671f4e4031E3773303F"}],"codes":[],"states":[],"nonces":[],"serialized":[{"prefix":"Fg==","key":"AwAC","value":"AAAAAAAAAAQ="},{"prefix":"Fg==","key":"BAAG","value":"AAAAAAAAAAU="},{"prefix":"Fg==","key":"BgAB","value":"AAAAAAAAAAY="}]}`, jsonStr)
 }
 
 func TestConsensusVersion(t *testing.T) {
@@ -68,7 +68,7 @@ func TestABCI(t *testing.T) {
 	k, ctx := testkeeper.MockEVMKeeper()
 	_, evmAddr1 := testkeeper.MockAddressPair()
 	_, evmAddr2 := testkeeper.MockAddressPair()
-	amt := sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(10)))
+	amt := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(10)))
 	k.BankKeeper().MintCoins(ctx, types.ModuleName, amt)
 	k.BankKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, sdk.AccAddress(evmAddr1[:]), amt)
 	m := evm.NewAppModule(nil, k)
@@ -96,8 +96,8 @@ func TestABCI(t *testing.T) {
 	k.SetTxResults([]*abci.ExecTxResult{{Code: 0}, {Code: 0}, {Code: 0}, {Code: 0}})
 	k.SetMsgs([]*types.MsgEVMTransaction{nil, {}, nil, {}})
 	m.EndBlock(ctx, abci.RequestEndBlock{})
-	require.Equal(t, uint64(0), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "usei").Amount.Uint64())
-	require.Equal(t, uint64(2), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName), "usei").Amount.Uint64())
+	require.Equal(t, uint64(0), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "uaex").Amount.Uint64())
+	require.Equal(t, uint64(2), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName), "uaex").Amount.Uint64())
 
 	// second block
 	m.BeginBlock(ctx, abci.RequestBeginBlock{})
@@ -112,8 +112,8 @@ func TestABCI(t *testing.T) {
 	k.SetTxResults([]*abci.ExecTxResult{{Code: 0}, {Code: 0}, {Code: 0}})
 	k.SetMsgs([]*types.MsgEVMTransaction{nil, nil, {}})
 	m.EndBlock(ctx, abci.RequestEndBlock{})
-	require.Equal(t, uint64(1), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "usei").Amount.Uint64())
-	require.Equal(t, uint64(2), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName), "usei").Amount.Uint64())
+	require.Equal(t, uint64(1), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "uaex").Amount.Uint64())
+	require.Equal(t, uint64(2), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(authtypes.FeeCollectorName), "uaex").Amount.Uint64())
 
 	// third block
 	m.BeginBlock(ctx, abci.RequestBeginBlock{})
@@ -136,7 +136,7 @@ func TestABCI(t *testing.T) {
 	_, err = vms.CreateVestingAccount(sdk.WrapSDKContext(ctx), &vestingtypes.MsgCreateVestingAccount{
 		FromAddress: sdk.AccAddress(evmAddr1[:]).String(),
 		ToAddress:   coinbase.String(),
-		Amount:      sdk.NewCoins(sdk.NewCoin("usei", sdk.OneInt())),
+		Amount:      sdk.NewCoins(sdk.NewCoin("uaex", sdk.OneInt())),
 		EndTime:     math.MaxInt64,
 	})
 	require.NotNil(t, err)
@@ -192,7 +192,7 @@ func TestAnteSurplus(t *testing.T) {
 	m.BeginBlock(ctx, abci.RequestBeginBlock{})
 	k.AddAnteSurplus(ctx, common.BytesToHash([]byte("1234")), sdk.NewInt(1_000_000_000_001))
 	m.EndBlock(ctx, abci.RequestEndBlock{})
-	require.Equal(t, uint64(1), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "usei").Amount.Uint64())
+	require.Equal(t, uint64(1), k.BankKeeper().GetBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), "uaex").Amount.Uint64())
 	require.Equal(t, uint64(1), k.BankKeeper().GetWeiBalance(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName)).Uint64())
 	// ante surplus should be cleared
 	a.SetDeliverStateToCommit()

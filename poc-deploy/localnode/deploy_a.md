@@ -442,9 +442,9 @@ seid status | jq '.SyncInfo.catching_up'
 seid query bank balances $(seid keys show validator0 -a)
 
 # 发送测试交易
-seid tx bank send validator0 <接收地址> 1000usei \
+seid tx bank send validator0 <接收地址> 1000uaex \
   --chain-id sei-testnet \
-  --fees 2000usei \
+  --fees 2000uaex \
   --gas 200000 \
   -y
 ```

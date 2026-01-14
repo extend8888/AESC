@@ -36,7 +36,7 @@ func TestDecodeDistributionStore(t *testing.T) {
 	}, valAddr)
 	votePenaltyCounter := types.VotePenaltyCounter{MissCount: missCounter, AbstainCount: abstainCounter}
 
-	denom := "usei"
+	denom := "uaex"
 
 	kvPairs := kv.Pairs{
 		Pairs: []kv.Pair{

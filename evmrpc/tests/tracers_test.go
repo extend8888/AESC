@@ -112,7 +112,7 @@ func TestTraceHistoricalPrecompiles(t *testing.T) {
 }
 
 func TestTraceMultipleTransactionsShouldNotHang(t *testing.T) {
-	cwIter := "sei18cszlvm6pze0x9sz32qnjq4vtd45xehqs8dq7cwy8yhq35wfnn3quh5sau" // hardcoded
+	cwIter := "aesc18cszlvm6pze0x9sz32qnjq4vtd45xehqs8dq7cwy8yhq35wfnn3qr9wwgy" // hardcoded
 	txBzList := make([][]byte, 100)
 	for nonce := 1; nonce <= 100; nonce++ {
 		txBzList[nonce-1] = signAndEncodeTx(sendErc20(uint64(nonce)), erc20DeployerMnemonics)

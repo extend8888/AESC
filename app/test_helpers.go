@@ -33,7 +33,7 @@ import (
 )
 
 const TestContract = "TEST"
-const TestUser = "sei1jdppe6fnj2q7hjsepty5crxtrryzhuqsjrj95y"
+const TestUser = "aesc1jdppe6fnj2q7hjsepty5crxtrryzhuqs0vnr3v"
 
 type TestTx struct {
 	msgs []sdk.Msg

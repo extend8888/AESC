@@ -148,7 +148,7 @@ func bankSendMsg(mnemonic string) sdk.Msg {
 	return &banktypes.MsgSend{
 		FromAddress: getSeiAddrWithMnemonic(mnemonic).String(),
 		ToAddress:   recipient.String(),
-		Amount:      sdk.NewCoins(sdk.NewCoin("usei", sdk.OneInt())),
+		Amount:      sdk.NewCoins(sdk.NewCoin("uaex", sdk.OneInt())),
 	}
 }
 

@@ -57,7 +57,7 @@ func (suite *AnteTestSuite) SetupTest(isCheckTx bool) {
 
 	// keys and addresses
 	suite.testAccPriv, _, suite.testAcc = testdata.KeyTestPubAddr()
-	initalBalance := sdk.Coins{sdk.NewInt64Coin("usei", 100000000000)}
+	initalBalance := sdk.Coins{sdk.NewInt64Coin("uaex", 100000000000)}
 	suite.FundAcc(suite.testAcc, initalBalance)
 
 	suite.Ctx = suite.Ctx.WithBlockHeight(1)
@@ -251,7 +251,7 @@ func TestEvmAnteErrorHandler(t *testing.T) {
 	require.Nil(t, err)
 
 	addr, _ := testkeeper.PrivateKeyToAddresses(privKey)
-	testkeeper.EVMTestApp.BankKeeper.AddCoins(ctx, addr, sdk.NewCoins(sdk.NewCoin("usei", sdk.NewInt(100000000000))), true)
+	testkeeper.EVMTestApp.BankKeeper.AddCoins(ctx, addr, sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(100000000000))), true)
 	res := testkeeper.EVMTestApp.DeliverTx(ctx, abci.RequestDeliverTx{Tx: encodedTx}, txToSend, sha256.Sum256(encodedTx))
 	require.NotEqual(t, 0, res.Code)
 	testkeeper.EVMTestApp.EvmKeeper.SetTxResults([]*abci.ExecTxResult{{

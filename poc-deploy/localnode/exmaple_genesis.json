@@ -1,6 +1,6 @@
 {
   "genesis_time": "2025-11-10T13:43:45.264889159Z",
-  "chain_id": "sei-poc",
+  "chain_id": "aesc-poc",
   "initial_height": "1",
   "consensus_params": {
     "block": {
@@ -69,84 +69,84 @@
       "accounts": [
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei12xphl6y3t0x9kc5ksdpwcfr07v4n3glq56ep2a",
+          "address": "aesc12xphl6y3t0x9kc5ksdpwcfr07v4n3glqf4c804",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei1x4zm0rq95cauu5yuj49wg6x2689jmeyfgmsxaf",
+          "address": "aesc1x4zm0rq95cauu5yuj49wg6x2689jmeyf453qcp",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei134uxlynxg28j09hj62ks00muz6tagrmfhjsucw",
+          "address": "aesc134uxlynxg28j09hj62ks00muz6tagrmf2a36ax",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei1tr067a4djfynlxpy07vtzdsw77da7979gwez9r",
+          "address": "aesc1tr067a4djfynlxpy07vtzdsw77da79794pcyqt",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei1qar600uruy3pea7km984w2j9ek702yx8tfm3w8",
+          "address": "aesc1qar600uruy3pea7km984w2j9ek702yx8kx6ht0",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei14sj4gvzcymtxlehvcznzcm2n87yks4n22pem7z",
+          "address": "aesc14sj4gvzcymtxlehvcznzcm2n87yks4n2hwcam2",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei10p8xpm77ll4mcga2403h3guah2wkp2wu2zh992",
+          "address": "aesc10p8xpm77ll4mcga2403h3guah2wkp2wuhdkrqz",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei15aqmq5xs56x59uknp3emjmc7z565gh3u4sqzzx",
+          "address": "aesc15aqmq5xs56x59uknp3emjmc7z565gh3uglpy8w",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei18mqu4ddldu9de88ssrycq4m6a3l259rt2w9ptu",
+          "address": "aesc18mqu4ddldu9de88ssrycq4m6a3l259rthpy8w5",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei1qpn0sf3hw0xv9zhyh7ypax7xgyarthh7q8qpzf",
+          "address": "aesc1qpn0sf3hw0xv9zhyh7ypax7xgyarthh7agp88p",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei1jzd0x72dk9yevvwn5xeqhrm05r9z9nzs2gy3d4",
+          "address": "aesc1jzd0x72dk9yevvwn5xeqhrm05r9z9nzsh89hga",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "sei1vzyysxal8lyullr580jhuhqvnxfkf5meff6p37",
+          "address": "aesc1vzyysxal8lyullr580jhuhqvnxfkf5me5xm85k",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
@@ -163,14 +163,14 @@
       },
       "balances": [
         {
-          "address": "sei1qpn0sf3hw0xv9zhyh7ypax7xgyarthh7q8qpzf",
+          "address": "aesc1qpn0sf3hw0xv9zhyh7ypax7xgyarthh7agp88p",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -180,14 +180,14 @@
           ]
         },
         {
-          "address": "sei1qar600uruy3pea7km984w2j9ek702yx8tfm3w8",
+          "address": "aesc1qar600uruy3pea7km984w2j9ek702yx8kx6ht0",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -197,14 +197,14 @@
           ]
         },
         {
-          "address": "sei1x4zm0rq95cauu5yuj49wg6x2689jmeyfgmsxaf",
+          "address": "aesc1x4zm0rq95cauu5yuj49wg6x2689jmeyf453qcp",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -214,14 +214,14 @@
           ]
         },
         {
-          "address": "sei18mqu4ddldu9de88ssrycq4m6a3l259rt2w9ptu",
+          "address": "aesc18mqu4ddldu9de88ssrycq4m6a3l259rthpy8w5",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -231,14 +231,14 @@
           ]
         },
         {
-          "address": "sei12xphl6y3t0x9kc5ksdpwcfr07v4n3glq56ep2a",
+          "address": "aesc12xphl6y3t0x9kc5ksdpwcfr07v4n3glqf4c804",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -248,14 +248,14 @@
           ]
         },
         {
-          "address": "sei1tr067a4djfynlxpy07vtzdsw77da7979gwez9r",
+          "address": "aesc1tr067a4djfynlxpy07vtzdsw77da79794pcyqt",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -265,14 +265,14 @@
           ]
         },
         {
-          "address": "sei1vzyysxal8lyullr580jhuhqvnxfkf5meff6p37",
+          "address": "aesc1vzyysxal8lyullr580jhuhqvnxfkf5me5xm85k",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -282,14 +282,14 @@
           ]
         },
         {
-          "address": "sei10p8xpm77ll4mcga2403h3guah2wkp2wu2zh992",
+          "address": "aesc10p8xpm77ll4mcga2403h3guah2wkp2wuhdkrqz",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -299,14 +299,14 @@
           ]
         },
         {
-          "address": "sei134uxlynxg28j09hj62ks00muz6tagrmfhjsucw",
+          "address": "aesc134uxlynxg28j09hj62ks00muz6tagrmf2a36ax",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -316,14 +316,14 @@
           ]
         },
         {
-          "address": "sei1jzd0x72dk9yevvwn5xeqhrm05r9z9nzs2gy3d4",
+          "address": "aesc1jzd0x72dk9yevvwn5xeqhrm05r9z9nzsh89hga",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -333,14 +333,14 @@
           ]
         },
         {
-          "address": "sei15aqmq5xs56x59uknp3emjmc7z565gh3u4sqzzx",
+          "address": "aesc15aqmq5xs56x59uknp3emjmc7z565gh3uglpy8w",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -350,14 +350,14 @@
           ]
         },
         {
-          "address": "sei14sj4gvzcymtxlehvcznzcm2n87yks4n22pem7z",
+          "address": "aesc14sj4gvzcymtxlehvcznzcm2n87yks4n2hwcam2",
           "coins": [
             {
               "denom": "uatom",
               "amount": "1000000000000000000000"
             },
             {
-              "denom": "usei",
+              "denom": "uaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -394,7 +394,7 @@
     },
     "crisis": {
       "constant_fee": {
-        "denom": "usei",
+        "denom": "uaex",
         "amount": "1000"
       }
     },
@@ -468,7 +468,7 @@
               {
                 "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
                 "description": {
-                  "moniker": "sei-node-poc",
+                  "moniker": "aesc-node-poc",
                   "identity": "",
                   "website": "",
                   "security_contact": "",
@@ -480,14 +480,14 @@
                   "max_change_rate": "0.010000000000000000"
                 },
                 "min_self_delegation": "1",
-                "delegator_address": "sei12xphl6y3t0x9kc5ksdpwcfr07v4n3glq56ep2a",
-                "validator_address": "seivaloper12xphl6y3t0x9kc5ksdpwcfr07v4n3glq24g0td",
+                "delegator_address": "aesc12xphl6y3t0x9kc5ksdpwcfr07v4n3glqf4c804",
+                "validator_address": "aescvaloper12xphl6y3t0x9kc5ksdpwcfr07v4n3glqsf5t4p",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
                   "key": "rEJXrL75TxmcbRT1ehDcEzBWq8GEj6ASdp0tRr8qBi0="
                 },
                 "value": {
-                  "denom": "usei",
+                  "denom": "uaex",
                   "amount": "100000000"
                 }
               }
@@ -534,14 +534,14 @@
       "deposit_params": {
         "min_deposit": [
           {
-            "denom": "usei",
+            "denom": "uaex",
             "amount": "10000000"
           }
         ],
         "max_deposit_period": "100s",
         "min_expedited_deposit": [
           {
-            "denom": "usei",
+            "denom": "uaex",
             "amount": "20000000"
           }
         ]
@@ -595,7 +595,7 @@
       "minter": {
         "start_date": "0001-01-01",
         "end_date": "0001-01-01",
-        "denom": "usei",
+        "denom": "uaex",
         "total_mint_amount": "0",
         "remaining_mint_amount": "0",
         "last_mint_amount": "0",
@@ -603,7 +603,7 @@
         "last_mint_height": "0"
       },
       "params": {
-        "mint_denom": "usei",
+        "mint_denom": "uaex",
         "token_release_schedule": [
           {
             "start_date": "2025-11-10",
@@ -641,7 +641,7 @@
       "fees_params": {
         "global_minimum_gas_prices": [
           {
-            "denom": "usei",
+            "denom": "uaex",
             "amount": "0.010000000000000000"
           }
         ],
@@ -669,7 +669,7 @@
         "max_validators": "50",
         "max_entries": 7,
         "historical_entries": 10000,
-        "bond_denom": "usei",
+        "bond_denom": "uaex",
         "min_commission_rate": "0.050000000000000000",
         "max_voting_power_ratio": "0.200000000000000000",
         "max_voting_power_enforcement_threshold": "1000000"

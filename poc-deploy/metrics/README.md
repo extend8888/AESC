@@ -109,7 +109,7 @@ scrape_configs:
     static_configs:
       - targets: ['host.docker.internal:26660']
         labels:
-          instance: 'sei-node-poc'
+          instance: 'aesc-node-poc'
 ```
 
 **注意**: 

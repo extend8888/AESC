@@ -60,7 +60,7 @@ func main() {
 		config.NumAccounts, config.FilesPerAccount, config.OrdersPerFile, config.TargetMsgSizeMB)
 
 	// 使用测试地址
-	testAddress := "sei1test1234567890abcdefghijklmnopqrstuvwxyz"
+	testAddress := "aesc1test1234567890abcdefghijklmnopqrstuvwxyz"
 	
 	for accountIdx := 1; accountIdx <= config.NumAccounts; accountIdx++ {
 		dirName := fmt.Sprintf("order%d", accountIdx)

@@ -2,7 +2,7 @@
 
 set -e
 
-CHAIN_ID=${CHAIN_ID:-sei-poc}
+CHAIN_ID=${CHAIN_ID:-aesc-poc}
 INVARIANT_CHECK_INTERVAL=${INVARIANT_CHECK_INTERVAL:-0}
 
 LOG_DIR="build/generated/logs"
