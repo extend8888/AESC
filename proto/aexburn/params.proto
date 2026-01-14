@@ -1,0 +1,50 @@
+syntax = "proto3";
+package seiprotocol.seichain.aexburn;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/sei-protocol/sei-chain/x/aexburn/types";
+
+// Params defines the parameters for the aexburn module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+
+  // burn_enabled determines whether fee burning is enabled
+  bool burn_enabled = 1 [(gogoproto.moretags) = "yaml:\"burn_enabled\""];
+
+  // min_burn_rate is the minimum burn rate (0.30 = 30%)
+  string min_burn_rate = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"min_burn_rate\""
+  ];
+
+  // max_burn_rate is the maximum burn rate (0.60 = 60%)
+  string max_burn_rate = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"max_burn_rate\""
+  ];
+
+  // target_burn_rate is the target burn rate when gas usage is normal (0.50 = 50%)
+  string target_burn_rate = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"target_burn_rate\""
+  ];
+
+  // low_gas_threshold is the gas usage rate below which burn rate decreases (0.30 = 30%)
+  string low_gas_threshold = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"low_gas_threshold\""
+  ];
+
+  // high_gas_threshold is the gas usage rate above which burn rate increases (0.70 = 70%)
+  string high_gas_threshold = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"high_gas_threshold\""
+  ];
+}
+

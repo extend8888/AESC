@@ -1,0 +1,21 @@
+syntax = "proto3";
+package seiprotocol.seichain.aexburn;
+
+import "gogoproto/gogo.proto";
+import "aexburn/params.proto";
+import "aexburn/burn.proto";
+
+option go_package = "github.com/sei-protocol/sei-chain/x/aexburn/types";
+
+// GenesisState defines the aexburn module's genesis state.
+message GenesisState {
+  // params defines the module parameters
+  Params params = 1 [(gogoproto.nullable) = false];
+
+  // burn_stats contains the cumulative burn statistics
+  BurnStats burn_stats = 2 [(gogoproto.nullable) = false];
+
+  // monthly_burn_data contains the 12-month rolling window burn data
+  repeated MonthlyBurnData monthly_burn_data = 3 [(gogoproto.nullable) = false];
+}
+

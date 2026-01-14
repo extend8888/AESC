@@ -128,9 +128,7 @@ import (
 	"github.com/sei-protocol/sei-chain/x/evm/querier"
 	"github.com/sei-protocol/sei-chain/x/evm/replay"
 	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
-	executionmodule "github.com/sei-protocol/sei-chain/x/execution"
-	executionkeeper "github.com/sei-protocol/sei-chain/x/execution/keeper"
-	executiontypes "github.com/sei-protocol/sei-chain/x/execution/types"
+
 	"github.com/sei-protocol/sei-chain/x/mint"
 	mintclient "github.com/sei-protocol/sei-chain/x/mint/client/cli"
 	mintkeeper "github.com/sei-protocol/sei-chain/x/mint/keeper"
@@ -141,6 +139,9 @@ import (
 	tokenfactorymodule "github.com/sei-protocol/sei-chain/x/tokenfactory"
 	tokenfactorykeeper "github.com/sei-protocol/sei-chain/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/sei-protocol/sei-chain/x/tokenfactory/types"
+	aexburnmodule "github.com/sei-protocol/sei-chain/x/aexburn"
+	aexburnkeeper "github.com/sei-protocol/sei-chain/x/aexburn/keeper"
+	aexburntypes "github.com/sei-protocol/sei-chain/x/aexburn/types"
 	"github.com/sei-protocol/sei-db/ss"
 	seidb "github.com/sei-protocol/sei-db/ss/types"
 	"github.com/spf13/cast"
@@ -211,7 +212,6 @@ var (
 		wasm.AppModuleBasic{},
 		epochmodule.AppModuleBasic{},
 		tokenfactorymodule.AppModuleBasic{},
-		executionmodule.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -349,7 +349,7 @@ type App struct {
 
 	TokenFactoryKeeper tokenfactorykeeper.Keeper
 
-	ExecutionKeeper executionkeeper.Keeper
+	AexburnKeeper aexburnkeeper.Keeper
 
 	// mm is the module manager
 	mm *module.Manager
@@ -433,11 +433,11 @@ func New(
 		evmtypes.StoreKey, wasm.StoreKey,
 		epochmoduletypes.StoreKey,
 		tokenfactorytypes.StoreKey,
-		executiontypes.StoreKey,
+		aexburntypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientStoreKey)
-	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, banktypes.DeferredCacheStoreKey, oracletypes.MemStoreKey, executiontypes.MemStoreKey)
+	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey, banktypes.DeferredCacheStoreKey, oracletypes.MemStoreKey)
 
 	app := &App{
 		BaseApp:               bApp,
@@ -495,6 +495,19 @@ func New(
 		appCodec, keys[distrtypes.StoreKey], app.GetSubspace(distrtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
 		&stakingKeeper, authtypes.FeeCollectorName, app.ModuleAccountAddrs(),
 	)
+
+	// Create AEX Burn Keeper for fee burning mechanism
+	app.AexburnKeeper = aexburnkeeper.NewKeeper(
+		appCodec,
+		keys[aexburntypes.StoreKey],
+		app.GetSubspace(aexburntypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+	)
+
+	// Set fee burn hook on distribution keeper for AEX fee burning
+	app.DistrKeeper.SetFeeBurnHook(&app.AexburnKeeper)
+
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, keys[slashingtypes.StoreKey], &stakingKeeper, app.GetSubspace(slashingtypes.ModuleName),
 	)
@@ -567,13 +580,6 @@ func New(
 		app.AccountKeeper,
 		app.BankKeeper.(bankkeeper.BaseKeeper).WithMintCoinsRestriction(tokenfactorytypes.NewTokenFactoryDenomMintCoinsRestriction()),
 		app.DistrKeeper,
-	)
-
-	app.ExecutionKeeper = *executionkeeper.NewKeeper(
-		appCodec,
-		keys[executiontypes.StoreKey],
-		memKeys[executiontypes.MemStoreKey],
-		app.GetSubspace(executiontypes.ModuleName),
 	)
 
 	// The last arguments can contain custom message handlers, and custom query handlers,
@@ -762,8 +768,8 @@ func New(
 		transferModule,
 		epochModule,
 		tokenfactorymodule.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper),
-		executionmodule.NewAppModule(appCodec, app.ExecutionKeeper),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
+		aexburnmodule.NewAppModule(appCodec, app.AexburnKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -795,8 +801,8 @@ func New(
 		evmtypes.ModuleName,
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
-		executiontypes.ModuleName,
 		acltypes.ModuleName,
+		aexburntypes.ModuleName,
 	)
 
 	app.mm.SetOrderMidBlockers(
@@ -827,8 +833,8 @@ func New(
 		evmtypes.ModuleName,
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
-		executiontypes.ModuleName,
 		acltypes.ModuleName,
+		aexburntypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -858,10 +864,10 @@ func New(
 		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		epochmoduletypes.ModuleName,
-		executiontypes.ModuleName,
 		wasm.ModuleName,
 		evmtypes.ModuleName,
 		acltypes.ModuleName,
+		aexburntypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -2011,7 +2017,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(epochmoduletypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
-	paramsKeeper.Subspace(executiontypes.ModuleName)
+	paramsKeeper.Subspace(aexburntypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

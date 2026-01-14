@@ -19,6 +19,17 @@ func (k Keeper) AllocateTokens(
 
 	logger := k.Logger(ctx)
 
+	// AEX Fee Burn: Call fee burn hook before distribution if set
+	// This burns a portion of the fees (30%-60%) according to AEX economic model
+	if k.feeBurnHook != nil {
+		burned, _, burnErr := k.feeBurnHook.BurnFees(ctx)
+		if burnErr != nil {
+			logger.Error("failed to burn fees", "error", burnErr)
+		} else if !burned.IsZero() {
+			logger.Info("AEX fees burned before distribution", "burned", burned.String())
+		}
+	}
+
 	// fetch and clear the collected fees for distribution, since this is
 	// called in BeginBlock, collected fees will be from the previous block
 	// (and distributed to the previous proposer)

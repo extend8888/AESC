@@ -12,6 +12,13 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
+// FeeBurnHook is an interface for burning a portion of fees before distribution
+type FeeBurnHook interface {
+	// BurnFees burns a portion of collected fees and returns the burned amount
+	// Returns: burned coins, remaining coins after burn, error
+	BurnFees(ctx sdk.Context) (burned sdk.Coins, remaining sdk.Coins, err error)
+}
+
 // Keeper of the distribution store
 type Keeper struct {
 	storeKey      sdk.StoreKey
@@ -24,6 +31,9 @@ type Keeper struct {
 	blockedAddrs map[string]bool
 
 	feeCollectorName string // name of the FeeCollector ModuleAccount
+
+	// feeBurnHook is an optional hook for burning fees before distribution
+	feeBurnHook FeeBurnHook
 }
 
 // NewKeeper creates a new distribution Keeper instance
@@ -52,7 +62,13 @@ func NewKeeper(
 		stakingKeeper:    sk,
 		feeCollectorName: feeCollectorName,
 		blockedAddrs:     blockedAddrs,
+		feeBurnHook:      nil,
 	}
+}
+
+// SetFeeBurnHook sets the fee burn hook for burning fees before distribution
+func (k *Keeper) SetFeeBurnHook(hook FeeBurnHook) {
+	k.feeBurnHook = hook
 }
 
 // Logger returns a module-specific logger.

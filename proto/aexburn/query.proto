@@ -1,0 +1,52 @@
+syntax = "proto3";
+package seiprotocol.seichain.aexburn;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "aexburn/params.proto";
+import "aexburn/burn.proto";
+
+option go_package = "github.com/sei-protocol/sei-chain/x/aexburn/types";
+
+// Query defines the gRPC querier service for the aexburn module.
+service Query {
+  // Params returns the module parameters
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/aesc/aexburn/v1/params";
+  }
+
+  // BurnStats returns the cumulative burn statistics
+  rpc BurnStats(QueryBurnStatsRequest) returns (QueryBurnStatsResponse) {
+    option (google.api.http).get = "/aesc/aexburn/v1/burn_stats";
+  }
+
+  // MonthlyBurnData returns the 12-month rolling window burn data
+  rpc MonthlyBurnData(QueryMonthlyBurnDataRequest) returns (QueryMonthlyBurnDataResponse) {
+    option (google.api.http).get = "/aesc/aexburn/v1/monthly_burn_data";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryBurnStatsRequest is the request type for the Query/BurnStats RPC method.
+message QueryBurnStatsRequest {}
+
+// QueryBurnStatsResponse is the response type for the Query/BurnStats RPC method.
+message QueryBurnStatsResponse {
+  BurnStats burn_stats = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryMonthlyBurnDataRequest is the request type for the Query/MonthlyBurnData RPC method.
+message QueryMonthlyBurnDataRequest {}
+
+// QueryMonthlyBurnDataResponse is the response type for the Query/MonthlyBurnData RPC method.
+message QueryMonthlyBurnDataResponse {
+  repeated MonthlyBurnData monthly_burn_data = 1 [(gogoproto.nullable) = false];
+}
+
