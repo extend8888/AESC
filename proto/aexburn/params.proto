@@ -82,5 +82,60 @@ message Params {
 
   // epochs_per_year is the number of epochs per year for calculating annual limits
   uint64 epochs_per_year = 15 [(gogoproto.moretags) = "yaml:\"epochs_per_year\""];
+
+  // ========== Reverse Brake Parameters ==========
+
+  // reverse_brake_enabled determines whether reverse brake is enabled
+  bool reverse_brake_enabled = 20 [(gogoproto.moretags) = "yaml:\"reverse_brake_enabled\""];
+
+  // reverse_brake_trigger_count is the number of consecutive negative net supply periods to trigger brake
+  uint32 reverse_brake_trigger_count = 21 [(gogoproto.moretags) = "yaml:\"reverse_brake_trigger_count\""];
+
+  // reverse_brake_reduction_rate is the amount to reduce burn rate when brake is triggered (e.g., 0.10 = reduce by 10%)
+  string reverse_brake_reduction_rate = 22 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"reverse_brake_reduction_rate\""
+  ];
+
+  // ========== Income Smoother Parameters ==========
+
+  // income_smoother_enabled determines whether validator income smoothing is enabled
+  bool income_smoother_enabled = 30 [(gogoproto.moretags) = "yaml:\"income_smoother_enabled\""];
+
+  // buffer_contribution_rate is the rate to contribute to buffer during high activity (0.10 = 10%)
+  string buffer_contribution_rate = 31 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"buffer_contribution_rate\""
+  ];
+
+  // buffer_release_rate is the rate to release from buffer during low activity (0.05 = 5%)
+  string buffer_release_rate = 32 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"buffer_release_rate\""
+  ];
+
+  // high_activity_threshold is the gas usage rate above which income is contributed to buffer (0.70 = 70%)
+  string high_activity_threshold = 33 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"high_activity_threshold\""
+  ];
+
+  // low_activity_threshold is the gas usage rate below which buffer releases funds (0.30 = 30%)
+  string low_activity_threshold = 34 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"low_activity_threshold\""
+  ];
+
+  // max_buffer_size is the maximum size of the income buffer (as a fraction of initial supply, 0.01 = 1%)
+  string max_buffer_size = 35 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"max_buffer_size\""
+  ];
 }
 

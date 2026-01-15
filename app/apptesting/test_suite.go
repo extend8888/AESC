@@ -24,6 +24,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/sei-protocol/sei-chain/app"
+	aexburntypes "github.com/sei-protocol/sei-chain/x/aexburn/types"
 )
 
 type KeeperTestHelper struct {
@@ -114,6 +115,11 @@ func (s *KeeperTestHelper) SetupValidator(bondStatus stakingtypes.BondStatus) sd
 // SetupTokenFactory sets up a token module account for the TokenFactoryKeeper.
 func (s *KeeperTestHelper) SetupTokenFactory() {
 	s.App.TokenFactoryKeeper.CreateModuleAccount(s.Ctx)
+}
+
+// SetupAexburn sets up the aexburn module with default params.
+func (s *KeeperTestHelper) SetupAexburn() {
+	s.App.AexburnKeeper.SetParams(s.Ctx, aexburntypes.DefaultParams())
 }
 
 // EndBlock ends the block.

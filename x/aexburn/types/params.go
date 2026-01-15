@@ -23,6 +23,19 @@ var (
 	KeyInitialSupply             = []byte("InitialSupply")
 	KeyMinGasUsageForInflation   = []byte("MinGasUsageForInflation")
 	KeyEpochsPerYear             = []byte("EpochsPerYear")
+
+	// Reverse brake parameters
+	KeyReverseBrakeEnabled       = []byte("ReverseBrakeEnabled")
+	KeyReverseBrakeTriggerCount  = []byte("ReverseBrakeTriggerCount")
+	KeyReverseBrakeReductionRate = []byte("ReverseBrakeReductionRate")
+
+	// Income smoother parameters
+	KeyIncomeSmootherEnabled   = []byte("IncomeSmootherEnabled")
+	KeyBufferContributionRate  = []byte("BufferContributionRate")
+	KeyBufferReleaseRate       = []byte("BufferReleaseRate")
+	KeyHighActivityThreshold   = []byte("HighActivityThreshold")
+	KeyLowActivityThreshold    = []byte("LowActivityThreshold")
+	KeyMaxBufferSize           = []byte("MaxBufferSize")
 )
 
 var (
@@ -36,11 +49,24 @@ var (
 
 	// Inflation defaults
 	DefaultInflationEnabled        = true
-	DefaultMaxAnnualInflationRate  = sdk.NewDecWithPrec(3, 2)                               // 3%
-	DefaultMaxNetSupplyRatePerYear = sdk.NewDecWithPrec(5, 2)                               // 5%
-	DefaultInitialSupply           = sdk.NewInt(500_000_000).Mul(sdk.NewInt(1_000_000))     // 500M * 10^6 uaex
-	DefaultMinGasUsageForInflation = sdk.NewDecWithPrec(50, 2)                              // 50%
-	DefaultEpochsPerYear           = uint64(365)                                            // 1 epoch per day
+	DefaultMaxAnnualInflationRate  = sdk.NewDecWithPrec(3, 2)                           // 3%
+	DefaultMaxNetSupplyRatePerYear = sdk.NewDecWithPrec(5, 2)                           // 5%
+	DefaultInitialSupply           = sdk.NewInt(500_000_000).Mul(sdk.NewInt(1_000_000)) // 500M * 10^6 uaex
+	DefaultMinGasUsageForInflation = sdk.NewDecWithPrec(50, 2)                          // 50%
+	DefaultEpochsPerYear           = uint64(365)                                        // 1 epoch per day
+
+	// Reverse brake defaults
+	DefaultReverseBrakeEnabled       = true
+	DefaultReverseBrakeTriggerCount  = uint32(3)                 // 3 consecutive negative periods
+	DefaultReverseBrakeReductionRate = sdk.NewDecWithPrec(10, 2) // 10% reduction
+
+	// Income smoother defaults (disabled by default)
+	DefaultIncomeSmootherEnabled   = false                       // Disabled by default
+	DefaultBufferContributionRate  = sdk.NewDecWithPrec(10, 2)   // 10% contribution during high activity
+	DefaultBufferReleaseRate       = sdk.NewDecWithPrec(5, 2)    // 5% release during low activity
+	DefaultHighActivityThreshold   = sdk.NewDecWithPrec(70, 2)   // 70% gas usage = high activity
+	DefaultLowActivityThreshold    = sdk.NewDecWithPrec(30, 2)   // 30% gas usage = low activity
+	DefaultMaxBufferSize           = sdk.NewDecWithPrec(1, 2)    // 1% of initial supply
 )
 
 // ParamKeyTable returns the parameter key table
@@ -65,6 +91,17 @@ func DefaultParams() Params {
 		InitialSupply:           DefaultInitialSupply,
 		MinGasUsageForInflation: DefaultMinGasUsageForInflation,
 		EpochsPerYear:           DefaultEpochsPerYear,
+		// Reverse brake params
+		ReverseBrakeEnabled:       DefaultReverseBrakeEnabled,
+		ReverseBrakeTriggerCount:  DefaultReverseBrakeTriggerCount,
+		ReverseBrakeReductionRate: DefaultReverseBrakeReductionRate,
+		// Income smoother params
+		IncomeSmootherEnabled:  DefaultIncomeSmootherEnabled,
+		BufferContributionRate: DefaultBufferContributionRate,
+		BufferReleaseRate:      DefaultBufferReleaseRate,
+		HighActivityThreshold:  DefaultHighActivityThreshold,
+		LowActivityThreshold:   DefaultLowActivityThreshold,
+		MaxBufferSize:          DefaultMaxBufferSize,
 	}
 }
 
@@ -85,6 +122,17 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyInitialSupply, &p.InitialSupply, validateInitialSupply),
 		paramtypes.NewParamSetPair(KeyMinGasUsageForInflation, &p.MinGasUsageForInflation, validateThreshold),
 		paramtypes.NewParamSetPair(KeyEpochsPerYear, &p.EpochsPerYear, validateEpochsPerYear),
+		// Reverse brake params
+		paramtypes.NewParamSetPair(KeyReverseBrakeEnabled, &p.ReverseBrakeEnabled, validateBurnEnabled),
+		paramtypes.NewParamSetPair(KeyReverseBrakeTriggerCount, &p.ReverseBrakeTriggerCount, validateTriggerCount),
+		paramtypes.NewParamSetPair(KeyReverseBrakeReductionRate, &p.ReverseBrakeReductionRate, validateBurnRate),
+		// Income smoother params
+		paramtypes.NewParamSetPair(KeyIncomeSmootherEnabled, &p.IncomeSmootherEnabled, validateBurnEnabled),
+		paramtypes.NewParamSetPair(KeyBufferContributionRate, &p.BufferContributionRate, validateBurnRate),
+		paramtypes.NewParamSetPair(KeyBufferReleaseRate, &p.BufferReleaseRate, validateBurnRate),
+		paramtypes.NewParamSetPair(KeyHighActivityThreshold, &p.HighActivityThreshold, validateThreshold),
+		paramtypes.NewParamSetPair(KeyLowActivityThreshold, &p.LowActivityThreshold, validateThreshold),
+		paramtypes.NewParamSetPair(KeyMaxBufferSize, &p.MaxBufferSize, validateBurnRate),
 	}
 }
 
@@ -123,6 +171,35 @@ func (p Params) Validate() error {
 	if p.EpochsPerYear == 0 {
 		return fmt.Errorf("epochs per year must be positive")
 	}
+
+	// Validate reverse brake params
+	if p.ReverseBrakeTriggerCount == 0 {
+		return fmt.Errorf("reverse brake trigger count must be positive")
+	}
+	if err := validateBurnRate(p.ReverseBrakeReductionRate); err != nil {
+		return fmt.Errorf("invalid reverse brake reduction rate: %w", err)
+	}
+
+	// Validate income smoother params
+	if err := validateBurnRate(p.BufferContributionRate); err != nil {
+		return fmt.Errorf("invalid buffer contribution rate: %w", err)
+	}
+	if err := validateBurnRate(p.BufferReleaseRate); err != nil {
+		return fmt.Errorf("invalid buffer release rate: %w", err)
+	}
+	if err := validateThreshold(p.HighActivityThreshold); err != nil {
+		return fmt.Errorf("invalid high activity threshold: %w", err)
+	}
+	if err := validateThreshold(p.LowActivityThreshold); err != nil {
+		return fmt.Errorf("invalid low activity threshold: %w", err)
+	}
+	if p.LowActivityThreshold.GTE(p.HighActivityThreshold) {
+		return fmt.Errorf("low activity threshold must be less than high activity threshold")
+	}
+	if err := validateBurnRate(p.MaxBufferSize); err != nil {
+		return fmt.Errorf("invalid max buffer size: %w", err)
+	}
+
 	return nil
 }
 
@@ -142,7 +219,18 @@ func (p Params) String() string {
   Max Net Supply Rate/Year: %s
   Initial Supply:           %s
   Min Gas Usage for Inflation: %s
-  Epochs Per Year:          %d`,
+  Epochs Per Year:          %d
+  === Reverse Brake ===
+  Reverse Brake Enabled:       %t
+  Reverse Brake Trigger Count: %d
+  Reverse Brake Reduction Rate: %s
+  === Income Smoother ===
+  Income Smoother Enabled:     %t
+  Buffer Contribution Rate:    %s
+  Buffer Release Rate:         %s
+  High Activity Threshold:     %s
+  Low Activity Threshold:      %s
+  Max Buffer Size:             %s`,
 		p.BurnEnabled,
 		p.MinBurnRate,
 		p.MaxBurnRate,
@@ -155,6 +243,15 @@ func (p Params) String() string {
 		p.InitialSupply,
 		p.MinGasUsageForInflation,
 		p.EpochsPerYear,
+		p.ReverseBrakeEnabled,
+		p.ReverseBrakeTriggerCount,
+		p.ReverseBrakeReductionRate,
+		p.IncomeSmootherEnabled,
+		p.BufferContributionRate,
+		p.BufferReleaseRate,
+		p.HighActivityThreshold,
+		p.LowActivityThreshold,
+		p.MaxBufferSize,
 	)
 }
 
@@ -223,6 +320,17 @@ func validateThreshold(i interface{}) error {
 	}
 	if v.IsNegative() || v.GT(sdk.OneDec()) {
 		return fmt.Errorf("threshold must be between 0 and 1: %s", v)
+	}
+	return nil
+}
+
+func validateTriggerCount(i interface{}) error {
+	v, ok := i.(uint32)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if v == 0 {
+		return fmt.Errorf("trigger count must be positive")
 	}
 	return nil
 }

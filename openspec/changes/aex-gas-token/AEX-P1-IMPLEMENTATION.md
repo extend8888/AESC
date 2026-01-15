@@ -1,5 +1,7 @@
 # AEX-P1: 通胀与供给控制 - 实现方案分析
 
+> **状态：✅ 已完成**
+>
 > 本文档分析 AEX 通胀机制的实现方式，区分需要代码开发和仅需 Genesis 配置的功能。
 
 ---
@@ -44,13 +46,14 @@ TokenReleaseSchedule[]:
 | **设置 mint denom** | `mint.params.mint_denom: "uaex"` | 确保 mint 使用 uaex |
 | **初始供给量** | `bank.supply` + 账户余额 | 500M AEX 初始分配 |
 
-### ⚠️ 需要代码开发
+### ✅ 已完成代码开发
 
-| 功能 | 需求 | 复杂度 |
+| 功能 | 实现 | 状态 |
 |------|------|--------|
-| **动态通胀触发** | 基于 Gas 使用率、交易量触发通胀 | 高 |
-| **年通胀上限 3%** | 跟踪年度铸造量，硬性约束 | 中 |
-| **净供给 ≤5% 约束** | 12 个月滚动窗口，结合销毁数据 | 高 |
+| **动态通胀触发** | `MintInflation()` - 基于 Gas 使用率触发 | ✅ |
+| **年通胀上限 3%** | `calculateInflationAmount()` - 年度预算跟踪 | ✅ |
+| **净供给 ≤5% 约束** | `Get12MonthNetSupply()` + `MonthlyBurnData` 滚动窗口 | ✅ |
+| **反向刹车机制** | `UpdateReverseBrakeState()` - 连续负净供给时降低销毁 | ✅ |
 
 ---
 
@@ -77,9 +80,14 @@ TokenReleaseSchedule[]:
 - 需要跨模块通信获取销毁数据
 - 增加复杂度
 
-### 决策：采用方案 A
+### 决策：采用方案 A ✅
 
-扩展 `x/aexburn` 为 `x/aexsupply`，统一管理销毁和通胀。
+保留 `x/aexburn` 模块名称，统一管理销毁和通胀。模块已实现：
+- 手续费销毁 (`BurnFees`)
+- 动态销毁比例 (`CalculateDynamicBurnRate`)
+- 通胀铸造 (`MintInflation`)
+- 净供给计算 (`Get12MonthNetSupply`)
+- 反向刹车 (`UpdateReverseBrakeState`)
 
 ---
 
@@ -170,10 +178,33 @@ func (k Keeper) AfterEpochEnd(ctx sdk.Context, epoch epochTypes.Epoch) {
 
 ---
 
-## 6. 下一步行动
+## 6. 实现完成状态
 
-1. **先更新 Genesis 配置模板** - 禁用 Sei mint 时间表
-2. **扩展 aexburn proto** - 添加通胀相关类型
-3. **实现通胀逻辑** - keeper 方法和 epoch hook
-4. **单元测试** - 验证约束逻辑
+| 步骤 | 状态 | 说明 |
+|------|------|------|
+| Genesis 配置模板 | ✅ | `aesc_genesis_template.json` 已禁用 Sei mint |
+| proto 定义扩展 | ✅ | `proto/aexburn/*.proto` 已完成 |
+| 通胀逻辑 | ✅ | `x/aexburn/keeper/inflation.go` |
+| 销毁逻辑 | ✅ | `x/aexburn/keeper/burn.go` |
+| 反向刹车 | ✅ | `x/aexburn/keeper/burn.go` + `hooks.go` |
+| Epoch Hook | ✅ | `x/aexburn/keeper/hooks.go` |
+| 单元测试 | ✅ | `x/aexburn/keeper/*_test.go` |
+
+### 关键文件
+
+```
+x/aexburn/
+├── keeper/
+│   ├── keeper.go       # 状态存取方法
+│   ├── burn.go         # 销毁逻辑、动态比例、反向刹车
+│   ├── inflation.go    # 通胀逻辑、年度上限、净供给约束
+│   ├── hooks.go        # Epoch hooks
+│   ├── keeper_test.go  # 基础功能测试
+│   ├── burn_test.go    # 销毁机制测试
+│   └── inflation_test.go # 通胀机制测试
+├── types/
+│   ├── params.go       # 参数定义与验证
+│   └── keys.go         # 存储键
+└── genesis.go          # 创世状态导入导出
+```
 

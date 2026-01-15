@@ -19,16 +19,21 @@ type Hooks struct {
 var _ epochTypes.EpochHooks = Hooks{}
 
 // AfterEpochEnd is called at the end of each epoch
-// It triggers inflation minting based on chain activity
+// It triggers inflation minting based on chain activity and updates reverse brake state
 func (h Hooks) AfterEpochEnd(ctx sdk.Context, epoch epochTypes.Epoch) {
+	epochNumber := uint64(epoch.CurrentEpoch)
+
 	// Calculate gas usage rate for this epoch
 	// For now, we use a simplified approach based on block gas used
 	gasUsageRate := h.calculateGasUsageRate(ctx)
 
 	// Mint inflation tokens if conditions are met
-	if err := h.k.MintInflation(ctx, uint64(epoch.CurrentEpoch), gasUsageRate); err != nil {
+	if err := h.k.MintInflation(ctx, epochNumber, gasUsageRate); err != nil {
 		h.k.Logger(ctx).Error("failed to mint inflation", "error", err)
 	}
+
+	// Update reverse brake state based on net supply
+	h.k.UpdateReverseBrakeState(ctx, epochNumber)
 }
 
 // BeforeEpochStart is called at the start of each epoch

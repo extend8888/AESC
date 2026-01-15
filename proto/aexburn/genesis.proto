@@ -20,5 +20,11 @@ message GenesisState {
 
   // monthly_burn_data contains the 12-month rolling window supply data (burn + mint)
   repeated MonthlyBurnData monthly_burn_data = 4 [(gogoproto.nullable) = false];
+
+  // reverse_brake_state contains the reverse brake mechanism state
+  ReverseBrakeState reverse_brake_state = 5 [(gogoproto.nullable) = false];
+
+  // income_buffer contains the validator income smoothing buffer state
+  IncomeBuffer income_buffer = 6 [(gogoproto.nullable) = false];
 }
 

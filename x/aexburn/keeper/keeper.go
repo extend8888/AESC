@@ -184,3 +184,60 @@ func (k Keeper) Get12MonthNetSupply(ctx sdk.Context) sdk.Int {
 	// Net supply change = minted - burned
 	return totalMinted.Sub(totalBurned)
 }
+
+// ========== Reverse Brake State ==========
+
+// GetReverseBrakeState returns the reverse brake state
+func (k Keeper) GetReverseBrakeState(ctx sdk.Context) types.ReverseBrakeState {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.ReverseBrakeStateKey)
+	if bz == nil {
+		return types.ReverseBrakeState{
+			ConsecutiveNegativePeriods: 0,
+			IsBrakeActive:              false,
+			CurrentReduction:           sdk.ZeroDec(),
+			LastCheckEpoch:             0,
+			LastNetSupply:              sdk.ZeroInt(),
+		}
+	}
+
+	var state types.ReverseBrakeState
+	k.cdc.MustUnmarshal(bz, &state)
+	return state
+}
+
+// SetReverseBrakeState sets the reverse brake state
+func (k Keeper) SetReverseBrakeState(ctx sdk.Context, state types.ReverseBrakeState) {
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshal(&state)
+	store.Set(types.ReverseBrakeStateKey, bz)
+}
+
+// ========== Income Buffer ==========
+
+// GetIncomeBuffer returns the income buffer state
+func (k Keeper) GetIncomeBuffer(ctx sdk.Context) types.IncomeBuffer {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.IncomeBufferKey)
+	if bz == nil {
+		return types.IncomeBuffer{
+			Balance:               sdk.ZeroInt(),
+			TotalContributed:      sdk.ZeroInt(),
+			TotalReleased:         sdk.ZeroInt(),
+			LastContributionBlock: 0,
+			LastReleaseBlock:      0,
+			LastActivityLevel:     sdk.ZeroDec(),
+		}
+	}
+
+	var buffer types.IncomeBuffer
+	k.cdc.MustUnmarshal(bz, &buffer)
+	return buffer
+}
+
+// SetIncomeBuffer sets the income buffer state
+func (k Keeper) SetIncomeBuffer(ctx sdk.Context, buffer types.IncomeBuffer) {
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshal(&buffer)
+	store.Set(types.IncomeBufferKey, bz)
+}

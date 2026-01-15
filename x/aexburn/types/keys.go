@@ -33,6 +33,12 @@ var (
 
 	// MintRecordPrefix is the prefix for storing mint records
 	MintRecordPrefix = []byte{0x06}
+
+	// ReverseBrakeStateKey is the key for storing reverse brake state
+	ReverseBrakeStateKey = []byte{0x07}
+
+	// IncomeBufferKey is the key for storing income buffer state
+	IncomeBufferKey = []byte{0x08}
 )
 
 // GetMonthlyBurnDataKey returns the key for a specific month's burn data

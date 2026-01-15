@@ -39,8 +39,7 @@ func (k Keeper) MintInflation(ctx sdk.Context, epochNumber uint64, gasUsageRate 
 	}
 
 	// Send minted coins to fee collector for distribution
-	feeCollectorAddr := k.accountKeeper.GetModuleAddress(authtypes.FeeCollectorName)
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, feeCollectorAddr, coins); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.ModuleName, authtypes.FeeCollectorName, coins); err != nil {
 		return err
 	}
 

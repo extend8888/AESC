@@ -22,14 +22,22 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 	for _, data := range genState.MonthlyBurnData {
 		k.SetMonthlyBurnData(ctx, data)
 	}
+
+	// Set reverse brake state
+	k.SetReverseBrakeState(ctx, genState.ReverseBrakeState)
+
+	// Set income buffer state
+	k.SetIncomeBuffer(ctx, genState.IncomeBuffer)
 }
 
 // ExportGenesis returns the module's exported genesis state
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params:          k.GetParams(ctx),
-		BurnStats:       k.GetBurnStats(ctx),
-		InflationStats:  k.GetInflationStats(ctx),
-		MonthlyBurnData: k.GetAllMonthlyBurnData(ctx),
+		Params:            k.GetParams(ctx),
+		BurnStats:         k.GetBurnStats(ctx),
+		InflationStats:    k.GetInflationStats(ctx),
+		MonthlyBurnData:   k.GetAllMonthlyBurnData(ctx),
+		ReverseBrakeState: k.GetReverseBrakeState(ctx),
+		IncomeBuffer:      k.GetIncomeBuffer(ctx),
 	}
 }

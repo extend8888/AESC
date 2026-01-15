@@ -151,3 +151,70 @@ message MintRecord {
   ];
 }
 
+// ========== Reverse Brake Types ==========
+
+// ReverseBrakeState tracks the reverse brake mechanism state
+message ReverseBrakeState {
+  // consecutive_negative_periods is the count of consecutive periods with negative net supply
+  uint32 consecutive_negative_periods = 1 [(gogoproto.moretags) = "yaml:\"consecutive_negative_periods\""];
+
+  // is_brake_active indicates whether the reverse brake is currently active
+  bool is_brake_active = 2 [(gogoproto.moretags) = "yaml:\"is_brake_active\""];
+
+  // current_reduction is the current burn rate reduction being applied
+  string current_reduction = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"current_reduction\""
+  ];
+
+  // last_check_epoch is the epoch when net supply was last checked
+  uint64 last_check_epoch = 4 [(gogoproto.moretags) = "yaml:\"last_check_epoch\""];
+
+  // last_net_supply is the net supply at the last check
+  string last_net_supply = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"last_net_supply\""
+  ];
+}
+
+// ========== Income Smoother Types ==========
+
+// IncomeBuffer tracks the validator income smoothing buffer state
+message IncomeBuffer {
+  // balance is the current balance in the income buffer (in base units)
+  string balance = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"balance\""
+  ];
+
+  // total_contributed is the total amount ever contributed to the buffer
+  string total_contributed = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"total_contributed\""
+  ];
+
+  // total_released is the total amount ever released from the buffer
+  string total_released = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"total_released\""
+  ];
+
+  // last_contribution_block is the block height of the last contribution
+  int64 last_contribution_block = 4 [(gogoproto.moretags) = "yaml:\"last_contribution_block\""];
+
+  // last_release_block is the block height of the last release
+  int64 last_release_block = 5 [(gogoproto.moretags) = "yaml:\"last_release_block\""];
+
+  // last_activity_level is the gas usage rate at the last operation
+  string last_activity_level = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"last_activity_level\""
+  ];
+}
+
