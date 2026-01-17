@@ -150,8 +150,8 @@ func TestTraceStateAccess(t *testing.T) {
 }
 
 func TestTraceBlockWithFailureThenSuccess(t *testing.T) {
-	maxUseiInWei := sdk.NewInt(math.MaxInt64).Mul(state.SdkUseiToSweiMultiplier).BigInt()
-	insufficientFundsTx := signAndEncodeTx(sendAmount(0, maxUseiInWei), mnemonic1)
+	maxUaexInWei := sdk.NewInt(math.MaxInt64).Mul(state.SdkUaexToSweiMultiplier).BigInt()
+	insufficientFundsTx := signAndEncodeTx(sendAmount(0, maxUaexInWei), mnemonic1)
 	successTx := signAndEncodeTx(send(1), mnemonic1)
 	SetupTestServer([][][]byte{{insufficientFundsTx, successTx}}, mnemonicInitializer(mnemonic1)).Run(
 		func(port int) {

@@ -32,17 +32,17 @@ func (k BaseKeeper) InitGenesis(ctx sdk.Context, genState *types.GenesisState) {
 		}
 		totalWeiBalance = totalWeiBalance.Add(weiBalance.Amount)
 	}
-	weiInUsei, weiRemainder := SplitUaexWeiAmount(totalWeiBalance)
+	weiInUaex, weiRemainder := SplitUaexWeiAmount(totalWeiBalance)
 	if !weiRemainder.IsZero() {
 		panic(fmt.Errorf("non-zero wei remainder %s", weiRemainder))
 	}
 	baseDenom, err := sdk.GetBaseDenom()
 	if err != nil {
-		if !weiInUsei.IsZero() {
-			panic(fmt.Errorf("base denom is not registered %s yet there exists wei balance %s", err, weiInUsei))
+		if !weiInUaex.IsZero() {
+			panic(fmt.Errorf("base denom is not registered %s yet there exists wei balance %s", err, weiInUaex))
 		}
 	} else {
-		totalSupply = totalSupply.Add(sdk.NewCoin(baseDenom, weiInUsei))
+		totalSupply = totalSupply.Add(sdk.NewCoin(baseDenom, weiInUaex))
 	}
 
 	if !genState.Supply.Empty() && !genState.Supply.IsEqual(totalSupply) {
