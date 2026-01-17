@@ -49,14 +49,14 @@ To update the feesparams, use a governance proposal like such:
       "value": {
 	  "global_minimum_gas_prices": [
     		{
-      		"denom": "usei",
+      		"denom": "uaex",
       		"amount":	 "1.00000000000000000"
     		}
   	]
  	}
     }
   ],
-  "deposit": "1000000000usei",
+  "deposit": "1000000000uaex",
   "is_expedited": true
 }
 ```

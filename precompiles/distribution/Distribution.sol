@@ -56,7 +56,7 @@ interface IDistr {
         uint256 amount;
         /// @notice Number of decimal places for display purposes
         uint256 decimals;
-        /// @notice Token denomination (e.g., "usei", "uatom")
+        /// @notice Token denomination (e.g., "uaex", "uatom")
         string denom;
     }
 

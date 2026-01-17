@@ -1354,7 +1354,7 @@
                         "txs_results": [
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1t9fq3qfm7ngau5gr8qgf5dpfzjqg79kf65cu04\"},{\"key\":\"exchange_rates\",\"value\":\"8.584366998377809421uatom,68798.497936720730464284ubtc,3919.212595886977897971ueth,0.840180924958256842uosmo,0.538220104751783328usei,1.000240207289838378uusdc,0.999397663472680844uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei14n9fhykwk8rk7zln7rzd6uyhm2gzntuw2pv0e9\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1t9fq3qfm7ngau5gr8qgf5dpfzjqg79kf65cu04\"},{\"key\":\"exchange_rates\",\"value\":\"8.584366998377809421uatom,68798.497936720730464284ubtc,3919.212595886977897971ueth,0.840180924958256842uosmo,0.538220104751783328uaex,1.000240207289838378uusdc,0.999397663472680844uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc14n9fhykwk8rk7zln7rzd6uyhm2gzntuw2pv0e9\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -1450,7 +1450,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1w6jrkym8v0nc63kud6erdlt06c2eawhr85hec0\"},{\"key\":\"exchange_rates\",\"value\":\"8.584369427764707294uatom,68798.497907111819432765ubtc,3919.212599241921299259ueth,0.841510374038179294uosmo,0.538241953471966125usei,1.000238595849089502uusdc,0.999397663472680844uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei12p0jcq6ftqa7gpr4mfnm5ymu579yuwpxctxap4\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1w6jrkym8v0nc63kud6erdlt06c2eawhr85hec0\"},{\"key\":\"exchange_rates\",\"value\":\"8.584369427764707294uatom,68798.497907111819432765ubtc,3919.212599241921299259ueth,0.841510374038179294uosmo,0.538241953471966125uaex,1.000238595849089502uusdc,0.999397663472680844uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc12p0jcq6ftqa7gpr4mfnm5ymu579yuwpxctxap4\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -1546,7 +1546,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper10c6rrz55ukkaf7rjeerhpxwpqel4tllzs8vgfq\"},{\"key\":\"exchange_rates\",\"value\":\"8.584367025274084255uatom,68798.497978329934464763ubtc,3919.212542471312065962ueth,0.840180924958256842uosmo,0.538220104751783328usei,1.000240209005056876uusdc,0.999397666606754227uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei14y0q9ax6smr32sqt7spxvlsksjw7pyxsqcf9eg\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper10c6rrz55ukkaf7rjeerhpxwpqel4tllzs8vgfq\"},{\"key\":\"exchange_rates\",\"value\":\"8.584367025274084255uatom,68798.497978329934464763ubtc,3919.212542471312065962ueth,0.840180924958256842uosmo,0.538220104751783328uaex,1.000240209005056876uusdc,0.999397666606754227uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc14y0q9ax6smr32sqt7spxvlsksjw7pyxsqcf9eg\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -1642,7 +1642,7 @@
                             },
                             {
                                 "data": "CncKKy9zZWlwcm90b2NvbC5zZWljaGFpbi5ldm0uTXNnRVZNVHJhbnNhY3Rpb24SSAiIpAEiQjB4NTE3NGMzZWFlN2MwZDg3ZGNhOTA1YzQyYTBmMTI0MWMyZDM4MzRjMTQyMTU5NGFkOGYwNjdlMGY0ODY4MDhhOA==",
-                                "log": "[{\"events\":[{\"type\":\"coin_received\",\"attributes\":[{\"key\":\"receiver\",\"value\":\"sei13mklq4k7359sl55zesxhxv6g3nzmt5jzuxdyfm\"},{\"key\":\"amount\",\"value\":\"10000000usei\"},{\"key\":\"receiver\",\"value\":\"sei1v4mx6hmrda5kucnpwdjsqqqqqqqqqqqr3lv3rn\"},{\"key\":\"amount\",\"value\":\"21000usei\"}]},{\"type\":\"coin_spent\",\"attributes\":[{\"key\":\"spender\",\"value\":\"sei1z3r0ccsssnvuaheuakul58zlu65rngw7njrjcz\"},{\"key\":\"amount\",\"value\":\"10000000usei\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.evm.MsgEVMTransaction\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"coin_received\",\"attributes\":[{\"key\":\"receiver\",\"value\":\"aesc13mklq4k7359sl55zesxhxv6g3nzmt5jzuxdyfm\"},{\"key\":\"amount\",\"value\":\"10000000uaex\"},{\"key\":\"receiver\",\"value\":\"aesc1v4mx6hmrda5kucnpwdjsqqqqqqqqqqqr3lv3rn\"},{\"key\":\"amount\",\"value\":\"21000uaex\"}]},{\"type\":\"coin_spent\",\"attributes\":[{\"key\":\"spender\",\"value\":\"aesc1z3r0ccsssnvuaheuakul58zlu65rngw7njrjcz\"},{\"key\":\"amount\",\"value\":\"10000000uaex\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.evm.MsgEVMTransaction\"}]}]}]",
                                 "gas_wanted": 21000,
                                 "gas_used": 21000,
                                 "events": [

@@ -11,19 +11,19 @@
 
 - [x] **AEX-001**: 修改 `app/params/config.go`
   - 将 `HumanCoinUnit` 从 "sei" 改为 "aex"
-  - 将 `BaseCoinUnit` 从 "usei" 改为 "uaex"
+  - 将 `BaseCoinUnit` 从 "uaex" 改为 "uaex"
   - 将 `UseiExponent` 重命名为 `UaexExponent`
   - 将 `Bech32PrefixAccAddr` 从 "sei" 改为 "aesc"
 
 - [x] **AEX-002**: 修改 `x/evm/keeper/params.go`
-  - 将 `BaseDenom` 常量从 "usei" 改为 "uaex"
+  - 将 `BaseDenom` 常量从 "uaex" 改为 "uaex"
 
 - [x] **AEX-003**: 修改 `cmd/seid/cmd/root.go`
-  - 将 `MinGasPrices` 从 "0.02usei" 改为 "0.02uaex"
+  - 将 `MinGasPrices` 从 "0.02uaex" 改为 "0.02uaex"
 
 - [x] **AEX-004**: 全局搜索替换（30+ 文件）
-  - 所有 "usei" → "uaex"
-  - 所有 "sei1" 地址 → "aesc1" 地址
+  - 所有 "uaex" → "uaex"
+  - 所有 "aesc1" 地址 → "aesc1" 地址
 
 - [x] **AEX-005**: Genesis 配置模板
   - `depoly-scripts/localnode/aesc_genesis_template.json`

@@ -1447,7 +1447,7 @@
                         "txs_results": [
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1ykls6dhh2mjqk9x0d3ee29873stf7wwvedcjmh\"},{\"key\":\"exchange_rates\",\"value\":\"8.284750105874336908uatom,67840.274199618818356870ubtc,3774.281184249180337894ueth,0.824159706695221392uosmo,0.478598695145347407usei,1.000034077904976258uusdc,0.999511002466083986uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1l0cjnz9fk53lgam8aqwr04tk2wtfu5zpfz0psk\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1ykls6dhh2mjqk9x0d3ee29873stf7wwvedcjmh\"},{\"key\":\"exchange_rates\",\"value\":\"8.284750105874336908uatom,67840.274199618818356870ubtc,3774.281184249180337894ueth,0.824159706695221392uosmo,0.478598695145347407uaex,1.000034077904976258uusdc,0.999511002466083986uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1l0cjnz9fk53lgam8aqwr04tk2wtfu5zpfz0psk\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -1543,7 +1543,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1eqgnd7ey0hnha8rrfukjrsawulhna0zagcg6a4\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966513531421323uatom,67840.340629170670200810ubtc,3774.281777299879682349ueth,0.824161968019979788uosmo,0.478598967583307457usei,1.000034021154522296uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1nurfe690mer9dmy8pp7resdsfx3pya7h9qw39l\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1eqgnd7ey0hnha8rrfukjrsawulhna0zagcg6a4\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966513531421323uatom,67840.340629170670200810ubtc,3774.281777299879682349ueth,0.824161968019979788uosmo,0.478598967583307457uaex,1.000034021154522296uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1nurfe690mer9dmy8pp7resdsfx3pya7h9qw39l\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -1639,7 +1639,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1hnkkqnzwmyw652muh6wfea7xlfgplnyj0ku4w4\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753150924857880uatom,67840.141574201496622347ubtc,3774.281574804852774319ueth,0.824161968019979788uosmo,0.478597794141457371usei,1.000034432802183235uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1ykxlrpkrkcnhvwnmcq8tfkqhmsaanaejphz6ps\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1hnkkqnzwmyw652muh6wfea7xlfgplnyj0ku4w4\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753150924857880uatom,67840.141574201496622347ubtc,3774.281574804852774319ueth,0.824161968019979788uosmo,0.478597794141457371uaex,1.000034432802183235uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1ykxlrpkrkcnhvwnmcq8tfkqhmsaanaejphz6ps\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -1735,7 +1735,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper10c6rrz55ukkaf7rjeerhpxwpqel4tllzs8vgfq\"},{\"key\":\"exchange_rates\",\"value\":\"8.284750076254910829uatom,67840.081056706154478419ubtc,3774.281890403602803808ueth,0.824159681800191106uosmo,0.478597766986658448usei,1.000034074452865524uusdc,0.999510998892657887uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei14y0q9ax6smr32sqt7spxvlsksjw7pyxsqcf9eg\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper10c6rrz55ukkaf7rjeerhpxwpqel4tllzs8vgfq\"},{\"key\":\"exchange_rates\",\"value\":\"8.284750076254910829uatom,67840.081056706154478419ubtc,3774.281890403602803808ueth,0.824159681800191106uosmo,0.478597766986658448uaex,1.000034074452865524uusdc,0.999510998892657887uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc14y0q9ax6smr32sqt7spxvlsksjw7pyxsqcf9eg\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -1831,7 +1831,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1xh2gf9gyvumlgpr9ws5n425vhntv9rysw9gr4q\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966520757169341uatom,67840.347110357417263054ubtc,3774.281643926730323818ueth,0.824161968019979788uosmo,0.478598967583307457usei,1.000034024058234402uusdc,0.999511372938307624uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1u5qgx3ephw2kv5jtmt2l6cld5rjgxgyt400a83\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1xh2gf9gyvumlgpr9ws5n425vhntv9rysw9gr4q\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966520757169341uatom,67840.347110357417263054ubtc,3774.281643926730323818ueth,0.824161968019979788uosmo,0.478598967583307457uaex,1.000034024058234402uusdc,0.999511372938307624uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1u5qgx3ephw2kv5jtmt2l6cld5rjgxgyt400a83\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -1927,7 +1927,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1mee6kysxzp99kfvgk7nqx7lrqg8txmw7kap9gy\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753103863849543uatom,67840.147501089796095690ubtc,3774.281678968953408757ueth,0.824161992276458364uosmo,0.478598695145347407usei,1.000034427317275743uusdc,0.999511364157561081uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1fj0rz6hw0g3p5fh2dmq7pedzv72s85hxck26av\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1mee6kysxzp99kfvgk7nqx7lrqg8txmw7kap9gy\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753103863849543uatom,67840.147501089796095690ubtc,3774.281678968953408757ueth,0.824161992276458364uosmo,0.478598695145347407uaex,1.000034427317275743uusdc,0.999511364157561081uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1fj0rz6hw0g3p5fh2dmq7pedzv72s85hxck26av\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2023,7 +2023,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1garz4kjfgar8dwypayufca2mujgtfxlv6kte03\"},{\"key\":\"exchange_rates\",\"value\":\"8.284752426372747013uatom,67840.075347931264358054ubtc,3774.281643926730323818ueth,0.824161968019979788uosmo,0.478599033382675768usei,1.000034320769722138uusdc,0.999511253865673529uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei18mjfdutlrepqxqtkhgrljfsj8g75ncsquftwxl\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1garz4kjfgar8dwypayufca2mujgtfxlv6kte03\"},{\"key\":\"exchange_rates\",\"value\":\"8.284752426372747013uatom,67840.075347931264358054ubtc,3774.281643926730323818ueth,0.824161968019979788uosmo,0.478599033382675768uaex,1.000034320769722138uusdc,0.999511253865673529uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc18mjfdutlrepqxqtkhgrljfsj8g75ncsquftwxl\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2119,7 +2119,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1vjj609rued3hxztj6gauca3w7fzu96g4yp6y39\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966155451291658uatom,67840.473413809909514533ubtc,3774.281678968953408757ueth,0.824161992276458364uosmo,0.478598695145347407usei,1.000034427317275743uusdc,0.999511364157561081uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1rwewv6crhfl07z3z5uxw6zt3657hhpwm0ry0rp\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1vjj609rued3hxztj6gauca3w7fzu96g4yp6y39\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966155451291658uatom,67840.473413809909514533ubtc,3774.281678968953408757ueth,0.824161992276458364uosmo,0.478598695145347407uaex,1.000034427317275743uusdc,0.999511364157561081uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1rwewv6crhfl07z3z5uxw6zt3657hhpwm0ry0rp\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2215,7 +2215,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1mpe9rdk7ycujge7r9ncjt4ekamgrdcygvzwqe8\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966269472043147uatom,67840.679412171880582651ubtc,3774.281797913808972452ueth,0.824161968019979788uosmo,0.478597834987781194usei,1.000034432898322277uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1xrrfek3qpz4ja8ccrjklfy064asyqq9k778ejw\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1mpe9rdk7ycujge7r9ncjt4ekamgrdcygvzwqe8\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966269472043147uatom,67840.679412171880582651ubtc,3774.281797913808972452ueth,0.824161968019979788uosmo,0.478597834987781194uaex,1.000034432898322277uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1xrrfek3qpz4ja8ccrjklfy064asyqq9k778ejw\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2311,7 +2311,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper146m089lq8mkqw6w0mmlhxz6247g2taha89at74\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753413342418858uatom,67840.147500998004440799ubtc,3774.281643926730323818ueth,0.824161992276458364uosmo,0.478598695145347407usei,1.000034435799921962uusdc,0.999511372938307624uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1v7qvhk77dn0kkde6chyj6plfkj7004c0pae9r7\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper146m089lq8mkqw6w0mmlhxz6247g2taha89at74\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753413342418858uatom,67840.147500998004440799ubtc,3774.281643926730323818ueth,0.824161992276458364uosmo,0.478598695145347407uaex,1.000034435799921962uusdc,0.999511372938307624uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1v7qvhk77dn0kkde6chyj6plfkj7004c0pae9r7\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2407,7 +2407,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1xm0pjt3qsdlc6u4n7fjpycqd5h7zwla7tz8m37\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753187418471096uatom,67840.141574286770671605ubtc,3774.281890403602803808ueth,0.824161968019979788uosmo,0.478597834987781194usei,1.000034429456070722uusdc,0.999511366371518393uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei15pv8rmmtc23atu9zusfqdpc58z4y6jrtgptqfd\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1xm0pjt3qsdlc6u4n7fjpycqd5h7zwla7tz8m37\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753187418471096uatom,67840.141574286770671605ubtc,3774.281890403602803808ueth,0.824161968019979788uosmo,0.478597834987781194uaex,1.000034429456070722uusdc,0.999511366371518393uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc15pv8rmmtc23atu9zusfqdpc58z4y6jrtgptqfd\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2503,7 +2503,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1ctnle8anjvrsf7h2cdwewwa377x63ec3ukfe6h\"},{\"key\":\"exchange_rates\",\"value\":\"8.284965167863194026uatom,67840.340629267440456352ubtc,3774.281678968953408757ueth,0.824161968019979788uosmo,0.478599033382675768usei,1.000034312217955710uusdc,0.999511245013377729uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei14gcl2gvj4y4zey5j2kpek25wg0f4ns7fpcd8c6\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1ctnle8anjvrsf7h2cdwewwa377x63ec3ukfe6h\"},{\"key\":\"exchange_rates\",\"value\":\"8.284965167863194026uatom,67840.340629267440456352ubtc,3774.281678968953408757ueth,0.824161968019979788uosmo,0.478599033382675768uaex,1.000034312217955710uusdc,0.999511245013377729uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc14gcl2gvj4y4zey5j2kpek25wg0f4ns7fpcd8c6\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2599,7 +2599,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1spg334qdsxtmlzqn9vsh566477wd0hr56cjspj\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966155451291658uatom,67840.407039420905019128ubtc,3774.281678968953408757ueth,0.824161968019979788uosmo,0.478598703316308038usei,1.000034427317275743uusdc,0.999511364157561081uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei18qn8rwdwmvzsj8gx3zjrgr7ur2vajf0e0swx4q\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1spg334qdsxtmlzqn9vsh566477wd0hr56cjspj\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966155451291658uatom,67840.407039420905019128ubtc,3774.281678968953408757ueth,0.824161968019979788uosmo,0.478598703316308038uaex,1.000034427317275743uusdc,0.999511364157561081uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc18qn8rwdwmvzsj8gx3zjrgr7ur2vajf0e0swx4q\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2695,7 +2695,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1fpvjye4rcqmds6vvrjvf4pl8jfsv5vkn0llaxs\"},{\"key\":\"exchange_rates\",\"value\":\"8.284752484912903717uatom,67840.347110351257902999ubtc,3774.281777299879682349ueth,0.824161968019979788uosmo,0.478598967583307457usei,1.000033906016906658uusdc,0.999511250837619091uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1s2gtk40ya9r9g35sayluasgyse2ckzkg6f492k\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1fpvjye4rcqmds6vvrjvf4pl8jfsv5vkn0llaxs\"},{\"key\":\"exchange_rates\",\"value\":\"8.284752484912903717uatom,67840.347110351257902999ubtc,3774.281777299879682349ueth,0.824161968019979788uosmo,0.478598967583307457uaex,1.000033906016906658uusdc,0.999511250837619091uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1s2gtk40ya9r9g35sayluasgyse2ckzkg6f492k\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2791,7 +2791,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1es38d8hn854vdcg8ql6fr3cycmahj6qypmpefu\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753122214906239uatom,67840.147501092616540939ubtc,3774.281890403602803808ueth,0.824161968019979788uosmo,0.478599033382675768usei,1.000034429456070722uusdc,0.999511366371518393uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei10ff3ucm7k0twgqwfvxqdjkl4skdxla2np806tw\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1es38d8hn854vdcg8ql6fr3cycmahj6qypmpefu\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753122214906239uatom,67840.147501092616540939ubtc,3774.281890403602803808ueth,0.824161968019979788uosmo,0.478599033382675768uaex,1.000034429456070722uusdc,0.999511366371518393uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc10ff3ucm7k0twgqwfvxqdjkl4skdxla2np806tw\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2882,7 +2882,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper18tpdet22kpvswxayekwn55ry0r5acx4kaauupk\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966202513510221uatom,67840.407039339989003942ubtc,3774.281574804852774319ueth,0.824161992276458364uosmo,0.478598695145347407usei,1.000034432802183235uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei14qrcwmzpdszq0gehfq63rarm7pxqwxm7xarcxj\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper18tpdet22kpvswxayekwn55ry0r5acx4kaauupk\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966202513510221uatom,67840.407039339989003942ubtc,3774.281574804852774319ueth,0.824161992276458364uosmo,0.478598695145347407uaex,1.000034432802183235uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc14qrcwmzpdszq0gehfq63rarm7pxqwxm7xarcxj\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -2978,7 +2978,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1zv9z2wqt348dhxqn38xv8dvsu78cle4xs2cdf4\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753103863849543uatom,67840.081056703482799721ubtc,3774.281678968953408757ueth,0.824161968019979788uosmo,0.478597766986658448usei,1.000034427317275743uusdc,0.999511364157561081uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1tmxrwgmdplqzq5kvq06778pwue06qzuynfc32e\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1zv9z2wqt348dhxqn38xv8dvsu78cle4xs2cdf4\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753103863849543uatom,67840.081056703482799721ubtc,3774.281678968953408757ueth,0.824161968019979788uosmo,0.478597766986658448uaex,1.000034427317275743uusdc,0.999511364157561081uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1tmxrwgmdplqzq5kvq06778pwue06qzuynfc32e\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -3074,7 +3074,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1qe8uuf5x69c526h4nzxwv4ltftr73v7qnkypla\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966760846745108uatom,67840.613072678268553184ubtc,3774.281890403602803808ueth,0.824161968019937333uosmo,0.478597779675471711usei,1.000012148747708390uusdc,0.999511366371518393uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1yz354pg6a2d0qtawaty0wcfuau3axkjejymlfx\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1qe8uuf5x69c526h4nzxwv4ltftr73v7qnkypla\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966760846745108uatom,67840.613072678268553184ubtc,3774.281890403602803808ueth,0.824161968019937333uosmo,0.478597779675471711uaex,1.000012148747708390uusdc,0.999511366371518393uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1yz354pg6a2d0qtawaty0wcfuau3axkjejymlfx\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -3170,7 +3170,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1w6jrkym8v0nc63kud6erdlt06c2eawhr85hec0\"},{\"key\":\"exchange_rates\",\"value\":\"8.284666284220721517uatom,67840.141574286909352007ubtc,3774.281797913808972452ueth,0.823896498568815836uosmo,0.478287879161695529usei,1.000034432898322277uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei12p0jcq6ftqa7gpr4mfnm5ymu579yuwpxctxap4\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1w6jrkym8v0nc63kud6erdlt06c2eawhr85hec0\"},{\"key\":\"exchange_rates\",\"value\":\"8.284666284220721517uatom,67840.141574286909352007ubtc,3774.281797913808972452ueth,0.823896498568815836uosmo,0.478287879161695529uaex,1.000034432898322277uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc12p0jcq6ftqa7gpr4mfnm5ymu579yuwpxctxap4\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -3266,7 +3266,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper10plkkmv757pfydyqc97s87zgqt84vry6dx6q9k\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753150924857880uatom,67839.753209172032005139ubtc,3774.281574804852774319ueth,0.824161968019979788uosmo,0.478598635112037769usei,1.000034432802183235uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1vf6zqm7z3z80qes2hc9gupmgxaap25qvw8ewn2\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper10plkkmv757pfydyqc97s87zgqt84vry6dx6q9k\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753150924857880uatom,67839.753209172032005139ubtc,3774.281574804852774319ueth,0.824161968019979788uosmo,0.478598635112037769uaex,1.000034432802183235uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1vf6zqm7z3z80qes2hc9gupmgxaap25qvw8ewn2\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -3362,7 +3362,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper17ga9jha45gu0x04yrmfpjpksmqe48wupzk5jex\"},{\"key\":\"exchange_rates\",\"value\":\"8.284888011259216973uatom,67840.347110357278809378ubtc,3774.281643926730323818ueth,0.823896498568307772uosmo,0.478196417997283703usei,1.000012155304990213uusdc,0.999511372938307624uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1f9gy2u3sl4afd3qpqc59x2sdxma4tw67wv2k7v\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper17ga9jha45gu0x04yrmfpjpksmqe48wupzk5jex\"},{\"key\":\"exchange_rates\",\"value\":\"8.284888011259216973uatom,67840.347110357278809378ubtc,3774.281643926730323818ueth,0.823896498568307772uosmo,0.478196417997283703uaex,1.000012155304990213uusdc,0.999511372938307624uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1f9gy2u3sl4afd3qpqc59x2sdxma4tw67wv2k7v\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -3458,7 +3458,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1ummny4p645xraxc4m7nphf7vxawfzt3p5hn47t\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753216128422963uatom,67840.075347940338969601ubtc,3774.281574804852774319ueth,0.824161968019979788uosmo,0.478598967583307457usei,1.000034021058313263uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei16dckxyuc6w3cmxktr908afhenwg88j5qap2l00\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1ummny4p645xraxc4m7nphf7vxawfzt3p5hn47t\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753216128422963uatom,67840.075347940338969601ubtc,3774.281574804852774319ueth,0.824161968019979788uosmo,0.478598967583307457uaex,1.000034021058313263uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc16dckxyuc6w3cmxktr908afhenwg88j5qap2l00\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -3554,7 +3554,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1d50kgydm02xg9kpafa8e3jwz83c0uvagkx9m5n\"},{\"key\":\"exchange_rates\",\"value\":\"8.284666350423306281uatom,67840.147501092616423481ubtc,3774.281797913808972452ueth,0.823896498568815836uosmo,0.478300164835104674usei,1.000034021154522296uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1umsz72jtj9n30hkehahhq9mfj5k53apv8s6hsy\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1d50kgydm02xg9kpafa8e3jwz83c0uvagkx9m5n\"},{\"key\":\"exchange_rates\",\"value\":\"8.284666350423306281uatom,67840.147501092616423481ubtc,3774.281797913808972452ueth,0.823896498568815836uosmo,0.478300164835104674uaex,1.000034021154522296uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1umsz72jtj9n30hkehahhq9mfj5k53apv8s6hsy\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -3650,7 +3650,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1xhxnad3c86q3d8ggsyu24j7r0y5k3ef4uhh9e2\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966202513510221uatom,67840.613072594940096503ubtc,3774.281574804852774319ueth,0.824161968019979788uosmo,0.478599033382675768usei,1.000034432802183235uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1m24w7nfduzl3mghvn67ypsv2g4nsfspmgdmvpu\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1xhxnad3c86q3d8ggsyu24j7r0y5k3ef4uhh9e2\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966202513510221uatom,67840.613072594940096503ubtc,3774.281574804852774319ueth,0.824161968019979788uosmo,0.478599033382675768uaex,1.000034432802183235uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1m24w7nfduzl3mghvn67ypsv2g4nsfspmgdmvpu\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -3746,7 +3746,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper16znh8ktn33dwnxxc9q0jmxmjf6hsz4tl0s6vxh\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966155451291658uatom,67840.407039420904867473ubtc,3774.281678968953408757ueth,0.824161992276458364uosmo,0.478598695145347407usei,1.000034427317275743uusdc,0.999511364157561081uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1v03sk39q3jy42tc30mptnp6vw5fv54e0x6drkv\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper16znh8ktn33dwnxxc9q0jmxmjf6hsz4tl0s6vxh\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966155451291658uatom,67840.407039420904867473ubtc,3774.281678968953408757ueth,0.824161992276458364uosmo,0.478598695145347407uaex,1.000034427317275743uusdc,0.999511364157561081uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1v03sk39q3jy42tc30mptnp6vw5fv54e0x6drkv\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -3842,7 +3842,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper1mm5p6ak2w94cwry0n42px3ssajgytxnwfvd4w8\"},{\"key\":\"exchange_rates\",\"value\":\"8.284770164122244247uatom,67840.280494170524492351ubtc,3774.289294611874797732ueth,0.824161898788874131uosmo,0.478588479646570759usei,1.000647909905602382uusdc,0.999511366371518393uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1acq5rjeq320uvqwgzlsagr2urvvufzwenkqpvn\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper1mm5p6ak2w94cwry0n42px3ssajgytxnwfvd4w8\"},{\"key\":\"exchange_rates\",\"value\":\"8.284770164122244247uatom,67840.280494170524492351ubtc,3774.289294611874797732ueth,0.824161898788874131uosmo,0.478588479646570759uaex,1.000647909905602382uusdc,0.999511366371518393uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1acq5rjeq320uvqwgzlsagr2urvvufzwenkqpvn\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -3938,7 +3938,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper140l6y2gp3gxvay6qtn70re7z2s0gn57zl6nups\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753150924857880uatom,67840.075347940477812061ubtc,3774.281574956522162302ueth,0.824161968019979788uosmo,0.478597766986658448usei,1.000034432802183235uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1ghjz5yxx0s73afsjnpyjas7l437h6fg0fazddn\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper140l6y2gp3gxvay6qtn70re7z2s0gn57zl6nups\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753150924857880uatom,67840.075347940477812061ubtc,3774.281574956522162302ueth,0.824161968019979788uosmo,0.478597766986658448uaex,1.000034432802183235uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1ghjz5yxx0s73afsjnpyjas7l437h6fg0fazddn\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -4034,7 +4034,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper16pj5gljqnqs0ajxakccfjhu05yczp98743ctgy\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966203338413221uatom,67840.480262024850805657ubtc,3774.281797913808972452ueth,0.824161992276458364uosmo,0.478598695145347407usei,1.000034432898322277uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1vhj8aavtx77g5p29na07a4slasv4r4ehm5qn53\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper16pj5gljqnqs0ajxakccfjhu05yczp98743ctgy\"},{\"key\":\"exchange_rates\",\"value\":\"8.284966203338413221uatom,67840.480262024850805657ubtc,3774.281797913808972452ueth,0.824161992276458364uosmo,0.478598695145347407uaex,1.000034432898322277uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1vhj8aavtx77g5p29na07a4slasv4r4ehm5qn53\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -4130,7 +4130,7 @@
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper14u38cl6knqxs6vs7lj7vzfvap42yyc3runtrwc\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753216128422963uatom,67840.081056620181473552ubtc,3774.281574804852774319ueth,0.824161968019979788uosmo,0.478598967583307457usei,1.000034021058313263uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei13u2zsyy8r3vq3g3cv0r2kdn94f400kdke3mu8c\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper14u38cl6knqxs6vs7lj7vzfvap42yyc3runtrwc\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753216128422963uatom,67840.081056620181473552ubtc,3774.281574804852774319ueth,0.824161968019979788uosmo,0.478598967583307457uaex,1.000034021058313263uusdc,0.999511369835221242uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc13u2zsyy8r3vq3g3cv0r2kdn94f400kdke3mu8c\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -4226,12 +4226,12 @@
                             },
                             {
                                 "code": 24,
-                                "log": "seivaloper1ykls6dhh2mjqk9x0d3ee29873stf7wwvedcjmh: aggregate vote still present in current voting window",
+                                "log": "aescvaloper1ykls6dhh2mjqk9x0d3ee29873stf7wwvedcjmh: aggregate vote still present in current voting window",
                                 "codespace": "oracle"
                             },
                             {
                                 "data": "CjsKOS9zZWlwcm90b2NvbC5zZWljaGFpbi5vcmFjbGUuTXNnQWdncmVnYXRlRXhjaGFuZ2VSYXRlVm90ZQ==",
-                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"seivaloper14ts0j42qkpr43a3tgxr7zz6l6zdf7hde3mf2ae\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753406881319236uatom,67840.141574186658751758ubtc,3774.281777299879682349ueth,0.824161992276458364uosmo,0.478597971568397527usei,1.000034432898322277uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"sei1jx88fgfndly9gr93qf96apmeg5762hwtp4au92\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"aggregate_vote\",\"attributes\":[{\"key\":\"voter\",\"value\":\"aescvaloper14ts0j42qkpr43a3tgxr7zz6l6zdf7hde3mf2ae\"},{\"key\":\"exchange_rates\",\"value\":\"8.284753406881319236uatom,67840.141574186658751758ubtc,3774.281777299879682349ueth,0.824161992276458364uosmo,0.478597971568397527uaex,1.000034432898322277uusdc,0.999511369934738839uusdt\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.oracle.MsgAggregateExchangeRateVote\"},{\"key\":\"module\",\"value\":\"oracle\"},{\"key\":\"sender\",\"value\":\"aesc1jx88fgfndly9gr93qf96apmeg5762hwtp4au92\"}]}]}]",
                                 "events": [
                                     {
                                         "type": "tx",
@@ -4327,7 +4327,7 @@
                             },
                             {
                                 "data": "Cu8BCisvc2VpcHJvdG9jb2wuc2VpY2hhaW4uZXZtLk1zZ0VWTVRyYW5zYWN0aW9uEr8BCMCfqwMSdHBvaW50ZXIgYXQgMHg0ZUQ4MTQxNTI4NzFhN0NCYjZkYjEyN0FhMmMxNjkzNjE5MzllNEI1IHdpdGggdmVyc2lvbiA0IGV4aXN0cyB3aGVuIHRyeWluZyB0byBzZXQgcG9pbnRlciBmb3IgdmVyc2lvbiA0IkIweDRkOTYwMWM5MjBjMjEyZTNjNTc0YTkzNjJhNTYyYTdiMzk5ZWRiYzEyNWJkMzk4ODUwZWE3ODQ4YTUwZmVlNTc=",
-                                "log": "[{\"events\":[{\"type\":\"coin_received\",\"attributes\":[{\"key\":\"receiver\",\"value\":\"sei1v4mx6hmrda5kucnpwdjsqqqqqqqqqqql4qzr88\"},{\"key\":\"amount\",\"value\":\"7000000usei\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.evm.MsgEVMTransaction\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"coin_received\",\"attributes\":[{\"key\":\"receiver\",\"value\":\"aesc1v4mx6hmrda5kucnpwdjsqqqqqqqqqqql4qzr88\"},{\"key\":\"amount\",\"value\":\"7000000uaex\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.evm.MsgEVMTransaction\"}]}]}]",
                                 "gas_wanted": 7000000,
                                 "gas_used": 7000000,
                                 "events": [
@@ -4396,7 +4396,7 @@
                             },
                             {
                                 "data": "CncKKy9zZWlwcm90b2NvbC5zZWljaGFpbi5ldm0uTXNnRVZNVHJhbnNhY3Rpb24SSAi/iAUiQjB4ZWU1NTBlOGI0ODFmM2MyOWNhNDFhMzUzZGU4ZmMxNmM5ZTAzMWY3ZjllZjViZjk1MjNiMzNjYWI4YWRlNjQzOA==",
-                                "log": "[{\"events\":[{\"type\":\"coin_received\",\"attributes\":[{\"key\":\"receiver\",\"value\":\"sei1tyh5z5s2kg7wjzdks6wtpnd6hfrcnzj7pn04wx\"},{\"key\":\"amount\",\"value\":\"1916usei\"},{\"key\":\"receiver\",\"value\":\"sei1v4mx6hmrda5kucnpwdjsqqqqqqqqqqpqs3kax2\"},{\"key\":\"amount\",\"value\":\"83usei\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.evm.MsgEVMTransaction\"}]}]}]",
+                                "log": "[{\"events\":[{\"type\":\"coin_received\",\"attributes\":[{\"key\":\"receiver\",\"value\":\"aesc1tyh5z5s2kg7wjzdks6wtpnd6hfrcnzj7pn04wx\"},{\"key\":\"amount\",\"value\":\"1916uaex\"},{\"key\":\"receiver\",\"value\":\"aesc1v4mx6hmrda5kucnpwdjsqqqqqqqqqqpqs3kax2\"},{\"key\":\"amount\",\"value\":\"83uaex\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/seiprotocol.seichain.evm.MsgEVMTransaction\"}]}]}]",
                                 "gas_wanted": 2000000,
                                 "gas_used": 83007,
                                 "events": [

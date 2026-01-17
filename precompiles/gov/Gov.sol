@@ -45,7 +45,7 @@ interface IGov {
      * @dev Deposit tokens to a governance proposal
      * @param proposalID The ID of the proposal to deposit to
      * @return success Whether the deposit was successful
-     * Note: Send usei tokens via msg.value
+     * Note: Send uaex tokens via msg.value
      */
     function deposit(
         uint64 proposalID
