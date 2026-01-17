@@ -80,7 +80,7 @@ func TotalSupply(k Keeper) sdk.Invariant {
 			weiTotal = weiTotal.Add(balance)
 			return false
 		})
-		weiInUsei, weiRemainder := SplitUseiWeiAmount(weiTotal)
+		weiInUsei, weiRemainder := SplitUaexWeiAmount(weiTotal)
 		if !weiRemainder.IsZero() {
 			return sdk.FormatInvariant(types.ModuleName, "total supply",
 				fmt.Sprintf(

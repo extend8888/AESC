@@ -237,7 +237,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 		}
 	}
 	weiDiff := weiPostTotal.Sub(weiPreTotal)
-	weiDiffInUaex, weiDiffRemainder := bankkeeper.SplitUseiWeiAmount(weiDiff)
+	weiDiffInUaex, weiDiffRemainder := bankkeeper.SplitUaexWeiAmount(weiDiff)
 	if !weiDiffRemainder.IsZero() {
 		panic(fmt.Sprintf("non-zero wei diff found! Pre-block wei total %s, post-block wei total %s", weiPreTotal, weiPostTotal))
 	}
