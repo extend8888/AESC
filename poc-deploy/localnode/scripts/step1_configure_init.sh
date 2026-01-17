@@ -51,7 +51,7 @@ for i in {1..10}; do
 done
 echo "Admin account keys created successfully"
 
-# Create gentx (质押 100 USEI，power 将是 100)
+# Create gentx (质押 100 UAEX，power 将是 100)
 echo "Creating genesis transaction..."
 if ! printf "12345678\n" | seid gentx "$ACCOUNT_NAME" 100000000uaex --chain-id "$CHAIN_ID"; then
     echo "ERROR: Failed to create gentx"

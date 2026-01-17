@@ -12,7 +12,7 @@
 - [x] **AEX-001**: 修改 `app/params/config.go`
   - 将 `HumanCoinUnit` 从 "sei" 改为 "aex"
   - 将 `BaseCoinUnit` 从 "uaex" 改为 "uaex"
-  - 将 `UseiExponent` 重命名为 `UaexExponent`
+  - 将 `UaexExponent` 重命名为 `UaexExponent`
   - 将 `Bech32PrefixAccAddr` 从 "sei" 改为 "aesc"
 
 - [x] **AEX-002**: 修改 `x/evm/keeper/params.go`

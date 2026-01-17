@@ -667,8 +667,8 @@ seid query staking validator <validator_address>
 | MONIKER | aesc-node-poc | validator0 的节点名称 |
 | P2P 端口 | 26656 | 节点间通信端口 |
 | RPC 端口 | 26657 | RPC 服务端口 |
-| Genesis 验证者质押 | 100 USEI | validator0 的初始质押 |
-| 动态验证者质押 | 10 USEI | validator1-3 的质押 |
+| Genesis 验证者质押 | 100 UAEX | validator0 的初始质押 |
+| 动态验证者质押 | 10 UAEX | validator1-3 的质押 |
 
 ### 脚本位置
 
