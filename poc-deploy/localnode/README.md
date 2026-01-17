@@ -45,8 +45,8 @@ chmod +x poc-deploy/localnode/scripts/*.sh
 - **Step 0**: 构建 seid 二进制文件
 - **Step 1**: 初始化节点和创建验证人账户
   - 初始化链配置（chain-id: aesc-poc）
-  - 创建 validator 账户（余额: 10 USEI）
-  - 生成 gentx（质押: 10 USEI，voting power: 10）
+  - 创建 validator 账户（余额: 10 UAEX）
+  - 生成 gentx（质押: 10 UAEX，voting power: 10）
 - **Step 2**: 准备 genesis 文件
   - 配置 genesis 参数（staking、oracle、gov 等）
   - 添加账户到 genesis
@@ -101,8 +101,8 @@ tail -f build/generated/logs/seid.log
 |------|--------|------|
 | **Chain ID** | `aesc-poc` | 链标识符 |
 | **Moniker** | `aesc-node-poc` | 节点名称 |
-| **初始余额** | `10000000uaex` | 10 USEI（与 docker/localnode 一致）|
-| **质押金额** | `10000000uaex` | 10 USEI |
+| **初始余额** | `10000000uaex` | 10 UAEX（与 docker/localnode 一致）|
+| **质押金额** | `10000000uaex` | 10 UAEX |
 | **Voting Power** | `10` | delegation / 1,000,000 |
 | **测试账户** | `5` | 自动创建的测试账户数量 |
 
@@ -133,8 +133,8 @@ export MOCK_BALANCES=true
 
 1. **validator** - 验证人账户
    - 密码: `12345678`
-   - 初始余额: `10000000uaex` (10 USEI) + `10000000uusdc` + `10000000uatom`
-   - 质押金额: `10000000uaex` (10 USEI)
+   - 初始余额: `10000000uaex` (10 UAEX) + `10000000uusdc` + `10000000uatom`
+   - 质押金额: `10000000uaex` (10 UAEX)
    - Voting Power: `10`
 
 2. **admin** - 管理员账户
@@ -255,8 +255,8 @@ POWER=$(echo "$DELEGATION / 1000000" | bc)  # 结果: 100000000000000000 (正确
 **问题**: 初始使用过大的质押金额导致 power 值溢出。
 
 **修复**: 改为与 `docker/localnode` 一致的配置：
-- 初始余额: `10000000uaex` (10 USEI)
-- 质押金额: `10000000uaex` (10 USEI)
+- 初始余额: `10000000uaex` (10 UAEX)
+- 质押金额: `10000000uaex` (10 UAEX)
 - Voting Power: `10`
 
 ## 与 docker/localnode 的区别
