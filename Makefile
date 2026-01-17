@@ -46,7 +46,7 @@ build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
 
 # process linker flags
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=sei \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=aesc \
 			-X github.com/cosmos/cosmos-sdk/version.ServerName=seid \
 			-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 			-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
@@ -110,6 +110,54 @@ build-price-feeder:
 
 clean:
 	rm -rf ./build
+
+###############################################################################
+###                                Testing                                  ###
+###############################################################################
+
+# Run all tests (unit + integration)
+test: test-unit test-integration
+	@echo "All tests completed"
+.PHONY: test
+
+# Run unit tests only
+test-unit:
+	@echo "Running unit tests..."
+	go test -v -race -timeout=15m \
+		./x/... \
+		./app/... \
+		./evmrpc/... \
+		./precompiles/... \
+		./aclmapping/... \
+		./utils/... \
+		-coverprofile=coverage-unit.out -covermode=atomic
+	@echo "Unit tests completed"
+.PHONY: test-unit
+
+# Run integration tests only
+test-integration:
+	@echo "Running integration tests..."
+	@if [ -d "integration_test" ]; then \
+		cd integration_test && go test -v -timeout=30m ./...; \
+	else \
+		echo "No integration_test directory found, skipping..."; \
+	fi
+	@echo "Integration tests completed"
+.PHONY: test-integration
+
+# Run quick tests (subset of unit tests, faster)
+test-quick:
+	@echo "Running quick tests..."
+	go test -v -short -timeout=5m ./x/... ./app/...
+	@echo "Quick tests completed"
+.PHONY: test-quick
+
+# Run tests with coverage report
+test-coverage: test-unit
+	@echo "Generating coverage report..."
+	go tool cover -html=coverage-unit.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
+.PHONY: test-coverage
 
 build-loadtest:
 	go build -o build/loadtest ./loadtest/
