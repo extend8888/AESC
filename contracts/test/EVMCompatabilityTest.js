@@ -1259,7 +1259,7 @@ describe("EVM Test", function () {
       });
     });
 
-    describe("Usei/Wei testing", function() {
+    describe("Uaex/Wei testing", function() {
       it("Send 1 uaex to contract", async function() {
         const uaex = ethers.parseUnits("1", 12);
         const wei = ethers.parseUnits("1", 0);

@@ -123,6 +123,6 @@ func PrivateKeyToAddresses(privKey cryptotypes.PrivKey) (sdk.AccAddress, common.
 	return sdk.AccAddress(privKey.PubKey().Address()), crypto.PubkeyToAddress(*pubKey)
 }
 
-func UseiCoins(amount int64) sdk.Coins {
+func UaexCoins(amount int64) sdk.Coins {
 	return sdk.NewCoins(sdk.NewCoin(sdk.MustGetBaseDenom(), sdk.NewInt(amount)))
 }

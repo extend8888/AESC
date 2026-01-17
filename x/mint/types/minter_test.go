@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestParamsUsei(t *testing.T) {
+func TestParamsUaex(t *testing.T) {
 	params := types.DefaultParams()
 	err := params.Validate()
 	require.Nil(t, err)

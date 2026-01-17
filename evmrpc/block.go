@@ -457,7 +457,7 @@ func EncodeTmBlock(
 				recipientSeiAddr, _ := sdk.AccAddressFromBech32(m.ToAddress)
 				recipientEvmAddr := k.GetEVMAddressOrDefault(ctx, recipientSeiAddr)
 				rpcTx.To = &recipientEvmAddr
-				amt := m.Amount.AmountOf("uaex").Mul(state.SdkUseiToSweiMultiplier)
+				amt := m.Amount.AmountOf("uaex").Mul(state.SdkUaexToSweiMultiplier)
 				rpcTx.Value = (*hexutil.Big)(amt.BigInt())
 				ti := uint64(len(transactions))
 				rpcTx.TransactionIndex = (*hexutil.Uint64)(&ti)
