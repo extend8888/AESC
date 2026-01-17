@@ -13,15 +13,15 @@ import (
 )
 
 func (k *Keeper) VerifyBalance(ctx sdk.Context, addr common.Address) {
-	useiBalance := k.BankKeeper().GetBalance(ctx, k.GetSeiAddressOrDefault(ctx, addr), "uaex").Amount
+	uaexBalance := k.BankKeeper().GetBalance(ctx, k.GetSeiAddressOrDefault(ctx, addr), "uaex").Amount
 	weiBalance := k.bankKeeper.GetWeiBalance(ctx, k.GetSeiAddressOrDefault(ctx, addr))
-	totalSeiBalance := useiBalance.Mul(sdk.NewInt(1_000_000_000_000)).Add(weiBalance).BigInt()
+	totalAescBalance := uaexBalance.Mul(sdk.NewInt(1_000_000_000_000)).Add(weiBalance).BigInt()
 	ethBalance, err := k.EthClient.BalanceAt(ctx.Context(), addr, big.NewInt(k.GetReplayInitialHeight(ctx)+ctx.BlockHeight()))
 	if err != nil {
 		panic(err)
 	}
-	if totalSeiBalance.Cmp(ethBalance) != 0 {
-		panic(fmt.Sprintf("difference for addr %s: sei balance is %s, eth balance is %s", addr.Hex(), totalSeiBalance, ethBalance))
+	if totalAescBalance.Cmp(ethBalance) != 0 {
+		panic(fmt.Sprintf("difference for addr %s: aesc balance is %s, eth balance is %s", addr.Hex(), totalAescBalance, ethBalance))
 	}
 }
 

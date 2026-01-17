@@ -57,8 +57,8 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 		return
 	}
 	balanceChangePairs := ckv.GetChangedPairs(banktypes.BalancesPrefix)
-	useiPostTotal := sdk.ZeroInt()
-	useiChangedAddr := []sdk.AccAddress{}
+	uaexPostTotal := sdk.ZeroInt()
+	uaexChangedAddr := []sdk.AccAddress{}
 	for _, p := range balanceChangePairs {
 		if len(p.Key) < 2 {
 			// invalid key; ignore
@@ -68,7 +68,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 					Value: "sei",
 				},
 			})
-			app.Logger().Error(fmt.Sprintf("invalid changed pair key for usei: %X", p.Key))
+			app.Logger().Error(fmt.Sprintf("invalid changed pair key for uaex: %X", p.Key))
 			continue
 		}
 		addrLen := int(p.Key[1])
@@ -80,7 +80,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 					Value: "sei",
 				},
 			})
-			app.Logger().Error(fmt.Sprintf("invalid changed pair key for usei: %X", p.Key))
+			app.Logger().Error(fmt.Sprintf("invalid changed pair key for uaex: %X", p.Key))
 			continue
 		}
 		addr := p.Key[2 : addrLen+2]
@@ -106,12 +106,12 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 			if balance.Amount.IsNegative() {
 				panic(fmt.Sprintf("negative balance found for addr %s: %s", sdk.AccAddress(addr).String(), balance.String()))
 			}
-			useiPostTotal = useiPostTotal.Add(balance.Amount)
+			uaexPostTotal = uaexPostTotal.Add(balance.Amount)
 		}
-		useiChangedAddr = append(useiChangedAddr, addr)
+		uaexChangedAddr = append(uaexChangedAddr, addr)
 	}
-	useiPreTotal := sdk.ZeroInt()
-	for _, a := range useiChangedAddr {
+	uaexPreTotal := sdk.ZeroInt()
+	for _, a := range uaexChangedAddr {
 		key := append(banktypes.CreateAccountBalancesPrefix(a), []byte(sdk.MustGetBaseDenom())...)
 		val := ckv.Get(key)
 		if val == nil {
@@ -131,7 +131,7 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 			app.Logger().Error(fmt.Sprintf("failed to unmarshal preblock balance: %s", err))
 			continue
 		}
-		useiPreTotal = useiPreTotal.Add(balance.Amount)
+		uaexPreTotal = uaexPreTotal.Add(balance.Amount)
 	}
 	weiChangePairs := ckv.GetChangedPairs(banktypes.WeiBalancesPrefix)
 	weiPostTotal := sdk.ZeroInt()
@@ -237,13 +237,13 @@ func (app *App) LightInvarianceTotalSupply(cms sdk.CommitMultiStore) {
 		}
 	}
 	weiDiff := weiPostTotal.Sub(weiPreTotal)
-	weiDiffInUsei, weiDiffRemainder := bankkeeper.SplitUseiWeiAmount(weiDiff)
+	weiDiffInUaex, weiDiffRemainder := bankkeeper.SplitUseiWeiAmount(weiDiff)
 	if !weiDiffRemainder.IsZero() {
 		panic(fmt.Sprintf("non-zero wei diff found! Pre-block wei total %s, post-block wei total %s", weiPreTotal, weiPostTotal))
 	}
-	useiDiff := useiPreTotal.Sub(useiPostTotal).Sub(weiDiffInUsei).Add(supplyChanged)
-	if !useiDiff.IsZero() {
-		panic(fmt.Sprintf("unexpected usei balance total found! Pre-block usei total %s wei total %s total supply %s, post-block usei total %s wei total %s total supply %s", useiPreTotal, weiPreTotal, preTotalSupply, useiPostTotal, weiPostTotal, preTotalSupply.Add(supplyChanged)))
+	uaexDiff := uaexPreTotal.Sub(uaexPostTotal).Sub(weiDiffInUaex).Add(supplyChanged)
+	if !uaexDiff.IsZero() {
+		panic(fmt.Sprintf("unexpected uaex balance total found! Pre-block uaex total %s wei total %s total supply %s, post-block uaex total %s wei total %s total supply %s", uaexPreTotal, weiPreTotal, preTotalSupply, uaexPostTotal, weiPostTotal, preTotalSupply.Add(supplyChanged)))
 	}
 	app.Logger().Info("successfully verified supply light invariance")
 }

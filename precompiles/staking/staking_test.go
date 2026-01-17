@@ -561,7 +561,7 @@ func TestCreateValidator(t *testing.T) {
 				commissionRate:          "0.05",
 				commissionMaxRate:       "0.20",
 				commissionMaxChangeRate: "0.01",
-				msd:                     big.NewInt(1_000_000),                 // 1 SEI in usei
+				msd:                     big.NewInt(1_000_000),                 // 1 SEI in uaex
 				value:                   big.NewInt(1_000_000_000_000_000_000), // 1 SEI in wei
 				nonce:                   0,
 			},

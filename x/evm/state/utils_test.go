@@ -13,7 +13,7 @@ func TestGetCoinbaseAddress(t *testing.T) {
 	require.Equal(t, coinbaseAddr, "aesc1v4mx6hmrda5kucnpwdjsqqqqqqqqqqqpl4v54k")
 }
 
-func TestSplitUseiWeiAmount(t *testing.T) {
+func TestSplitUaexWeiAmount(t *testing.T) {
 	for _, test := range []struct {
 		amt         *big.Int
 		expectedSei *big.Int
@@ -45,8 +45,8 @@ func TestSplitUseiWeiAmount(t *testing.T) {
 			expectedWei: big.NewInt(789_123_456_789),
 		},
 	} {
-		usei, wei := state.SplitUseiWeiAmount(test.amt)
-		require.Equal(t, test.expectedSei, usei.BigInt())
+		uaex, wei := state.SplitUaexWeiAmount(test.amt)
+		require.Equal(t, test.expectedSei, uaex.BigInt())
 		require.Equal(t, test.expectedWei, wei.BigInt())
 	}
 }

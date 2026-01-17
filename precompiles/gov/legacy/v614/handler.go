@@ -43,7 +43,7 @@ type SoftwareUpgradePlan struct {
 // CommunityPoolSpend represents the parameters for a community pool spend proposal
 type CommunityPoolSpend struct {
 	Recipient string `json:"recipient"` // Ethereum address of the recipient
-	Amount    string `json:"amount"`    // Amount in the format "1000000usei"
+	Amount    string `json:"amount"`    // Amount in the format "1000000uaex"
 }
 
 type Change struct {

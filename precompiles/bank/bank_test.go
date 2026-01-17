@@ -117,7 +117,7 @@ func TestRun(t *testing.T) {
 	_, _, err = p.RunAndCalculateGas(&evm, evmAddr, evmAddr, append(p.GetExecutor().(*bank.PrecompileExecutor).SendNativeID, argsNativeError...), 100000, big.NewInt(100), nil, false, true)
 	require.NotNil(t, err)
 
-	// Send native 10_000_000_000_100, split into 10 usei 100wei
+	// Send native 10_000_000_000_100, split into 10 uaex 100wei
 	// Test payable with eth LegacyTx
 	abi := pcommon.MustGetABI(f, "abi.json")
 	argsNative, err := abi.Pack(bank.SendNativeMethod, seiAddr.String())
@@ -199,7 +199,7 @@ func TestRun(t *testing.T) {
 	}
 	require.EqualValues(t, expectedEvts.ToABCIEvents(), evts)
 
-	// Use precompile balance to verify sendNative usei amount succeeded
+	// Use precompile balance to verify sendNative uaex amount succeeded
 	balance, err := p.ABI.MethodById(p.GetExecutor().(*bank.PrecompileExecutor).BalanceID)
 	require.Nil(t, err)
 	args, err = balance.Inputs.Pack(evmAddr, "uaex")
@@ -301,7 +301,7 @@ func TestSendForUnlinkedReceiver(t *testing.T) {
 	_, _, err = p.RunAndCalculateGas(&evm, pointerAddr, pointerAddr, append(p.GetExecutor().(*bank.PrecompileExecutor).SendID, args...), 100000, nil, nil, false, false) // should not error
 	require.Nil(t, err)
 
-	// Use precompile balance to verify sendNative usei amount succeeded
+	// Use precompile balance to verify sendNative uaex amount succeeded
 	balance, err := p.ABI.MethodById(p.GetExecutor().(*bank.PrecompileExecutor).BalanceID)
 	require.Nil(t, err)
 	args, err = balance.Inputs.Pack(evmAddr, "ufoo")
