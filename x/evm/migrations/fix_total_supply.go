@@ -20,7 +20,7 @@ func FixTotalSupply(ctx sdk.Context, k *keeper.Keeper) error {
 		totalWeiBalance = totalWeiBalance.Add(i)
 		return false
 	})
-	weiInUsei, weiRemainder := bankkeeper.SplitUseiWeiAmount(totalWeiBalance)
+	weiInUsei, weiRemainder := bankkeeper.SplitUaexWeiAmount(totalWeiBalance)
 	if !weiRemainder.IsZero() {
 		ctx.Logger().Error("wei total supply has been compromised as well; rounding up and adding to reserve")
 		if err := k.BankKeeper().AddWei(ctx, k.AccountKeeper().GetModuleAddress(types.ModuleName), bankkeeper.OneUseiInWei.Sub(weiRemainder)); err != nil {

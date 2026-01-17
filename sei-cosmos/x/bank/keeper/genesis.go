@@ -32,7 +32,7 @@ func (k BaseKeeper) InitGenesis(ctx sdk.Context, genState *types.GenesisState) {
 		}
 		totalWeiBalance = totalWeiBalance.Add(weiBalance.Amount)
 	}
-	weiInUsei, weiRemainder := SplitUseiWeiAmount(totalWeiBalance)
+	weiInUsei, weiRemainder := SplitUaexWeiAmount(totalWeiBalance)
 	if !weiRemainder.IsZero() {
 		panic(fmt.Errorf("non-zero wei remainder %s", weiRemainder))
 	}
