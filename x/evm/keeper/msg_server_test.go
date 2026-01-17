@@ -289,8 +289,8 @@ func TestEVMDynamicFeeTransaction(t *testing.T) {
 	require.Empty(t, res.VmError)
 	require.NotEmpty(t, res.ReturnData)
 	require.NotEmpty(t, res.Hash)
-	maxUseiBalanceChange := (200000 * 1000000000) / 1000000000000000000 // 200000 gas * 1 gwei / 1 usei per wei
-	require.LessOrEqual(t, k.BankKeeper().GetBalance(ctx, sdk.AccAddress(evmAddr[:]), "uaex").Amount.Uint64(), uint64(1000000)-uint64(maxUseiBalanceChange))
+	maxUaexBalanceChange := (200000 * 1000000000) / 1000000000000000000 // 200000 gas * 1 gwei / 1 uaex per wei
+	require.LessOrEqual(t, k.BankKeeper().GetBalance(ctx, sdk.AccAddress(evmAddr[:]), "uaex").Amount.Uint64(), uint64(1000000)-uint64(maxUaexBalanceChange))
 	require.NoError(t, k.FlushTransientReceiptsSync(ctx))
 	receipt, err := k.GetReceipt(ctx, common.HexToHash(res.Hash))
 	require.Nil(t, err)

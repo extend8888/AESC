@@ -27,7 +27,7 @@ func TestIsTxPrioritized(t *testing.T) {
 			name: "Oracle aggregate vote message",
 			tx: createTestTx([]sdk.Msg{
 				&oracletypes.MsgAggregateExchangeRateVote{
-					ExchangeRates: "1.0usei,2.0uusd",
+					ExchangeRates: "1.0uaex,2.0uusd",
 					Feeder:        "aesc1abc123",
 					Validator:     "seivaloper1abc123",
 				},
@@ -48,7 +48,7 @@ func TestIsTxPrioritized(t *testing.T) {
 			name: "Multiple oracle messages",
 			tx: createTestTx([]sdk.Msg{
 				&oracletypes.MsgAggregateExchangeRateVote{
-					ExchangeRates: "1.0usei",
+					ExchangeRates: "1.0uaex",
 					Feeder:        "aesc1abc123",
 					Validator:     "seivaloper1abc123",
 				},
@@ -74,7 +74,7 @@ func TestIsTxPrioritized(t *testing.T) {
 			name: "Mixed messages (oracle + bank)",
 			tx: createTestTx([]sdk.Msg{
 				&oracletypes.MsgAggregateExchangeRateVote{
-					ExchangeRates: "1.0usei",
+					ExchangeRates: "1.0uaex",
 					Feeder:        "aesc1abc123",
 					Validator:     "seivaloper1abc123",
 				},

@@ -352,35 +352,35 @@ func (s *decCoinTestSuite) TestParseDecCoins() {
 		expectedErr    bool
 	}{
 		{"", nil, false},
-		{"4usei", sdk.DecCoins{sdk.NewDecCoinFromDec("usei", sdk.NewDecFromInt(sdk.NewInt(4)))}, false},
-		{"5.5atom,4usei", sdk.DecCoins{
+		{"4uaex", sdk.DecCoins{sdk.NewDecCoinFromDec("uaex", sdk.NewDecFromInt(sdk.NewInt(4)))}, false},
+		{"5.5atom,4uaex", sdk.DecCoins{
 			sdk.NewDecCoinFromDec("atom", sdk.NewDecWithPrec(5500000000000000000, sdk.Precision)),
-			sdk.NewDecCoinFromDec("usei", sdk.NewDec(4)),
+			sdk.NewDecCoinFromDec("uaex", sdk.NewDec(4)),
 		}, false},
-		{"0.0usei", sdk.DecCoins{}, false}, // remove zero coins
+		{"0.0uaex", sdk.DecCoins{}, false}, // remove zero coins
 		{"10.0btc,1.0atom,20.0btc", nil, true},
 		{
-			"0.004usei",
-			sdk.DecCoins{sdk.NewDecCoinFromDec("usei", sdk.NewDecWithPrec(4000000000000000, sdk.Precision))},
+			"0.004uaex",
+			sdk.DecCoins{sdk.NewDecCoinFromDec("uaex", sdk.NewDecWithPrec(4000000000000000, sdk.Precision))},
 			false,
 		},
 		{
-			"0.004usei",
-			sdk.DecCoins{sdk.NewDecCoinFromDec("usei", sdk.NewDecWithPrec(4000000000000000, sdk.Precision))},
+			"0.004uaex",
+			sdk.DecCoins{sdk.NewDecCoinFromDec("uaex", sdk.NewDecWithPrec(4000000000000000, sdk.Precision))},
 			false,
 		},
 		{
-			"5.04atom,0.004usei",
+			"5.04atom,0.004uaex",
 			sdk.DecCoins{
 				sdk.NewDecCoinFromDec("atom", sdk.NewDecWithPrec(5040000000000000000, sdk.Precision)),
-				sdk.NewDecCoinFromDec("usei", sdk.NewDecWithPrec(4000000000000000, sdk.Precision)),
+				sdk.NewDecCoinFromDec("uaex", sdk.NewDecWithPrec(4000000000000000, sdk.Precision)),
 			},
 			false,
 		},
-		{"0.0usei,0.004usei,5.04atom", // remove zero coins
+		{"0.0uaex,0.004uaex,5.04atom", // remove zero coins
 			sdk.DecCoins{
 				sdk.NewDecCoinFromDec("atom", sdk.NewDecWithPrec(5040000000000000000, sdk.Precision)),
-				sdk.NewDecCoinFromDec("usei", sdk.NewDecWithPrec(4000000000000000, sdk.Precision)),
+				sdk.NewDecCoinFromDec("uaex", sdk.NewDecWithPrec(4000000000000000, sdk.Precision)),
 			},
 			false,
 		},
@@ -406,9 +406,9 @@ func (s *decCoinTestSuite) TestDecCoinsString() {
 		{
 			sdk.DecCoins{
 				sdk.NewDecCoinFromDec("atom", sdk.NewDecWithPrec(5040000000000000000, sdk.Precision)),
-				sdk.NewDecCoinFromDec("usei", sdk.NewDecWithPrec(4000000000000000, sdk.Precision)),
+				sdk.NewDecCoinFromDec("uaex", sdk.NewDecWithPrec(4000000000000000, sdk.Precision)),
 			},
-			"5.040000000000000000atom,0.004000000000000000usei",
+			"5.040000000000000000atom,0.004000000000000000uaex",
 		},
 	}
 
@@ -425,17 +425,17 @@ func (s *decCoinTestSuite) TestDecCoinsIntersect() {
 		expectedResult string
 	}{
 		{"", "", ""},
-		{"1.0usei", "", ""},
-		{"1.0usei", "1.0usei", "1.0usei"},
-		{"", "1.0usei", ""},
-		{"1.0usei", "", ""},
-		{"2.0usei,1.0trope", "1.9usei", "1.9usei"},
-		{"2.0usei,1.0trope", "2.1usei", "2.0usei"},
-		{"2.0usei,1.0trope", "0.9trope", "0.9trope"},
-		{"2.0usei,1.0trope", "1.9usei,0.9trope", "1.9usei,0.9trope"},
-		{"2.0usei,1.0trope", "1.9usei,0.9trope,20.0other", "1.9usei,0.9trope"},
-		{"2.0usei,1.0trope", "1.0other", ""},
-		{"2.0usei,1.0trope", "0.9trope,20.0other,1.9usei", "1.9usei,0.9trope"},
+		{"1.0uaex", "", ""},
+		{"1.0uaex", "1.0uaex", "1.0uaex"},
+		{"", "1.0uaex", ""},
+		{"1.0uaex", "", ""},
+		{"2.0uaex,1.0trope", "1.9uaex", "1.9uaex"},
+		{"2.0uaex,1.0trope", "2.1uaex", "2.0uaex"},
+		{"2.0uaex,1.0trope", "0.9trope", "0.9trope"},
+		{"2.0uaex,1.0trope", "1.9uaex,0.9trope", "1.9uaex,0.9trope"},
+		{"2.0uaex,1.0trope", "1.9uaex,0.9trope,20.0other", "1.9uaex,0.9trope"},
+		{"2.0uaex,1.0trope", "1.0other", ""},
+		{"2.0uaex,1.0trope", "0.9trope,20.0other,1.9uaex", "1.9uaex,0.9trope"},
 	}
 
 	for i, tc := range testCases {

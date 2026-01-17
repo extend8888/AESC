@@ -7,10 +7,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// UseiToSweiMultiplier Fields that were denominated in usei will be converted to swei (1usei = 10^12swei)
+// UaexToSweiMultiplier Fields that were denominated in uaex will be converted to swei (1uaex = 10^12swei)
 // for existing Ethereum application (which assumes 18 decimal points) to display properly.
-var UseiToSweiMultiplier = big.NewInt(1_000_000_000_000)
-var SdkUseiToSweiMultiplier = sdk.NewIntFromBigInt(UseiToSweiMultiplier)
+var UaexToSweiMultiplier = big.NewInt(1_000_000_000_000)
+var SdkUaexToSweiMultiplier = sdk.NewIntFromBigInt(UaexToSweiMultiplier)
 
 var CoinbaseAddressPrefix = []byte("evm_coinbase")
 
@@ -20,8 +20,8 @@ func GetCoinbaseAddress(txIdx int) sdk.AccAddress {
 	return append(CoinbaseAddressPrefix, txIndexBz...)
 }
 
-func SplitUseiWeiAmount(amt *big.Int) (sdk.Int, sdk.Int) {
-	wei := new(big.Int).Mod(amt, UseiToSweiMultiplier)
-	usei := new(big.Int).Quo(amt, UseiToSweiMultiplier)
-	return sdk.NewIntFromBigInt(usei), sdk.NewIntFromBigInt(wei)
+func SplitUaexWeiAmount(amt *big.Int) (sdk.Int, sdk.Int) {
+	wei := new(big.Int).Mod(amt, UaexToSweiMultiplier)
+	uaex := new(big.Int).Quo(amt, UaexToSweiMultiplier)
+	return sdk.NewIntFromBigInt(uaex), sdk.NewIntFromBigInt(wei)
 }

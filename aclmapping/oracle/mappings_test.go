@@ -48,7 +48,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 // Explicitly only run once during setup
 func (suite *KeeperTestSuite) PrepareTest() {
 	suite.defaultDenom = "uaex"
-	suite.defaultExchangeRate = fmt.Sprintf("%dusei", sdk.NewDec(1700))
+	suite.defaultExchangeRate = fmt.Sprintf("%duaex", sdk.NewDec(1700))
 
 	suite.initalBalance = sdk.Coins{sdk.NewInt64Coin(suite.defaultDenom, 100000000000)}
 	suite.FundAcc(suite.TestAccs[0], suite.initalBalance)
@@ -132,7 +132,7 @@ func TestMsgVoteDependencyGenerator(t *testing.T) {
 	testWrapper := app.NewTestWrapper(t, tm, valPub, false)
 
 	oracleVote := oracletypes.MsgAggregateExchangeRateVote{
-		ExchangeRates: "1usei",
+		ExchangeRates: "1uaex",
 		Feeder:        "test",
 		Validator:     "validator",
 	}

@@ -163,7 +163,7 @@ func CmdAssociateAddress() *cobra.Command {
 func CmdSend() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "send [to EVM address] [amount in wei] --from=<sender> --gas-fee-cap=<cap> --gas-limit=<limit> --evm-rpc=<url>",
-		Short: "send usei to EVM address",
+		Short: "send uaex to EVM address",
 		Long:  "",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {

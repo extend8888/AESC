@@ -188,12 +188,12 @@ func (p PrecompileExecutor) sendNative(ctx sdk.Context, method *abi.Method, args
 		return nil, err
 	}
 
-	usei, wei, err := pcommon.HandlePaymentUseiWei(ctx, p.evmKeeper.GetSeiAddressOrDefault(ctx, p.address), senderSeiAddr, value, p.bankKeeper, p.evmKeeper, hooks, evm.GetDepth())
+	uaex, wei, err := pcommon.HandlePaymentUseiWei(ctx, p.evmKeeper.GetSeiAddressOrDefault(ctx, p.address), senderSeiAddr, value, p.bankKeeper, p.evmKeeper, hooks, evm.GetDepth())
 	if err != nil {
 		return nil, err
 	}
 
-	if err := p.bankKeeper.SendCoinsAndWei(ctx, senderSeiAddr, receiverSeiAddr, usei, wei); err != nil {
+	if err := p.bankKeeper.SendCoinsAndWei(ctx, senderSeiAddr, receiverSeiAddr, uaex, wei); err != nil {
 		return nil, err
 	}
 	accExists := p.accountKeeper.HasAccount(ctx, receiverSeiAddr)
@@ -306,7 +306,7 @@ func (p PrecompileExecutor) decimals(_ sdk.Context, method *abi.Method, _ []inte
 		return nil, err
 	}
 
-	// all native tokens are integer-based, returns decimals for microdenom (usei)
+	// all native tokens are integer-based, returns decimals for microdenom (uaex)
 	return method.Outputs.Pack(uint8(0))
 }
 

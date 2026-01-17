@@ -291,6 +291,6 @@ func TestFeeParams(t *testing.T) {
 	require.Nil(t, err)
 	subspace.SetRaw(ctx, types.ParamStoreKeyFeesParams, val)
 	feeParams := keeper.GetFeesParams(ctx)
-	require.Equal(t, sdk.DecCoins{sdk.NewDecCoinFromDec("usei", sdk.NewDecWithPrec(1, 2))}, feeParams.GlobalMinimumGasPrices)
+	require.Equal(t, sdk.DecCoins{sdk.NewDecCoinFromDec("uaex", sdk.NewDecWithPrec(1, 2))}, feeParams.GlobalMinimumGasPrices)
 	require.Empty(t, feeParams.AllowedFeeDenoms)
 }

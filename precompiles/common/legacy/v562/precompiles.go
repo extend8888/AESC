@@ -192,11 +192,11 @@ func ValidateNonPayable(value *big.Int) error {
 }
 
 func HandlePaymentUsei(ctx sdk.Context, precompileAddr sdk.AccAddress, payer sdk.AccAddress, value *big.Int, bankKeeper putils.BankKeeper, evmKeeper putils.EVMKeeper, hooks *tracing.Hooks, depth int) (sdk.Coin, error) {
-	usei, wei := state.SplitUseiWeiAmount(value)
+	uaex, wei := state.SplitUseiWeiAmount(value)
 	if !wei.IsZero() {
 		return sdk.Coin{}, fmt.Errorf("selected precompile function does not allow payment with non-zero wei remainder: received %s", value)
 	}
-	coin := sdk.NewCoin(sdk.MustGetBaseDenom(), usei)
+	coin := sdk.NewCoin(sdk.MustGetBaseDenom(), uaex)
 	// refund payer because the following precompile logic will debit the payments from payer's account
 	// this creates a new event manager to avoid surfacing these as cosmos events
 	if err := bankKeeper.SendCoins(ctx.WithEventManager(sdk.NewEventManager()), precompileAddr, payer, sdk.NewCoins(coin)); err != nil {
@@ -215,10 +215,10 @@ func HandlePaymentUsei(ctx sdk.Context, precompileAddr sdk.AccAddress, payer sdk
 }
 
 func HandlePaymentUseiWei(ctx sdk.Context, precompileAddr sdk.AccAddress, payer sdk.AccAddress, value *big.Int, bankKeeper putils.BankKeeper, evmKeeper putils.EVMKeeper, hooks *tracing.Hooks, depth int) (sdk.Int, sdk.Int, error) {
-	usei, wei := state.SplitUseiWeiAmount(value)
+	uaex, wei := state.SplitUseiWeiAmount(value)
 	// refund payer because the following precompile logic will debit the payments from payer's account
 	// this creates a new event manager to avoid surfacing these as cosmos events
-	if err := bankKeeper.SendCoinsAndWei(ctx.WithEventManager(sdk.NewEventManager()), precompileAddr, payer, usei, wei); err != nil {
+	if err := bankKeeper.SendCoinsAndWei(ctx.WithEventManager(sdk.NewEventManager()), precompileAddr, payer, uaex, wei); err != nil {
 		return sdk.Int{}, sdk.Int{}, err
 	}
 	if hooks != nil {
@@ -230,7 +230,7 @@ func HandlePaymentUseiWei(ctx sdk.Context, precompileAddr sdk.AccAddress, payer 
 			hooks.OnExit(depth+1, []byte{}, 0, nil, false)
 		}
 	}
-	return usei, wei, nil
+	return uaex, wei, nil
 }
 
 /*

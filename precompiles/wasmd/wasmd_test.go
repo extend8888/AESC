@@ -164,7 +164,7 @@ func TestExecute(t *testing.T) {
 	outputs, err := executeMethod.Outputs.Unpack(res)
 	require.Nil(t, err)
 	require.Equal(t, 1, len(outputs))
-	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string(outputs[0].([]byte)))
+	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000uaex", mockAddr.String()), string(outputs[0].([]byte)))
 	require.NotZero(t, g)
 	require.Equal(t, int64(1000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "uaex").Amount.Int64())
 
@@ -173,7 +173,7 @@ func TestExecute(t *testing.T) {
 	args, err = executeMethod.Inputs.Pack(contractAddr.String(), []byte("{\"echo\":{\"message\":\"test msg\"}}"), amtsbz)
 	require.Nil(t, err)
 	_, _, err = p.RunAndCalculateGas(&evm, mockEVMAddr, mockEVMAddr, append(p.GetExecutor().(*wasmd.PrecompileExecutor).ExecuteID, args...), suppliedGas, big.NewInt(1000_000_000_000_000), nil, false, false)
-	require.NotNil(t, err) // used coins instead of `value` to send usei to the contract
+	require.NotNil(t, err) // used coins instead of `value` to send uaex to the contract
 
 	args, err = executeMethod.Inputs.Pack(contractAddr.String(), []byte("{\"echo\":{\"message\":\"test msg\"}}"), amtsbz)
 	require.Nil(t, err)
@@ -316,7 +316,7 @@ func TestExecuteBatchOneMessage(t *testing.T) {
 	outputs, err := executeMethod.Outputs.Unpack(res)
 	require.Nil(t, err)
 	require.Equal(t, 1, len(outputs))
-	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string((outputs[0].([][]byte))[0]))
+	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000uaex", mockAddr.String()), string((outputs[0].([][]byte))[0]))
 	require.NotZero(t, g)
 	require.Equal(t, int64(1000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "uaex").Amount.Int64())
 
@@ -465,9 +465,9 @@ func TestExecuteBatchMultipleMessages(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, 1, len(outputs))
 	parsedOutputs := outputs[0].([][]byte)
-	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string(parsedOutputs[0]))
-	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string(parsedOutputs[1]))
-	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string(parsedOutputs[2]))
+	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000uaex", mockAddr.String()), string(parsedOutputs[0]))
+	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000uaex", mockAddr.String()), string(parsedOutputs[1]))
+	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000uaex", mockAddr.String()), string(parsedOutputs[2]))
 	require.NotZero(t, g)
 	require.Equal(t, int64(3000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "uaex").Amount.Int64())
 
@@ -493,7 +493,7 @@ func TestExecuteBatchMultipleMessages(t *testing.T) {
 	require.Equal(t, 1, len(outputs))
 	parsedOutputs = outputs[0].([][]byte)
 	require.Equal(t, fmt.Sprintf("received test msg from %s with", mockAddr.String()), string(parsedOutputs[0]))
-	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000usei", mockAddr.String()), string(parsedOutputs[1]))
+	require.Equal(t, fmt.Sprintf("received test msg from %s with 1000uaex", mockAddr.String()), string(parsedOutputs[1]))
 	require.Equal(t, fmt.Sprintf("received test msg from %s with", mockAddr.String()), string(parsedOutputs[2]))
 	require.NotZero(t, g)
 	require.Equal(t, int64(1000), testApp.BankKeeper.GetBalance(statedb.Ctx(), contractAddr, "uaex").Amount.Int64())

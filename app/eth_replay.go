@@ -138,9 +138,9 @@ func BlockTest(a *App, bt *ethtests.BlockTest) {
 		a.EvmKeeper.SetCurrBaseFeePerGas(a.GetContextForDeliverTx([]byte{}), sdk.ZeroDec())
 	}
 	for addr, genesisAccount := range a.EvmKeeper.BlockTest.Json.Pre {
-		usei, wei := state.SplitUseiWeiAmount(genesisAccount.Balance)
+		uaex, wei := state.SplitUseiWeiAmount(genesisAccount.Balance)
 		seiAddr := a.EvmKeeper.GetSeiAddressOrDefault(a.GetContextForDeliverTx([]byte{}), addr)
-		err := a.EvmKeeper.BankKeeper().AddCoins(a.GetContextForDeliverTx([]byte{}), seiAddr, sdk.NewCoins(sdk.NewCoin("uaex", usei)), true)
+		err := a.EvmKeeper.BankKeeper().AddCoins(a.GetContextForDeliverTx([]byte{}), seiAddr, sdk.NewCoins(sdk.NewCoin("uaex", uaex)), true)
 		if err != nil {
 			panic(err)
 		}

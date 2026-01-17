@@ -589,7 +589,7 @@ func TestPrecompileExecutor_submitProposal(t *testing.T) {
 					"type": "CommunityPoolSpend",
 					"community_pool_spend": {
 						"recipient": "` + recipientEvmAddress.String() + `",
-						"amount": "1000000usei"
+						"amount": "1000000uaex"
 					}
 				}`,
 				value: big.NewInt(1_000_000_000_000_000_000),
@@ -620,7 +620,7 @@ func TestPrecompileExecutor_submitProposal(t *testing.T) {
 					"description": "Missing recipient",
 					"type": "CommunityPoolSpend",
 					"community_pool_spend": {
-						"amount": "1000000usei"
+						"amount": "1000000uaex"
 					}
 				}`,
 			},
@@ -655,7 +655,7 @@ func TestPrecompileExecutor_submitProposal(t *testing.T) {
 					"type": "CommunityPoolSpend",
 					"community_pool_spend": {
 						"recipient": "invalid",
-						"amount": "1000000usei"
+						"amount": "1000000uaex"
 					}
 				}`,
 			},

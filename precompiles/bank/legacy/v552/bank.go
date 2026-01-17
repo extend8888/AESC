@@ -189,7 +189,7 @@ func (p Precompile) send(ctx sdk.Context, caller common.Address, method *abi.Met
 		// short circuit
 		return method.Outputs.Pack(true)
 	}
-	// TODO: it's possible to extend evm module's balance to handle non-usei tokens as well
+	// TODO: it's possible to extend evm module's balance to handle non-uaex tokens as well
 	senderSeiAddr, err := p.accAddressFromArg(ctx, args[0])
 	if err != nil {
 		return nil, err
@@ -235,12 +235,12 @@ func (p Precompile) sendNative(ctx sdk.Context, method *abi.Method, args []inter
 		return nil, err
 	}
 
-	usei, wei, err := pcommon.HandlePaymentUseiWei(ctx, p.evmKeeper.GetSeiAddressOrDefault(ctx, p.address), senderSeiAddr, value, p.bankKeeper, p.evmKeeper, hooks, evm.GetDepth())
+	uaex, wei, err := pcommon.HandlePaymentUseiWei(ctx, p.evmKeeper.GetSeiAddressOrDefault(ctx, p.address), senderSeiAddr, value, p.bankKeeper, p.evmKeeper, hooks, evm.GetDepth())
 	if err != nil {
 		return nil, err
 	}
 
-	if err := p.bankKeeper.SendCoinsAndWei(ctx, senderSeiAddr, receiverSeiAddr, usei, wei); err != nil {
+	if err := p.bankKeeper.SendCoinsAndWei(ctx, senderSeiAddr, receiverSeiAddr, uaex, wei); err != nil {
 		return nil, err
 	}
 
@@ -349,7 +349,7 @@ func (p Precompile) decimals(_ sdk.Context, method *abi.Method, _ []interface{},
 		return nil, err
 	}
 
-	// all native tokens are integer-based, returns decimals for microdenom (usei)
+	// all native tokens are integer-based, returns decimals for microdenom (uaex)
 	return method.Outputs.Pack(uint8(0))
 }
 

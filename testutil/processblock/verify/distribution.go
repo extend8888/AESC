@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// assuming only `usei` will get distributed
+// assuming only `uaex` will get distributed
 func Allocation(t *testing.T, app *processblock.App, f BlockRunnable, _ []signing.Tx) BlockRunnable {
 	return func() []uint32 {
 		// fees collected in T-1 are allocated in T's BeginBlock, so we can simply

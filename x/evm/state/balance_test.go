@@ -67,20 +67,20 @@ func TestSurplus(t *testing.T) {
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx([]byte{}).WithBlockTime(time.Now())
 	_, evmAddr := testkeeper.MockAddressPair()
 
-	// test negative usei surplus negative wei surplus
+	// test negative uaex surplus negative wei surplus
 	db := state.NewDBImpl(ctx, k, false)
 	db.AddBalance(evmAddr, uint256.NewInt(1_000_000_000_001), tracing.BalanceChangeUnspecified)
 	_, err := db.Finalize()
 	require.Nil(t, err)
 
-	// test negative usei surplus positive wei surplus (negative total)
+	// test negative uaex surplus positive wei surplus (negative total)
 	db = state.NewDBImpl(ctx, k, false)
 	db.AddBalance(evmAddr, uint256.NewInt(1_000_000_000_000), tracing.BalanceChangeUnspecified)
 	db.SubBalance(evmAddr, uint256.NewInt(1), tracing.BalanceChangeUnspecified)
 	_, err = db.Finalize()
 	require.Nil(t, err)
 
-	// test negative usei surplus positive wei surplus (positive total)
+	// test negative uaex surplus positive wei surplus (positive total)
 	db = state.NewDBImpl(ctx, k, false)
 	db.AddBalance(evmAddr, uint256.NewInt(1_000_000_000_000), tracing.BalanceChangeUnspecified)
 	db.SubBalance(evmAddr, uint256.NewInt(2), tracing.BalanceChangeUnspecified)
@@ -89,7 +89,7 @@ func TestSurplus(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, sdk.OneInt(), surplus)
 
-	// test positive usei surplus negative wei surplus (negative total)
+	// test positive uaex surplus negative wei surplus (negative total)
 	db = state.NewDBImpl(ctx, k, false)
 	db.SubBalance(evmAddr, uint256.NewInt(1_000_000_000_000), tracing.BalanceChangeUnspecified)
 	db.AddBalance(evmAddr, uint256.NewInt(2), tracing.BalanceChangeUnspecified)
@@ -97,7 +97,7 @@ func TestSurplus(t *testing.T) {
 	_, err = db.Finalize()
 	require.Nil(t, err)
 
-	// test positive usei surplus negative wei surplus (positive total)
+	// test positive uaex surplus negative wei surplus (positive total)
 	db = state.NewDBImpl(ctx, k, false)
 	db.SubBalance(evmAddr, uint256.NewInt(1_000_000_000_000), tracing.BalanceChangeUnspecified)
 	db.AddBalance(evmAddr, uint256.NewInt(999_999_999_999), tracing.BalanceChangeUnspecified)
