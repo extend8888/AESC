@@ -122,7 +122,7 @@ describe("EVM Precompile Tester", function () {
         let govProposal;
 
         before(async function () {
-            const govProposalResponse = JSON.parse(await execute(`seid tx gov submit-proposal param-change ../contracts/test/param_change_proposal.json --from admin --fees 20000usei -b block -y -o json`))
+            const govProposalResponse = JSON.parse(await execute(`seid tx gov submit-proposal param-change ../contracts/test/param_change_proposal.json --from admin --fees 20000uaex -b block -y -o json`))
             govProposal = govProposalResponse.logs[0].events[3].attributes[1].value;
 
             const signer = accounts[0].signer
@@ -389,7 +389,7 @@ describe("EVM Precompile Tester", function () {
                     amount: "10",
                 },
                 {
-                    denom: "usei",
+                    denom: "uaex",
                     amount: "1000000",
                 },
             ];
@@ -405,9 +405,9 @@ describe("EVM Precompile Tester", function () {
             const receipt = await response.wait();
             expect(receipt.status).to.equal(1);
 
-            // usei assertions
-            const useiBalance = await getSeiBalance(wasmContractAddress);
-            expect(useiBalance).to.equal(oldBalance + 1000000);
+            // uaex assertions
+            const uaexBalance = await getSeiBalance(wasmContractAddress);
+            expect(uaexBalance).to.equal(oldBalance + 1000000);
 
             // token assertions
             const contractTokenBalance = await getSeiBalance(wasmContractAddress, denom);
@@ -430,7 +430,7 @@ describe("EVM Precompile Tester", function () {
                     amount: "10",
                 },
                 {
-                    denom: "usei",
+                    denom: "uaex",
                     amount: "1000000",
                 },
             ];
@@ -469,9 +469,9 @@ describe("EVM Precompile Tester", function () {
             const receipt = await response.wait();
             expect(receipt.status).to.equal(1);
 
-            // usei assertions
-            const useiBalance = await getSeiBalance(wasmContractAddress);
-            expect(useiBalance).to.equal(oldBalance + 4000000);
+            // uaex assertions
+            const uaexBalance = await getSeiBalance(wasmContractAddress);
+            expect(uaexBalance).to.equal(oldBalance + 4000000);
 
             // token assertions
             const contractTokenBalance = await getSeiBalance(wasmContractAddress, denom);

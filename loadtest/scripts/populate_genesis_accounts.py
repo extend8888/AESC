@@ -55,7 +55,7 @@ def create_genesis_account(account_index, account_name, local=False):
             "address": address,
             "coins": [
                 {
-                    "denom": "usei",
+                    "denom": "uaex",
                     "amount": "1000000000000000000000000"
                 }
             ]

@@ -1,5 +1,5 @@
 gas_adjustment = 1.5
-gas_prices = "0.00125usei"
+gas_prices = "0.00125uaex"
 enable_server = true
 enable_voter = true
 

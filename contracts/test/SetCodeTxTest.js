@@ -9,8 +9,8 @@ const seilocal = defineChain({
   name: 'Sei',
   nativeCurrency: {
     decimals: 12,
-    name: 'usei',
-    symbol: 'usei',
+    name: 'uaex',
+    symbol: 'uaex',
   },
   rpcUrls: {
     default: {

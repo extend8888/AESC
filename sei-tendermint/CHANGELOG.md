@@ -1469,7 +1469,7 @@ Special thanks to external contributors on this release:
 *July 31, 2019*
 
 Special thanks to external contributors on this release:
-@ruseinov, @bluele, @guagualvcha
+@ruaexnov, @bluele, @guagualvcha
 
 ### BREAKING CHANGES:
 
@@ -1489,7 +1489,7 @@ Special thanks to external contributors on this release:
 
 ### IMPROVEMENTS:
 
-- [abci] [\#3809](https://github.com/tendermint/tendermint/issues/3809) Recover from application panics in `server/socket_server.go` to allow socket cleanup (@ruseinov)
+- [abci] [\#3809](https://github.com/tendermint/tendermint/issues/3809) Recover from application panics in `server/socket_server.go` to allow socket cleanup (@ruaexnov)
 - [p2p] [\#3664](https://github.com/tendermint/tendermint/issues/3664) p2p/conn: reuse buffer when write/read from secret connection(@guagualvcha)
 - [p2p] [\#3834](https://github.com/tendermint/tendermint/issues/3834) Do not write 'Couldn't connect to any seeds' error log if there are no seeds in config file
 - [rpc] [\#3076](https://github.com/tendermint/tendermint/issues/3076) Improve transaction search performance
@@ -1736,7 +1736,7 @@ This releases fixes one bug in the PEX reactor and adds a `recover` to the Go's
 ABCI server, which allows it to properly cleanup.
 
 ### IMPROVEMENTS:
-- [abci] [\#3809](https://github.com/tendermint/tendermint/issues/3809) Recover from application panics in `server/socket_server.go` to allow socket cleanup (@ruseinov)
+- [abci] [\#3809](https://github.com/tendermint/tendermint/issues/3809) Recover from application panics in `server/socket_server.go` to allow socket cleanup (@ruaexnov)
 
 ### BUG FIXES:
 - [p2p] [\#3338](https://github.com/tendermint/tendermint/issues/3338) Prevent "sent next PEX request too soon" errors by not calling

@@ -1,5 +1,5 @@
 gas_adjustment = 1.5
-gas_prices = "0.00125usei"
+gas_prices = "0.00125uaex"
 enable_server = true
 enable_voter = true
 
@@ -102,7 +102,7 @@ quote = "USD"
 
 [[currency_pairs]]
 base = "SEI"
-chain_denom = "usei"
+chain_denom = "uaex"
 providers = [
   "binance",
   "huobi",
@@ -112,7 +112,7 @@ quote = "USDT"
 
 [[currency_pairs]]
 base = "SEI"
-chain_denom = "usei"
+chain_denom = "uaex"
 providers = [
   "kraken",
   "coinbase",

@@ -9,7 +9,7 @@
 
 ## 1. 概述
 
-将 AESC 链的 Gas 代币从 `usei` 改为 `uaex`，并实现完整的 AEX 经济模型，包括：
+将 AESC 链的 Gas 代币从 `uaex` 改为 `uaex`，并实现完整的 AEX 经济模型，包括：
 - 基础配置 ✅
 - 通胀机制 ✅
 - 手续费销毁与动态调节 ✅
@@ -19,7 +19,7 @@
 ## 2. 动机
 
 AESC 链 fork 自 Sei Chain，需要：
-1. 将默认的 `usei` 代币替换为 `uaex` (AEX) 作为 Gas 代币
+1. 将默认的 `uaex` 代币替换为 `uaex` (AEX) 作为 Gas 代币
 2. 实现 AEX 完整经济模型，确保代币供给可控、激励合理
 
 ## 3. 代币参数
@@ -45,7 +45,7 @@ AESC 链 fork 自 Sei Chain，需要：
 | 修改 `app/params/config.go` | BaseCoinUnit → "uaex", Bech32Prefix → "aesc" | ✅ |
 | 修改 `x/evm/keeper/params.go` | BaseDenom → "uaex" | ✅ |
 | 修改 `cmd/seid/cmd/root.go` | MinGasPrices → "0.02uaex" | ✅ |
-| 全局搜索替换 | 30+ 文件的 "usei"/"sei" 替换 | ✅ |
+| 全局搜索替换 | 30+ 文件的 "uaex"/"sei" 替换 | ✅ |
 | Genesis 配置模板 | `depoly-scripts/localnode/aesc_genesis_template.json` | ✅ |
 | poc-deploy 适配 | 脚本、配置、文档更新 | ✅ |
 
