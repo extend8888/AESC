@@ -118,7 +118,7 @@ func TestGetTokenDenom(t *testing.T) {
 		},
 		{
 			desc:     "creator is exactly max length",
-			creator:  "aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhxhjkljkljkljkljkljkljkljkljkljkljk",
+			creator:  "aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhxhjkljkljkljkljkljkljkljkljkljklj",
 			subdenom: "bitcoin",
 			valid:    true,
 		},
