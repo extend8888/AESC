@@ -52,7 +52,7 @@ fi
 # Check 4: app.toml configuration
 echo ""
 echo "Check 4: app.toml configuration..."
-APP_TOML="$HOME/.sei/config/app.toml"
+APP_TOML="$HOME/.aesc/config/app.toml"
 if [ -f "$APP_TOML" ]; then
     if grep -q 'ss-backend = "rocksdb"' "$APP_TOML"; then
         echo "✓ app.toml configured for RocksDB"

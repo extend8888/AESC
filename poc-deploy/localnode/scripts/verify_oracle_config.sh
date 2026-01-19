@@ -7,7 +7,7 @@ echo "Oracle Configuration Verification"
 echo "=========================================="
 echo ""
 
-GENESIS_FILE="$HOME/.sei/config/genesis.json"
+GENESIS_FILE="$HOME/.aesc/config/genesis.json"
 
 if [ ! -f "$GENESIS_FILE" ]; then
     echo "❌ Genesis file not found: $GENESIS_FILE"

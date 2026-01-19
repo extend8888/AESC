@@ -94,7 +94,7 @@ def main():
     if len(args) > 1 and args[1] == "loc":
         is_local = True
 
-    genesis_json_file_path = f"{home_path}/.sei/config/genesis.json"
+    genesis_json_file_path = f"{home_path}/.aesc/config/genesis.json"
     genesis_file = read_genesis_file(genesis_json_file_path)
 
     num_threads = max(1, number_of_accounts // PARALLEISM)
