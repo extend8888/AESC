@@ -39,9 +39,9 @@ echo "=========================================="
 
 echo ""
 echo "Checking step1 results:"
-echo "  ~/.sei exists: $([ -d ~/.sei ] && echo 'YES' || echo 'NO')"
-echo "  ~/.sei/config/gentx exists: $([ -d ~/.sei/config/gentx ] && echo 'YES' || echo 'NO')"
-echo "  ~/.sei/config/gentx files: $(ls ~/.sei/config/gentx/ 2>/dev/null | wc -l)"
+echo "  ~/.aesc exists: $([ -d ~/.aesc ] && echo 'YES' || echo 'NO')"
+echo "  ~/.aesc/config/gentx exists: $([ -d ~/.aesc/config/gentx ] && echo 'YES' || echo 'NO')"
+echo "  ~/.aesc/config/gentx files: $(ls ~/.aesc/config/gentx/ 2>/dev/null | wc -l)"
 echo "  build/generated/gentx exists: $([ -d build/generated/gentx ] && echo 'YES' || echo 'NO')"
 echo "  build/generated/gentx files: $(ls build/generated/gentx/ 2>/dev/null | wc -l)"
 
@@ -54,7 +54,7 @@ echo "=========================================="
 
 echo ""
 echo "Checking step2 results:"
-echo "  ~/.sei/config/genesis.json exists: $([ -f ~/.sei/config/genesis.json ] && echo 'YES' || echo 'NO')"
+echo "  ~/.aesc/config/genesis.json exists: $([ -f ~/.aesc/config/genesis.json ] && echo 'YES' || echo 'NO')"
 echo "  build/generated/genesis.json exists: $([ -f build/generated/genesis.json ] && echo 'YES' || echo 'NO')"
 if [ -f build/generated/genesis.json ]; then
     echo "  Genesis validators: $(jq '.validators | length' build/generated/genesis.json)"

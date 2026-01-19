@@ -12,8 +12,8 @@ echo "Removing build/generated..."
 rm -rf build/generated
 
 # Remove sei data
-echo "Removing ~/.sei..."
-rm -rf ~/.sei
+echo "Removing ~/.aesc..."
+rm -rf ~/.aesc
 
 echo "Cleanup completed!"
 
