@@ -13,7 +13,7 @@ printf "12345678\n12345678\ny\n" | seid keys add $ACCOUNT_NAME 2>&1 | grep -v "o
 
 # Helper function to override genesis
 override_genesis() {
-  cat ~/.sei/config/genesis.json | jq "$1" > ~/.sei/config/tmp_genesis.json && mv ~/.sei/config/tmp_genesis.json ~/.sei/config/genesis.json;
+  cat ~/.aesc/config/genesis.json | jq "$1" > ~/.aesc/config/tmp_genesis.json && mv ~/.aesc/config/tmp_genesis.json ~/.aesc/config/genesis.json;
 }
 
 echo "Configuring genesis parameters..."
@@ -87,10 +87,10 @@ fi
 
 # Copy gentx files
 echo "Copying gentx files..."
-mkdir -p ~/.sei/config/gentx
+mkdir -p ~/.aesc/config/gentx
 if [ -d "build/generated/gentx" ] && [ "$(ls -A build/generated/gentx)" ]; then
-    cp -v build/generated/gentx/* ~/.sei/config/gentx/
-    echo "Gentx files copied: $(ls ~/.sei/config/gentx/)"
+    cp -v build/generated/gentx/* ~/.aesc/config/gentx/
+    echo "Gentx files copied: $(ls ~/.aesc/config/gentx/)"
 else
     echo "ERROR: No gentx files found in build/generated/gentx/"
     exit 1
@@ -108,19 +108,19 @@ echo "Collecting genesis transactions..."
 if ! seid collect-gentxs; then
     echo "ERROR: Failed to collect gentxs"
     echo "Checking gentx directory:"
-    ls -la ~/.sei/config/gentx/
+    ls -la ~/.aesc/config/gentx/
     exit 1
 fi
 
 # Verify genesis file
-if [ ! -f ~/.sei/config/genesis.json ]; then
-    echo "ERROR: Genesis file not created at ~/.sei/config/genesis.json"
+if [ ! -f ~/.aesc/config/genesis.json ]; then
+    echo "ERROR: Genesis file not created at ~/.aesc/config/genesis.json"
     exit 1
 fi
 
 # Save genesis file
 echo "Saving genesis file..."
-cp ~/.sei/config/genesis.json build/generated/genesis.json
+cp ~/.aesc/config/genesis.json build/generated/genesis.json
 
 echo "Genesis file created successfully!"
 echo "Genesis file saved to: build/generated/genesis.json"

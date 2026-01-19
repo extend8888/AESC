@@ -154,3 +154,46 @@ func (suite *BurnTestSuite) TestUpdateReverseBrakeState_PositiveNetSupply() {
 	suite.Require().True(state.CurrentReduction.IsZero())
 }
 
+// ========== BurnFees Integration Tests ==========
+// These tests verify the complete BurnFees flow including fee_collector permissions
+
+func (suite *BurnTestSuite) TestBurnFees_Integration() {
+	// This test verifies that BurnFees can successfully burn coins from fee_collector.
+	// It requires fee_collector to have Burner permission in maccPerms (app/app.go).
+	// See Issue: fee_collector needs authtypes.Burner permission for aexburn module.
+
+	params := types.DefaultParams()
+	params.BurnEnabled = true
+	params.MinBurnRate = sdk.NewDecWithPrec(30, 2)    // 30%
+	params.TargetBurnRate = sdk.NewDecWithPrec(50, 2) // 50%
+	params.MaxBurnRate = sdk.NewDecWithPrec(60, 2)    // 60%
+	suite.App.AexburnKeeper.SetParams(suite.Ctx, params)
+
+	// Fund fee_collector with some coins
+	feeCollectorAddr := suite.App.AccountKeeper.GetModuleAddress("fee_collector")
+	suite.Require().NotNil(feeCollectorAddr, "fee_collector module address should exist")
+
+	initialFees := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000)))
+	err := suite.App.BankKeeper.MintCoins(suite.Ctx, types.ModuleName, initialFees)
+	suite.Require().NoError(err)
+	err = suite.App.BankKeeper.SendCoinsFromModuleToModule(suite.Ctx, types.ModuleName, "fee_collector", initialFees)
+	suite.Require().NoError(err)
+
+	// Get initial burn stats
+	statsBefore := suite.App.AexburnKeeper.GetBurnStats(suite.Ctx)
+
+	// Execute BurnFees
+	burnedCoins, remaining, err := suite.App.AexburnKeeper.BurnFees(suite.Ctx)
+
+	// This should succeed if fee_collector has Burner permission
+	suite.Require().NoError(err, "BurnFees should succeed when fee_collector has Burner permission")
+	suite.Require().False(burnedCoins.IsZero(), "Some coins should be burned")
+
+	// Verify burn stats updated
+	statsAfter := suite.App.AexburnKeeper.GetBurnStats(suite.Ctx)
+	suite.Require().True(statsAfter.TotalBurned.GT(statsBefore.TotalBurned), "TotalBurned should increase")
+
+	// Verify remaining balance
+	suite.Require().True(remaining.IsAllLTE(initialFees), "Remaining should be less than initial")
+}
+
