@@ -25,13 +25,17 @@ import (
 	"github.com/sei-protocol/sei-chain/example/contracts/simplestorage"
 	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
 	"github.com/sei-protocol/sei-chain/x/evm/ante"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc1155"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc721"
 	"github.com/sei-protocol/sei-chain/x/evm/keeper"
 	"github.com/sei-protocol/sei-chain/x/evm/state"
 	"github.com/sei-protocol/sei-chain/x/evm/types"
 	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
+)
+
+// CW->ERC pointer version constants (wasm artifacts removed)
+const (
+	cw20Erc20PointerCurrentVersion     uint16 = 1
+	cw721Erc721PointerCurrentVersion   uint16 = 1
+	cw1155Erc1155PointerCurrentVersion uint16 = 1
 )
 
 type mockTx struct {
@@ -547,7 +551,7 @@ func TestRegisterPointer(t *testing.T) {
 	require.Nil(t, err)
 	pointer, version, exists := k.GetCW20ERC20Pointer(ctx, pointee)
 	require.True(t, exists)
-	require.Equal(t, erc20.CurrentVersion, version)
+	require.Equal(t, cw20Erc20PointerCurrentVersion, version)
 	require.Equal(t, pointer.String(), res.PointerAddress)
 	hasRegisteredEvent := false
 	for _, e := range ctx.EventManager().Events() {
@@ -588,7 +592,7 @@ func TestRegisterPointer(t *testing.T) {
 	require.Nil(t, err)
 	newPointer, version, exists := k.GetCW20ERC20Pointer(ctx, pointee)
 	require.True(t, exists)
-	require.Equal(t, erc20.CurrentVersion, version)
+	require.Equal(t, cw20Erc20PointerCurrentVersion, version)
 	require.Equal(t, newPointer.String(), res.PointerAddress)
 	require.Equal(t, newPointer.String(), pointer.String()) // should retain the existing contract address
 	ctx = ctx.WithEventManager(sdk.NewEventManager())
@@ -602,7 +606,7 @@ func TestRegisterPointer(t *testing.T) {
 	require.Nil(t, err)
 	pointer, version, exists = k.GetCW721ERC721Pointer(ctx, pointee)
 	require.True(t, exists)
-	require.Equal(t, erc721.CurrentVersion, version)
+	require.Equal(t, cw721Erc721PointerCurrentVersion, version)
 	require.Equal(t, pointer.String(), res.PointerAddress)
 	hasRegisteredEvent = false
 	for _, e := range ctx.EventManager().Events() {
@@ -643,7 +647,7 @@ func TestRegisterPointer(t *testing.T) {
 	require.Nil(t, err)
 	newPointer, version, exists = k.GetCW721ERC721Pointer(ctx, pointee)
 	require.True(t, exists)
-	require.Equal(t, erc721.CurrentVersion, version)
+	require.Equal(t, cw721Erc721PointerCurrentVersion, version)
 	require.Equal(t, newPointer.String(), res.PointerAddress)
 	require.Equal(t, newPointer.String(), pointer.String()) // should retain the existing contract address
 	ctx = ctx.WithEventManager(sdk.NewEventManager())
@@ -657,7 +661,7 @@ func TestRegisterPointer(t *testing.T) {
 	require.Nil(t, err)
 	pointer, version, exists = k.GetCW1155ERC1155Pointer(ctx, pointee)
 	require.True(t, exists)
-	require.Equal(t, erc1155.CurrentVersion, version)
+	require.Equal(t, cw1155Erc1155PointerCurrentVersion, version)
 	require.Equal(t, pointer.String(), res.PointerAddress)
 	hasRegisteredEvent = false
 	for _, e := range ctx.EventManager().Events() {
@@ -698,7 +702,7 @@ func TestRegisterPointer(t *testing.T) {
 	require.Nil(t, err)
 	newPointer, version, exists = k.GetCW1155ERC1155Pointer(ctx, pointee)
 	require.True(t, exists)
-	require.Equal(t, erc1155.CurrentVersion, version)
+	require.Equal(t, cw1155Erc1155PointerCurrentVersion, version)
 	require.Equal(t, newPointer.String(), res.PointerAddress)
 	require.Equal(t, newPointer.String(), pointer.String()) // should retain the existing contract address
 	ctx = ctx.WithEventManager(sdk.NewEventManager())
@@ -926,13 +930,13 @@ func TestRegisterPointerDisabled(t *testing.T) {
 
 	// Test that existing pointers can still be queried
 	// First manually set up a pointer
-	err = k.SetCW20ERC20PointerWithVersion(ctx, pointee, pointer.String(), erc20.CurrentVersion)
+	err = k.SetCW20ERC20PointerWithVersion(ctx, pointee, pointer.String(), cw20Erc20PointerCurrentVersion)
 	require.Nil(t, err)
 
 	// Verify the pointer exists and can be queried
 	gotPointer, version, exists := k.GetCW20ERC20Pointer(ctx, pointee)
 	require.True(t, exists)
-	require.Equal(t, erc20.CurrentVersion, version)
+	require.Equal(t, cw20Erc20PointerCurrentVersion, version)
 	require.Equal(t, pointer, gotPointer)
 
 	// Test that attempting to register a pointer for an address that already has one still fails

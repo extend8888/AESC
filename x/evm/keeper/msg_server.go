@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -21,12 +20,8 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 
-	"github.com/sei-protocol/sei-chain/precompiles/wasmd"
 	"github.com/sei-protocol/sei-chain/utils"
 	seimetrics "github.com/sei-protocol/sei-chain/utils/metrics"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc1155"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc721"
 	"github.com/sei-protocol/sei-chain/x/evm/state"
 	"github.com/sei-protocol/sei-chain/x/evm/types"
 )
@@ -44,10 +39,8 @@ func NewMsgServerImpl(keeper *Keeper) types.MsgServer {
 var _ types.MsgServer = msgServer{}
 
 func (k *Keeper) PrepareCtxForEVMTransaction(ctx sdk.Context, tx *ethtypes.Transaction) (sdk.Context, sdk.GasMeter) {
-	isWasmdPrecompileCall := wasmd.IsWasmdCall(tx.To())
-	if isWasmdPrecompileCall {
-		ctx = ctx.WithEVMEntryViaWasmdPrecompile(true)
-	}
+	// wasm module removed, wasmd precompile no longer available
+	_ = tx // tx parameter kept for API compatibility
 	// EVM has a special case here, mainly because for an EVM transaction the gas limit is set on EVM payload level, not on top-level GasWanted field
 	// as normal transactions (because existing eth client can't). As a result EVM has its own dedicated ante handler chain. The full sequence is:
 
@@ -265,101 +258,17 @@ func (server msgServer) Send(goCtx context.Context, msg *types.MsgSend) (*types.
 }
 
 func (server msgServer) RegisterPointer(goCtx context.Context, msg *types.MsgRegisterPointer) (*types.MsgRegisterPointerResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	if server.GetRegisterPointerDisabled(ctx) {
-		return nil, fmt.Errorf("registering CW->ERC pointers has been disabled")
-	}
-	var existingPointer sdk.AccAddress
-	var existingVersion uint16
-	var currentVersion uint16
-	var exists bool
-	switch msg.PointerType {
-	case types.PointerType_ERC20:
-		currentVersion = erc20.CurrentVersion
-		existingPointer, existingVersion, exists = server.GetCW20ERC20Pointer(ctx, common.HexToAddress(msg.ErcAddress))
-	case types.PointerType_ERC721:
-		currentVersion = erc721.CurrentVersion
-		existingPointer, existingVersion, exists = server.GetCW721ERC721Pointer(ctx, common.HexToAddress(msg.ErcAddress))
-	case types.PointerType_ERC1155:
-		currentVersion = erc1155.CurrentVersion
-		existingPointer, existingVersion, exists = server.GetCW1155ERC1155Pointer(ctx, common.HexToAddress(msg.ErcAddress))
-	default:
-		panic("unknown pointer type")
-	}
-	if exists && existingVersion >= currentVersion {
-		return nil, fmt.Errorf("pointer %s already registered at version %d", existingPointer.String(), existingVersion)
-	}
-	payload := map[string]interface{}{}
-	switch msg.PointerType {
-	case types.PointerType_ERC20:
-		payload["erc20_address"] = msg.ErcAddress
-	case types.PointerType_ERC721:
-		payload["erc721_address"] = msg.ErcAddress
-	case types.PointerType_ERC1155:
-		payload["erc1155_address"] = msg.ErcAddress
-	default:
-		panic("unknown pointer type")
-	}
-	codeID := server.GetStoredPointerCodeID(ctx, msg.PointerType)
-	moduleAcct := server.accountKeeper.GetModuleAddress(types.ModuleName)
-	var err error
-	var pointerAddr sdk.AccAddress
-	if exists {
-		bz, _ := json.Marshal(map[string]interface{}{})
-		pointerAddr = existingPointer
-		_, err = server.wasmKeeper.Migrate(ctx, existingPointer, moduleAcct, codeID, bz)
-	} else {
-		bz, jerr := json.Marshal(payload)
-		if jerr != nil {
-			return nil, jerr
-		}
-		pointerAddr, _, err = server.wasmKeeper.Instantiate(ctx, codeID, moduleAcct, moduleAcct, bz, fmt.Sprintf("Pointer of %s", msg.ErcAddress), sdk.NewCoins())
-	}
-	if err != nil {
-		return nil, err
-	}
-	switch msg.PointerType {
-	case types.PointerType_ERC20:
-		err = server.SetCW20ERC20Pointer(ctx, common.HexToAddress(msg.ErcAddress), pointerAddr.String())
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypePointerRegistered, sdk.NewAttribute(types.AttributeKeyPointerType, "erc20"),
-			sdk.NewAttribute(types.AttributeKeyPointerAddress, pointerAddr.String()), sdk.NewAttribute(types.AttributeKeyPointee, msg.ErcAddress),
-			sdk.NewAttribute(types.AttributeKeyPointerVersion, fmt.Sprintf("%d", erc20.CurrentVersion))))
-	case types.PointerType_ERC721:
-		err = server.SetCW721ERC721Pointer(ctx, common.HexToAddress(msg.ErcAddress), pointerAddr.String())
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypePointerRegistered, sdk.NewAttribute(types.AttributeKeyPointerType, "erc721"),
-			sdk.NewAttribute(types.AttributeKeyPointerAddress, pointerAddr.String()), sdk.NewAttribute(types.AttributeKeyPointee, msg.ErcAddress),
-			sdk.NewAttribute(types.AttributeKeyPointerVersion, fmt.Sprintf("%d", erc721.CurrentVersion))))
-	case types.PointerType_ERC1155:
-		err = server.SetCW1155ERC1155Pointer(ctx, common.HexToAddress(msg.ErcAddress), pointerAddr.String())
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypePointerRegistered, sdk.NewAttribute(types.AttributeKeyPointerType, "erc1155"),
-			sdk.NewAttribute(types.AttributeKeyPointerAddress, pointerAddr.String()), sdk.NewAttribute(types.AttributeKeyPointee, msg.ErcAddress),
-			sdk.NewAttribute(types.AttributeKeyPointerVersion, fmt.Sprintf("%d", erc1155.CurrentVersion))))
-	default:
-		panic("unknown pointer type")
-	}
-	return &types.MsgRegisterPointerResponse{PointerAddress: pointerAddr.String()}, err
+	// wasm module removed, CW pointer registration not supported
+	_ = goCtx
+	_ = msg
+	return nil, errors.New("wasm module removed, CW pointer registration not supported")
 }
 
 func (server msgServer) AssociateContractAddress(goCtx context.Context, msg *types.MsgAssociateContractAddress) (*types.MsgAssociateContractAddressResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	addr := sdk.MustAccAddressFromBech32(msg.Address) // already validated
-	// check if address is for a contract
-	if server.wasmViewKeeper.GetContractInfo(ctx, addr) == nil {
-		return nil, errors.New("no wasm contract found at the given address")
-	}
-	evmAddr := common.BytesToAddress(addr)
-	existingEvmAddr, ok := server.GetEVMAddress(ctx, addr)
-	if ok {
-		if existingEvmAddr.Cmp(evmAddr) != 0 {
-			ctx.Logger().Error(fmt.Sprintf("unexpected associated EVM address %s exists for contract %s: expecting %s", existingEvmAddr.Hex(), addr.String(), evmAddr.Hex()))
-		}
-		return nil, errors.New("contract already has an associated address")
-	}
-	server.SetAddressMapping(ctx, addr, evmAddr)
-	return &types.MsgAssociateContractAddressResponse{}, nil
+	// wasm module removed, contract association not supported
+	_ = goCtx
+	_ = msg
+	return nil, errors.New("wasm module removed, contract association not supported")
 }
 
 func (server msgServer) Associate(context.Context, *types.MsgAssociate) (*types.MsgAssociateResponse, error) {

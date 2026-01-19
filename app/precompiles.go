@@ -1,7 +1,6 @@
 package app
 
 import (
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/client"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
@@ -15,8 +14,6 @@ type PrecompileKeepers struct {
 	putils.EVMKeeper
 	putils.AccountKeeper
 	putils.OracleKeeper
-	putils.WasmdKeeper
-	putils.WasmdViewKeeper
 	putils.StakingKeeper
 	putils.StakingQuerier
 	putils.GovKeeper
@@ -36,8 +33,6 @@ func NewPrecompileKeepers(a *App) *PrecompileKeepers {
 		EVMKeeper:          &a.EvmKeeper,
 		AccountKeeper:      a.AccountKeeper,
 		OracleKeeper:       a.OracleKeeper,
-		WasmdKeeper:        wasmkeeper.NewDefaultPermissionKeeper(a.WasmKeeper),
-		WasmdViewKeeper:    a.WasmKeeper,
 		StakingKeeper:      stakingkeeper.NewMsgServerImpl(a.StakingKeeper),
 		StakingQuerier:     stakingkeeper.Querier{Keeper: a.StakingKeeper},
 		GovKeeper:          a.GovKeeper,
@@ -56,8 +51,8 @@ func (pk *PrecompileKeepers) BankMS() putils.BankMsgServer             { return 
 func (pk *PrecompileKeepers) EVMK() putils.EVMKeeper                   { return pk.EVMKeeper }
 func (pk *PrecompileKeepers) AccountK() putils.AccountKeeper           { return pk.AccountKeeper }
 func (pk *PrecompileKeepers) OracleK() putils.OracleKeeper             { return pk.OracleKeeper }
-func (pk *PrecompileKeepers) WasmdK() putils.WasmdKeeper               { return pk.WasmdKeeper }
-func (pk *PrecompileKeepers) WasmdVK() putils.WasmdViewKeeper          { return pk.WasmdViewKeeper }
+func (pk *PrecompileKeepers) WasmdK() putils.WasmdKeeper               { return nil }
+func (pk *PrecompileKeepers) WasmdVK() putils.WasmdViewKeeper          { return nil }
 func (pk *PrecompileKeepers) StakingK() putils.StakingKeeper           { return pk.StakingKeeper }
 func (pk *PrecompileKeepers) StakingQ() putils.StakingQuerier          { return pk.StakingQuerier }
 func (pk *PrecompileKeepers) GovK() putils.GovKeeper                   { return pk.GovKeeper }

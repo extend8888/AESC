@@ -3,7 +3,6 @@ package v552
 import (
 	"bytes"
 	"embed"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -18,8 +17,6 @@ import (
 	pcommon "github.com/sei-protocol/sei-chain/precompiles/common/legacy/v552"
 	putils "github.com/sei-protocol/sei-chain/precompiles/utils"
 	"github.com/sei-protocol/sei-chain/utils"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw721"
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/native"
 	"github.com/sei-protocol/sei-chain/x/evm/state"
 	"github.com/sei-protocol/sei-chain/x/evm/types"
@@ -28,8 +25,6 @@ import (
 const (
 	PrecompileName   = "pointer"
 	AddNativePointer = "addNativePointer"
-	AddCW20Pointer   = "addCW20Pointer"
-	AddCW721Pointer  = "addCW721Pointer"
 )
 
 const PointerAddress = "0x000000000000000000000000000000000000100b"
@@ -44,14 +39,11 @@ var f embed.FS
 
 type Precompile struct {
 	pcommon.Precompile
-	evmKeeper   putils.EVMKeeper
-	bankKeeper  putils.BankKeeper
-	wasmdKeeper putils.WasmdViewKeeper
-	address     common.Address
+	evmKeeper  putils.EVMKeeper
+	bankKeeper putils.BankKeeper
+	address    common.Address
 
 	AddNativePointerID []byte
-	AddCW20PointerID   []byte
-	AddCW721PointerID  []byte
 }
 
 func NewPrecompile(keepers putils.Keepers) (*Precompile, error) {
@@ -66,21 +58,16 @@ func NewPrecompile(keepers putils.Keepers) (*Precompile, error) {
 	}
 
 	p := &Precompile{
-		Precompile:  pcommon.Precompile{ABI: newAbi},
-		evmKeeper:   keepers.EVMK(),
-		bankKeeper:  keepers.BankK(),
-		wasmdKeeper: keepers.WasmdVK(),
-		address:     common.HexToAddress(PointerAddress),
+		Precompile: pcommon.Precompile{ABI: newAbi},
+		evmKeeper:  keepers.EVMK(),
+		bankKeeper: keepers.BankK(),
+		address:    common.HexToAddress(PointerAddress),
 	}
 
 	for name, m := range newAbi.Methods {
 		switch name {
 		case AddNativePointer:
 			p.AddNativePointerID = m.ID
-		case AddCW20Pointer:
-			p.AddCW20PointerID = m.ID
-		case AddCW721Pointer:
-			p.AddCW721PointerID = m.ID
 		}
 	}
 
@@ -121,10 +108,6 @@ func (p Precompile) RunAndCalculateGas(evm *vm.EVM, caller common.Address, calli
 	switch method.Name {
 	case AddNativePointer:
 		return p.AddNative(ctx, method, caller, args, value, evm, suppliedGas, hooks)
-	case AddCW20Pointer:
-		return p.AddCW20(ctx, method, caller, args, value, evm, suppliedGas, hooks)
-	case AddCW721Pointer:
-		return p.AddCW721(ctx, method, caller, args, value, evm, suppliedGas, hooks)
 	default:
 		err = fmt.Errorf("unknown method %s", method.Name)
 	}
@@ -193,112 +176,4 @@ func (p Precompile) AddNative(ctx sdk.Context, method *ethabi.Method, caller com
 	return
 }
 
-func (p Precompile) AddCW20(ctx sdk.Context, method *ethabi.Method, caller common.Address, args []interface{}, value *big.Int, evm *vm.EVM, suppliedGas uint64, hooks *tracing.Hooks) (ret []byte, remainingGas uint64, err error) {
-	if err := pcommon.ValidateNonPayable(value); err != nil {
-		return nil, 0, err
-	}
-	if err := pcommon.ValidateArgsLength(args, 1); err != nil {
-		return nil, 0, err
-	}
-	cwAddr := args[0].(string)
-	existingAddr, existingVersion, exists := p.evmKeeper.GetERC20CW20Pointer(ctx, cwAddr)
-	if exists {
-		return nil, 0, fmt.Errorf("pointer at %s with version %d exists when trying to set pointer for version %d", existingAddr.Hex(), existingVersion, cw20.CurrentVersion(ctx))
-	}
-	cwAddress, err := sdk.AccAddressFromBech32(cwAddr)
-	if err != nil {
-		return nil, 0, err
-	}
-	res, err := p.wasmdKeeper.QuerySmart(ctx, cwAddress, []byte("{\"token_info\":{}}"))
-	if err != nil {
-		return nil, 0, err
-	}
-	formattedRes := map[string]interface{}{}
-	if err := json.Unmarshal(res, &formattedRes); err != nil {
-		return nil, 0, err
-	}
-	name := formattedRes["name"].(string)
-	symbol := formattedRes["symbol"].(string)
-	constructorArguments := []interface{}{
-		cwAddr, name, symbol,
-	}
 
-	packedArgs, err := cw20.GetParsedABI().Pack("", constructorArguments...)
-	if err != nil {
-		panic(err)
-	}
-	bin := append(cw20.GetBin(), packedArgs...)
-	if value == nil {
-		value = utils.Big0
-	}
-	ret, contractAddr, remainingGas, err := evm.Create(caller, bin, suppliedGas, uint256.MustFromBig(value))
-	if err != nil {
-		return
-	}
-	err = p.evmKeeper.SetERC20CW20Pointer(ctx, cwAddr, contractAddr)
-	if err != nil {
-		return
-	}
-
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypePointerRegistered, sdk.NewAttribute(types.AttributeKeyPointerType, "cw20"),
-		sdk.NewAttribute(types.AttributeKeyPointerAddress, contractAddr.Hex()), sdk.NewAttribute(types.AttributeKeyPointee, cwAddr),
-		sdk.NewAttribute(types.AttributeKeyPointerVersion, fmt.Sprintf("%d", cw20.CurrentVersion(ctx)))))
-	ret, err = method.Outputs.Pack(contractAddr)
-	return
-}
-
-func (p Precompile) AddCW721(ctx sdk.Context, method *ethabi.Method, caller common.Address, args []interface{}, value *big.Int, evm *vm.EVM, suppliedGas uint64, hooks *tracing.Hooks) (ret []byte, remainingGas uint64, err error) {
-	if err := pcommon.ValidateNonPayable(value); err != nil {
-		return nil, 0, err
-	}
-	if err := pcommon.ValidateArgsLength(args, 1); err != nil {
-		return nil, 0, err
-	}
-	cwAddr := args[0].(string)
-	existingAddr, existingVersion, exists := p.evmKeeper.GetERC721CW721Pointer(ctx, cwAddr)
-	if exists && existingVersion >= 4 {
-		return nil, 0, fmt.Errorf("pointer at %s with version %d exists when trying to set pointer for version %d", existingAddr.Hex(), existingVersion, cw721.CurrentVersion)
-	}
-	cwAddress, err := sdk.AccAddressFromBech32(cwAddr)
-	if err != nil {
-		return nil, 0, err
-	}
-	res, err := p.wasmdKeeper.QuerySmart(ctx, cwAddress, []byte("{\"contract_info\":{}}"))
-	if err != nil {
-		return nil, 0, err
-	}
-	formattedRes := map[string]interface{}{}
-	if err := json.Unmarshal(res, &formattedRes); err != nil {
-		return nil, 0, err
-	}
-	name := formattedRes["name"].(string)
-	symbol := formattedRes["symbol"].(string)
-	constructorArguments := []interface{}{
-		cwAddr, name, symbol,
-	}
-
-	packedArgs, err := cw721.GetParsedABI().Pack("", constructorArguments...)
-	if err != nil {
-		panic(err)
-	}
-	bin := append(cw721.GetBin(), packedArgs...)
-	if value == nil {
-		value = utils.Big0
-	}
-	ret, contractAddr, remainingGas, err := evm.Create(caller, bin, suppliedGas, uint256.MustFromBig(value))
-	if err != nil {
-		return
-	}
-	err = p.evmKeeper.SetERC721CW721Pointer(ctx, cwAddr, contractAddr)
-	if err != nil {
-		return
-	}
-
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypePointerRegistered, sdk.NewAttribute(types.AttributeKeyPointerType, "cw721"),
-		sdk.NewAttribute(types.AttributeKeyPointerAddress, contractAddr.Hex()), sdk.NewAttribute(types.AttributeKeyPointee, cwAddr),
-		sdk.NewAttribute(types.AttributeKeyPointerVersion, fmt.Sprintf("%d", cw721.CurrentVersion))))
-	ret, err = method.Outputs.Pack(contractAddr)
-	return
-}

@@ -3,7 +3,6 @@ package evmrpc
 import (
 	"context"
 	"crypto/ecdsa"
-	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"math/big"
@@ -12,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
@@ -243,16 +241,6 @@ func filterTransactions(
 				}
 				txCounts[sender.Hex()] = txCount + 1
 				txs = append(txs, indexedMsg{index: i, msg: msg})
-			case *wasmtypes.MsgExecuteContract:
-				if !includeSyntheticTxs {
-					continue
-				}
-				th := sha256.Sum256(block.Block.Txs[i])
-				_, found := getOrSetCachedReceipt(cacheCreationMutex, globalBlockCache, latestCtx, k, block, th)
-				if !found {
-					continue
-				}
-				txs = append(txs, indexedMsg{index: i, msg: msg})
 			case *banktypes.MsgSend:
 				if !includeBankTransfers {
 					continue
@@ -336,8 +324,6 @@ func getTxHashesFromBlock(
 		case *types.MsgEVMTransaction:
 			ethtx, _ := tx.msg.(*types.MsgEVMTransaction).AsTransaction()
 			txHashes = append(txHashes, typedTxHash{hash: ethtx.Hash(), isEvm: true})
-		case *wasmtypes.MsgExecuteContract:
-			txHashes = append(txHashes, typedTxHash{hash: sha256.Sum256(block.Block.Txs[tx.index]), isEvm: false})
 		}
 	}
 	return txHashes, nil

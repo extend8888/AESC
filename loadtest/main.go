@@ -21,7 +21,6 @@ import (
 	"syscall"
 	"time"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -327,32 +326,6 @@ func (c *LoadTestClient) generateMessage(key cryptotypes.PrivKey, msgType string
 	}
 
 	switch msgType {
-	case WasmMintNft:
-		contract := config.WasmMsgTypes.MintNftType.ContractAddr
-		// TODO: Potentially just hard code the Funds amount here
-		price := config.PriceDistr.Sample()
-		quantity := config.QuantityDistr.Sample()
-		amount, err := sdk.ParseCoinsNormalized(fmt.Sprintf("%d%s", price.Mul(quantity).Ceil().RoundInt64(), "uaex"))
-		if err != nil {
-			panic(err)
-		}
-		msgs = []sdk.Msg{&wasmtypes.MsgExecuteContract{
-			Sender:   sdk.AccAddress(key.PubKey().Address()).String(),
-			Contract: contract,
-			Msg:      wasmtypes.RawContractMessage([]byte("{\"mint\":{\"owner\": \"aesc1a27kj2j27c6uz58rn9zmhcjee9s3h3nhec22h6\"}}")),
-			Funds:    amount,
-		}}
-	case WasmInstantiate:
-		msgs = []sdk.Msg{&wasmtypes.MsgInstantiateContract{
-			Sender: sdk.AccAddress(key.PubKey().Address()).String(),
-			CodeID: config.WasmMsgTypes.Instantiate.CodeID,
-			Label:  "test",
-			Msg:    wasmtypes.RawContractMessage([]byte(config.WasmMsgTypes.Instantiate.Payload)),
-			Funds: sdk.NewCoins(sdk.Coin{
-				Denom:  "uaex",
-				Amount: sdk.NewInt(1),
-			}), // maybe make this configurable as well in the future
-		}}
 	case Bank:
 		msgs = []sdk.Msg{}
 		for i := 0; i < int(msgPerTx); i++ {
@@ -461,54 +434,6 @@ func (c *LoadTestClient) generateMessage(key cryptotypes.PrivKey, msgType string
 				Denom:  "uaex",
 				Amount: sdk.NewInt(amountUaex),
 			}),
-		}}
-	case WasmOccIteratorWrite:
-		// generate some values for indices 1-100
-		indices := []int{}
-		for i := 0; i < 100; i++ {
-			indices = append(indices, i)
-		}
-		rand.Shuffle(100, func(i, j int) {
-			indices[i], indices[j] = indices[j], indices[i]
-		})
-		values := [][]uint64{}
-		num_values := rand.Int()%100 + 1
-		for x := 0; x < num_values; x++ {
-			values = append(values, []uint64{uint64(indices[x]), rand.Uint64() % 12345})
-		}
-		contract := config.SeiTesterAddress
-		msgData := WasmIteratorWriteMsg{
-			Values: values,
-		}
-		jsonData, err := json.Marshal(msgData)
-		if err != nil {
-			panic(err)
-		}
-		msgs = []sdk.Msg{&wasmtypes.MsgExecuteContract{
-			Sender:   sdk.AccAddress(key.PubKey().Address()).String(),
-			Contract: contract,
-			Msg:      wasmtypes.RawContractMessage([]byte(fmt.Sprintf("{\"test_occ_iterator_write\":%s}", jsonData))),
-		}}
-	case WasmOccIteratorRange:
-		contract := config.SeiTesterAddress
-		start := rand.Uint32() % 100
-		end := rand.Uint32() % 100
-		if start > end {
-			start, end = end, start
-		}
-		msgs = []sdk.Msg{&wasmtypes.MsgExecuteContract{
-			Sender:   sdk.AccAddress(key.PubKey().Address()).String(),
-			Contract: contract,
-			Msg:      wasmtypes.RawContractMessage([]byte(fmt.Sprintf("{\"test_occ_iterator_range\":{\"start\": %d, \"end\": %d}}", start, end))),
-		}}
-	case WasmOccParallelWrite:
-		contract := config.SeiTesterAddress
-		// generate random value
-		value := rand.Uint64()
-		msgs = []sdk.Msg{&wasmtypes.MsgExecuteContract{
-			Sender:   sdk.AccAddress(key.PubKey().Address()).String(),
-			Contract: contract,
-			Msg:      wasmtypes.RawContractMessage([]byte(fmt.Sprintf("{\"test_occ_parallelism\":{\"value\": %d}}", value))),
 		}}
 	default:
 		fmt.Printf("Unrecognized message type %s", msgType)

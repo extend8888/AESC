@@ -19,7 +19,6 @@ import (
 	"github.com/sei-protocol/sei-chain/precompiles/solo"
 	"github.com/sei-protocol/sei-chain/precompiles/staking"
 	"github.com/sei-protocol/sei-chain/precompiles/utils"
-	"github.com/sei-protocol/sei-chain/precompiles/wasmd"
 )
 
 var SetupMtx = &sync.Mutex{}
@@ -46,7 +45,6 @@ func GetCustomPrecompiles(
 ) map[ecommon.Address]utils.VersionedPrecompiles {
 	return map[ecommon.Address]utils.VersionedPrecompiles{
 		ecommon.HexToAddress(bank.BankAddress):               bank.GetVersioned(latestUpgrade, keepers),
-		ecommon.HexToAddress(wasmd.WasmdAddress):             wasmd.GetVersioned(latestUpgrade, keepers),
 		ecommon.HexToAddress(json.JSONAddress):               json.GetVersioned(latestUpgrade, keepers),
 		ecommon.HexToAddress(addr.AddrAddress):               addr.GetVersioned(latestUpgrade, keepers),
 		ecommon.HexToAddress(staking.StakingAddress):         staking.GetVersioned(latestUpgrade, keepers),
@@ -71,10 +69,6 @@ func InitializePrecompiles(
 		panic("precompiles already initialized")
 	}
 	bankp, err := bank.NewPrecompile(keepers)
-	if err != nil {
-		return err
-	}
-	wasmdp, err := wasmd.NewPrecompile(keepers)
 	if err != nil {
 		return err
 	}
@@ -121,7 +115,6 @@ func InitializePrecompiles(
 	}
 
 	PrecompileNamesToInfo[bankp.GetName()] = PrecompileInfo{ABI: bankp.GetABI(), Address: bankp.Address()}
-	PrecompileNamesToInfo[wasmdp.GetName()] = PrecompileInfo{ABI: wasmdp.GetABI(), Address: wasmdp.Address()}
 	PrecompileNamesToInfo[jsonp.GetName()] = PrecompileInfo{ABI: jsonp.GetABI(), Address: jsonp.Address()}
 	PrecompileNamesToInfo[addrp.GetName()] = PrecompileInfo{ABI: addrp.GetABI(), Address: addrp.Address()}
 	PrecompileNamesToInfo[stakingp.GetName()] = PrecompileInfo{ABI: stakingp.GetABI(), Address: stakingp.Address()}
@@ -135,7 +128,6 @@ func InitializePrecompiles(
 
 	if !dryRun {
 		addPrecompileToVM(bankp)
-		addPrecompileToVM(wasmdp)
 		addPrecompileToVM(jsonp)
 		addPrecompileToVM(addrp)
 		addPrecompileToVM(stakingp)

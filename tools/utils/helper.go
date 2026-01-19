@@ -3,7 +3,6 @@ package utils
 import (
 	"fmt"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	acltypes "github.com/cosmos/cosmos-sdk/x/accesscontrol/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -32,7 +31,7 @@ var ModuleKeys = sdk.NewKVStoreKeys(
 	minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 	govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 	evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey, oracletypes.StoreKey,
-	evmtypes.StoreKey, wasm.StoreKey, epochmoduletypes.StoreKey, tokenfactorytypes.StoreKey,
+	evmtypes.StoreKey, epochmoduletypes.StoreKey, tokenfactorytypes.StoreKey,
 )
 
 var Modules = []string{
@@ -56,7 +55,7 @@ var Modules = []string{
 	"tokenfactory",
 	"transfer",
 	"upgrade",
-	"wasm"}
+}
 
 func BuildRawPrefix(moduleName string) string {
 	return fmt.Sprintf("s/k:%s/n", moduleName)

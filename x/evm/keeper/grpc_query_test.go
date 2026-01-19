@@ -10,13 +10,17 @@ import (
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw1155"
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw20"
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw721"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc1155"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc721"
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/native"
 	"github.com/sei-protocol/sei-chain/x/evm/keeper"
 	"github.com/sei-protocol/sei-chain/x/evm/types"
 	"github.com/stretchr/testify/require"
+)
+
+// CW->ERC pointer version constants (wasm artifacts removed)
+const (
+	cw20Erc20PointerCurrentVersion     uint16 = 1
+	cw721Erc721PointerCurrentVersion   uint16 = 1
+	cw1155Erc1155PointerCurrentVersion uint16 = 1
 )
 
 func TestQueryPointer(t *testing.T) {
@@ -50,16 +54,16 @@ func TestQueryPointer(t *testing.T) {
 	require.Equal(t, types.QueryPointerResponse{Pointer: evmAddr3.Hex(), Version: uint32(cw721.CurrentVersion), Exists: true}, *res)
 	res, err = q.Pointer(goCtx, &types.QueryPointerRequest{PointerType: types.PointerType_ERC20, Pointee: evmAddr4.Hex()})
 	require.Nil(t, err)
-	require.Equal(t, types.QueryPointerResponse{Pointer: seiAddr4.String(), Version: uint32(erc20.CurrentVersion), Exists: true}, *res)
+	require.Equal(t, types.QueryPointerResponse{Pointer: seiAddr4.String(), Version: uint32(cw20Erc20PointerCurrentVersion), Exists: true}, *res)
 	res, err = q.Pointer(goCtx, &types.QueryPointerRequest{PointerType: types.PointerType_ERC721, Pointee: evmAddr5.Hex()})
 	require.Nil(t, err)
-	require.Equal(t, types.QueryPointerResponse{Pointer: seiAddr5.String(), Version: uint32(erc721.CurrentVersion), Exists: true}, *res)
+	require.Equal(t, types.QueryPointerResponse{Pointer: seiAddr5.String(), Version: uint32(cw721Erc721PointerCurrentVersion), Exists: true}, *res)
 	res, err = q.Pointer(goCtx, &types.QueryPointerRequest{PointerType: types.PointerType_CW1155, Pointee: seiAddr6.String()})
 	require.Nil(t, err)
 	require.Equal(t, types.QueryPointerResponse{Pointer: evmAddr6.Hex(), Version: uint32(cw1155.CurrentVersion), Exists: true}, *res)
 	res, err = q.Pointer(goCtx, &types.QueryPointerRequest{PointerType: types.PointerType_ERC1155, Pointee: evmAddr7.Hex()})
 	require.Nil(t, err)
-	require.Equal(t, types.QueryPointerResponse{Pointer: seiAddr7.String(), Version: uint32(erc1155.CurrentVersion), Exists: true}, *res)
+	require.Equal(t, types.QueryPointerResponse{Pointer: seiAddr7.String(), Version: uint32(cw1155Erc1155PointerCurrentVersion), Exists: true}, *res)
 	_, err = q.Pointer(goCtx, &types.QueryPointerRequest{PointerType: types.PointerType_NATIVE})
 	require.NotNil(t, err)
 	res, err = q.Pointer(goCtx, &types.QueryPointerRequest{PointerType: types.PointerType_NATIVE, Pointee: evmAddr8.Hex()})
@@ -130,17 +134,17 @@ func TestQueryPointee(t *testing.T) {
 	// Test for ERC20 Pointee
 	res, err = q.Pointee(goCtx, &types.QueryPointeeRequest{PointerType: types.PointerType_ERC20, Pointer: seiAddr4.String()})
 	require.Nil(t, err)
-	require.Equal(t, types.QueryPointeeResponse{Pointee: evmAddr4.Hex(), Version: uint32(erc20.CurrentVersion), Exists: true}, *res)
+	require.Equal(t, types.QueryPointeeResponse{Pointee: evmAddr4.Hex(), Version: uint32(cw20Erc20PointerCurrentVersion), Exists: true}, *res)
 
 	// Test for ERC721 Pointee
 	res, err = q.Pointee(goCtx, &types.QueryPointeeRequest{PointerType: types.PointerType_ERC721, Pointer: seiAddr5.String()})
 	require.Nil(t, err)
-	require.Equal(t, types.QueryPointeeResponse{Pointee: evmAddr5.Hex(), Version: uint32(erc721.CurrentVersion), Exists: true}, *res)
+	require.Equal(t, types.QueryPointeeResponse{Pointee: evmAddr5.Hex(), Version: uint32(cw721Erc721PointerCurrentVersion), Exists: true}, *res)
 
 	// Test for ERC1155 Pointee
 	res, err = q.Pointee(goCtx, &types.QueryPointeeRequest{PointerType: types.PointerType_ERC1155, Pointer: seiAddr7.String()})
 	require.Nil(t, err)
-	require.Equal(t, types.QueryPointeeResponse{Pointee: evmAddr7.Hex(), Version: uint32(erc1155.CurrentVersion), Exists: true}, *res)
+	require.Equal(t, types.QueryPointeeResponse{Pointee: evmAddr7.Hex(), Version: uint32(cw1155Erc1155PointerCurrentVersion), Exists: true}, *res)
 
 	// Test for not registered Native Pointee
 	res, err = q.Pointee(goCtx, &types.QueryPointeeRequest{PointerType: types.PointerType_NATIVE, Pointer: "0x1234567890123456789012345678901234567890"})

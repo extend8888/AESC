@@ -2,7 +2,6 @@ package v600
 
 import (
 	"embed"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -21,8 +20,6 @@ import (
 const (
 	PrecompileName   = "pointer"
 	AddNativePointer = "addNativePointer"
-	AddCW20Pointer   = "addCW20Pointer"
-	AddCW721Pointer  = "addCW721Pointer"
 )
 
 const PointerAddress = "0x000000000000000000000000000000000000100b"
@@ -33,32 +30,24 @@ const PointerAddress = "0x000000000000000000000000000000000000100b"
 var f embed.FS
 
 type PrecompileExecutor struct {
-	evmKeeper   putils.EVMKeeper
-	bankKeeper  putils.BankKeeper
-	wasmdKeeper putils.WasmdViewKeeper
+	evmKeeper  putils.EVMKeeper
+	bankKeeper putils.BankKeeper
 
 	AddNativePointerID []byte
-	AddCW20PointerID   []byte
-	AddCW721PointerID  []byte
 }
 
 func NewPrecompile(keepers putils.Keepers) (*pcommon.DynamicGasPrecompile, error) {
 	newAbi := pcommon.MustGetABI(f, "abi.json")
 
 	p := &PrecompileExecutor{
-		evmKeeper:   keepers.EVMK(),
-		bankKeeper:  keepers.BankK(),
-		wasmdKeeper: keepers.WasmdVK(),
+		evmKeeper:  keepers.EVMK(),
+		bankKeeper: keepers.BankK(),
 	}
 
 	for name, m := range newAbi.Methods {
 		switch name {
 		case AddNativePointer:
 			p.AddNativePointerID = m.ID
-		case AddCW20Pointer:
-			p.AddCW20PointerID = m.ID
-		case AddCW721Pointer:
-			p.AddCW721PointerID = m.ID
 		}
 	}
 
@@ -76,10 +65,6 @@ func (p PrecompileExecutor) Execute(ctx sdk.Context, method *ethabi.Method, call
 	switch method.Name {
 	case AddNativePointer:
 		return p.AddNative(ctx, method, caller, args, value, evm, hooks)
-	case AddCW20Pointer:
-		return p.AddCW20(ctx, method, caller, args, value, evm, hooks)
-	case AddCW721Pointer:
-		return p.AddCW721(ctx, method, caller, args, value, evm, hooks)
 	default:
 		err = fmt.Errorf("unknown method %s", method.Name)
 	}
@@ -125,66 +110,4 @@ func (p PrecompileExecutor) AddNative(ctx sdk.Context, method *ethabi.Method, ca
 	return
 }
 
-func (p PrecompileExecutor) AddCW20(ctx sdk.Context, method *ethabi.Method, caller common.Address, args []interface{}, value *big.Int, evm *vm.EVM, hooks *tracing.Hooks) (ret []byte, remainingGas uint64, err error) {
-	if err := pcommon.ValidateNonPayable(value); err != nil {
-		return nil, 0, err
-	}
-	if err := pcommon.ValidateArgsLength(args, 1); err != nil {
-		return nil, 0, err
-	}
-	cwAddr := args[0].(string)
-	cwAddress, err := sdk.AccAddressFromBech32(cwAddr)
-	if err != nil {
-		return nil, 0, err
-	}
-	res, err := p.wasmdKeeper.QuerySmart(ctx, cwAddress, []byte("{\"token_info\":{}}"))
-	if err != nil {
-		return nil, 0, err
-	}
-	formattedRes := map[string]interface{}{}
-	if err := json.Unmarshal(res, &formattedRes); err != nil {
-		return nil, 0, err
-	}
-	name := formattedRes["name"].(string)
-	symbol := formattedRes["symbol"].(string)
-	contractAddr, err := p.evmKeeper.UpsertERCCW20Pointer(ctx, evm, cwAddr, utils.ERCMetadata{Name: name, Symbol: symbol})
-	if err != nil {
-		return nil, 0, err
-	}
 
-	ret, err = method.Outputs.Pack(contractAddr)
-	remainingGas = pcommon.GetRemainingGas(ctx, p.evmKeeper)
-	return
-}
-
-func (p PrecompileExecutor) AddCW721(ctx sdk.Context, method *ethabi.Method, caller common.Address, args []interface{}, value *big.Int, evm *vm.EVM, hooks *tracing.Hooks) (ret []byte, remainingGas uint64, err error) {
-	if err := pcommon.ValidateNonPayable(value); err != nil {
-		return nil, 0, err
-	}
-	if err := pcommon.ValidateArgsLength(args, 1); err != nil {
-		return nil, 0, err
-	}
-	cwAddr := args[0].(string)
-	cwAddress, err := sdk.AccAddressFromBech32(cwAddr)
-	if err != nil {
-		return nil, 0, err
-	}
-	res, err := p.wasmdKeeper.QuerySmart(ctx, cwAddress, []byte("{\"contract_info\":{}}"))
-	if err != nil {
-		return nil, 0, err
-	}
-	formattedRes := map[string]interface{}{}
-	if err := json.Unmarshal(res, &formattedRes); err != nil {
-		return nil, 0, err
-	}
-	name := formattedRes["name"].(string)
-	symbol := formattedRes["symbol"].(string)
-	contractAddr, err := p.evmKeeper.UpsertERCCW721Pointer(ctx, evm, cwAddr, utils.ERCMetadata{Name: name, Symbol: symbol})
-	if err != nil {
-		return nil, 0, err
-	}
-
-	ret, err = method.Outputs.Pack(contractAddr)
-	remainingGas = pcommon.GetRemainingGas(ctx, p.evmKeeper)
-	return
-}

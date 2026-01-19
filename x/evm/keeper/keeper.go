@@ -11,7 +11,6 @@ import (
 	"sort"
 	"sync"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -61,8 +60,6 @@ type Keeper struct {
 	accountKeeper  *authkeeper.AccountKeeper
 	stakingKeeper  *stakingkeeper.Keeper
 	transferKeeper ibctransferkeeper.Keeper
-	wasmKeeper     *wasmkeeper.PermissionedKeeper
-	wasmViewKeeper *wasmkeeper.Keeper
 	upgradeKeeper  *upgradekeeper.Keeper
 
 	cachedFeeCollectorAddressMtx *sync.RWMutex
@@ -131,7 +128,7 @@ func (ctx *ReplayChainContext) Config() *params.ChainConfig {
 func NewKeeper(
 	storeKey sdk.StoreKey, transientStoreKey sdk.StoreKey, paramstore paramtypes.Subspace, receiptStateStore seidbtypes.StateStore,
 	bankKeeper bankkeeper.Keeper, accountKeeper *authkeeper.AccountKeeper, stakingKeeper *stakingkeeper.Keeper,
-	transferKeeper ibctransferkeeper.Keeper, wasmKeeper *wasmkeeper.PermissionedKeeper, wasmViewKeeper *wasmkeeper.Keeper, upgradeKeeper *upgradekeeper.Keeper) *Keeper {
+	transferKeeper ibctransferkeeper.Keeper, upgradeKeeper *upgradekeeper.Keeper) *Keeper {
 
 	if !paramstore.HasKeyTable() {
 		paramstore = paramstore.WithKeyTable(types.ParamKeyTable())
@@ -144,8 +141,6 @@ func NewKeeper(
 		accountKeeper:                accountKeeper,
 		stakingKeeper:                stakingKeeper,
 		transferKeeper:               transferKeeper,
-		wasmKeeper:                   wasmKeeper,
-		wasmViewKeeper:               wasmViewKeeper,
 		upgradeKeeper:                upgradeKeeper,
 		pendingTxs:                   make(map[string][]*PendingTx),
 		nonceMx:                      &sync.RWMutex{},
@@ -210,10 +205,6 @@ func (k *Keeper) AccountKeeper() *authkeeper.AccountKeeper {
 
 func (k *Keeper) BankKeeper() bankkeeper.Keeper {
 	return k.bankKeeper
-}
-
-func (k *Keeper) WasmKeeper() *wasmkeeper.PermissionedKeeper {
-	return k.wasmKeeper
 }
 
 func (k *Keeper) UpgradeKeeper() *upgradekeeper.Keeper {

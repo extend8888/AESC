@@ -30,7 +30,6 @@ import (
 	"github.com/ethereum/go-ethereum/export"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
-	"github.com/sei-protocol/sei-chain/precompiles/wasmd"
 	"github.com/sei-protocol/sei-chain/utils"
 	"github.com/sei-protocol/sei-chain/x/evm/keeper"
 	"github.com/sei-protocol/sei-chain/x/evm/state"
@@ -88,7 +87,7 @@ func (s *SimulationAPI) CreateAccessList(ctx context.Context, args export.Transa
 	if blockNrOrHash != nil {
 		bNrOrHash = *blockNrOrHash
 	}
-	ctx = context.WithValue(ctx, CtxIsWasmdPrecompileCallKey, wasmd.IsWasmdCall(args.To))
+	ctx = context.WithValue(ctx, CtxIsWasmdPrecompileCallKey, false) // wasm module removed
 	acl, gasUsed, vmerr, err := export.AccessList(ctx, s.backend, bNrOrHash, args, nil)
 	if err != nil {
 		return nil, err
@@ -115,7 +114,7 @@ func (s *SimulationAPI) EstimateGas(ctx context.Context, args export.Transaction
 	if blockNrOrHash != nil {
 		bNrOrHash = *blockNrOrHash
 	}
-	ctx = context.WithValue(ctx, CtxIsWasmdPrecompileCallKey, wasmd.IsWasmdCall(args.To))
+	ctx = context.WithValue(ctx, CtxIsWasmdPrecompileCallKey, false) // wasm module removed
 	estimate, err := export.DoEstimateGas(ctx, s.backend, args, bNrOrHash, overrides, nil, s.backend.RPCGasCap())
 	return estimate, err
 }
@@ -135,7 +134,7 @@ func (s *SimulationAPI) EstimateGasAfterCalls(ctx context.Context, args export.T
 	if blockNrOrHash != nil {
 		bNrOrHash = *blockNrOrHash
 	}
-	ctx = context.WithValue(ctx, CtxIsWasmdPrecompileCallKey, wasmd.IsWasmdCall(args.To))
+	ctx = context.WithValue(ctx, CtxIsWasmdPrecompileCallKey, false) // wasm module removed
 	estimate, err := export.DoEstimateGasAfterCalls(ctx, s.backend, args, calls, bNrOrHash, overrides, s.backend.RPCEVMTimeout(), s.backend.RPCGasCap())
 	return estimate, err
 }
@@ -164,7 +163,7 @@ func (s *SimulationAPI) Call(ctx context.Context, args export.TransactionArgs, b
 		latest := rpc.BlockNumberOrHashWithNumber(rpc.LatestBlockNumber)
 		blockNrOrHash = &latest
 	}
-	ctx = context.WithValue(ctx, CtxIsWasmdPrecompileCallKey, wasmd.IsWasmdCall(args.To))
+	ctx = context.WithValue(ctx, CtxIsWasmdPrecompileCallKey, false) // wasm module removed
 	callResult, err := export.DoCall(ctx, s.backend, args, *blockNrOrHash, overrides, blockOverrides, s.backend.RPCEVMTimeout(), s.backend.RPCGasCap())
 	if err != nil {
 		return nil, err
@@ -520,7 +519,7 @@ func (b *Backend) initializeBlock(ctx context.Context, block *ethtypes.Block) (s
 func (b *Backend) GetEVM(_ context.Context, msg *core.Message, stateDB vm.StateDB, h *ethtypes.Header, vmConfig *vm.Config, blockCtx *vm.BlockContext) *vm.EVM {
 	txContext := core.NewEVMTxContext(msg)
 	if blockCtx == nil {
-		blockCtx, _ = b.keeper.GetVMBlockContext(b.ctxProvider(LatestCtxHeight).WithIsEVM(true).WithEVMEntryViaWasmdPrecompile(wasmd.IsWasmdCall(msg.To)), b.keeper.GetGasPool())
+		blockCtx, _ = b.keeper.GetVMBlockContext(b.ctxProvider(LatestCtxHeight).WithIsEVM(true).WithEVMEntryViaWasmdPrecompile(false), b.keeper.GetGasPool()) // wasm module removed
 	}
 	evm := vm.NewEVM(*blockCtx, stateDB, b.ChainConfig(), *vmConfig, b.keeper.CustomPrecompiles(b.ctxProvider(h.Number.Int64())))
 	evm.SetTxContext(txContext)

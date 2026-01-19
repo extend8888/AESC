@@ -3,7 +3,6 @@ package v620
 import (
 	"bytes"
 	"embed"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -36,11 +35,9 @@ const SoloAddress = "0x000000000000000000000000000000000000100C"
 var F embed.FS
 
 type PrecompileExecutor struct {
-	evmKeeper      putils.EVMKeeper
-	bankKeeper     putils.BankKeeper
-	accountKeeper  putils.AccountKeeper
-	wasmKeeper     putils.WasmdKeeper
-	wasmViewKeeper putils.WasmdViewKeeper
+	evmKeeper     putils.EVMKeeper
+	bankKeeper    putils.BankKeeper
+	accountKeeper putils.AccountKeeper
 
 	txConfig client.TxConfig
 
@@ -54,7 +51,7 @@ func NewPrecompile(
 	newAbi := pcommon.MustGetABI(F, "abi.json")
 
 	return pcommon.NewDynamicGasPrecompile(
-		newAbi, NewExecutor(newAbi, keepers.EVMK(), keepers.BankK(), keepers.AccountK(), keepers.WasmdK(), keepers.WasmdVK(), keepers.TxConfig()),
+		newAbi, NewExecutor(newAbi, keepers.EVMK(), keepers.BankK(), keepers.AccountK(), keepers.TxConfig()),
 		common.HexToAddress(SoloAddress), "solo"), nil
 }
 
@@ -63,17 +60,13 @@ func NewExecutor(
 	evmKeeper putils.EVMKeeper,
 	bankKeeper putils.BankKeeper,
 	accountKeeper putils.AccountKeeper,
-	wasmKeeper putils.WasmdKeeper,
-	wasmViewKeeper putils.WasmdViewKeeper,
 	txConfig client.TxConfig,
 ) *PrecompileExecutor {
 	p := &PrecompileExecutor{
-		evmKeeper:      evmKeeper,
-		bankKeeper:     bankKeeper,
-		accountKeeper:  accountKeeper,
-		wasmKeeper:     wasmKeeper,
-		wasmViewKeeper: wasmViewKeeper,
-		txConfig:       txConfig,
+		evmKeeper:     evmKeeper,
+		bankKeeper:    bankKeeper,
+		accountKeeper: accountKeeper,
+		txConfig:      txConfig,
 	}
 
 	for name, m := range a.Methods {
@@ -175,48 +168,9 @@ func (p PrecompileExecutor) ClaimSpecific(ctx sdk.Context, caller common.Address
 			}
 			continue
 		}
-		contractAddr, err := sdk.AccAddressFromBech32(asset.GetContractAddress())
-		if err != nil {
-			return nil, 0, fmt.Errorf("failed to parse contract address %s: %w", asset.GetContractAddress(), err)
-		}
-		switch {
-		case asset.IsCW20():
-			res, err := p.wasmViewKeeper.QuerySmartSafe(ctx, contractAddr, CW20BalanceQueryPayload(sender))
-			if err != nil {
-				return nil, 0, fmt.Errorf("failed to query CW20 contract %s for balance: %w", contractAddr.String(), err)
-			}
-			balance, err := ParseCW20BalanceQueryResponse(res)
-			if err != nil {
-				return nil, 0, fmt.Errorf("failed to parse CW20 contract %s balance response: %w", contractAddr.String(), err)
-			}
-			_, err = p.wasmKeeper.Execute(ctx, contractAddr, sender, CW20TransferPayload(callerSeiAddr, balance), sdk.NewCoins())
-			if err != nil {
-				return nil, 0, fmt.Errorf("failed to transfer on CW20 contract %s: %w", contractAddr.String(), err)
-			}
-		case asset.IsCW721():
-			allTokens := []string{}
-			startAfter := ""
-			for {
-				res, err := p.wasmViewKeeper.QuerySmartSafe(ctx, contractAddr, CW721TokensQueryPayload(sender, startAfter))
-				if err != nil {
-					return nil, 0, fmt.Errorf("failed to query CW721 contract %s for all tokens: %w", contractAddr.String(), err)
-				}
-				tokens, err := ParseCW721TokensQueryResponse(res)
-				if err != nil {
-					return nil, 0, fmt.Errorf("failed to parse CW20 contract %s balance response: %w", contractAddr.String(), err)
-				}
-				if len(tokens) == 0 {
-					break
-				}
-				allTokens = append(allTokens, tokens...)
-				startAfter = tokens[len(tokens)-1]
-			}
-			for _, token := range allTokens {
-				_, err := p.wasmKeeper.Execute(ctx, contractAddr, sender, CW721TransferPayload(callerSeiAddr, token), sdk.NewCoins())
-				if err != nil {
-					return nil, 0, fmt.Errorf("failed to transfer token %s on CW721 contract %s: %w", token, contractAddr.String(), err)
-				}
-			}
+		// CW20 and CW721 wasm contract support has been removed
+		if asset.IsCW20() || asset.IsCW721() {
+			return nil, 0, errors.New("CW20 and CW721 asset types are no longer supported")
 		}
 	}
 	bz, err := method.Outputs.Pack(true)
@@ -309,75 +263,4 @@ func (p PrecompileExecutor) sigverify(ctx sdk.Context, tx sdk.Tx, claimMsg claim
 	return nil
 }
 
-func CW20BalanceQueryPayload(addr sdk.AccAddress) []byte {
-	raw := map[string]interface{}{"address": addr.String()}
-	bz, err := json.Marshal(map[string]interface{}{"balance": raw})
-	if err != nil {
-		// should be impossible
-		panic(err)
-	}
-	return bz
-}
 
-func ParseCW20BalanceQueryResponse(res []byte) (sdk.Int, error) {
-	type response struct {
-		Balance sdk.Int `json:"balance"`
-	}
-	typed := response{}
-	if err := json.Unmarshal(res, &typed); err != nil {
-		return sdk.Int{}, err
-	}
-	return typed.Balance, nil
-}
-
-func CW20TransferPayload(recipient sdk.AccAddress, amount sdk.Int) []byte {
-	type request struct {
-		Recipient string  `json:"recipient"`
-		Amount    sdk.Int `json:"amount"`
-	}
-	raw := request{Recipient: recipient.String(), Amount: amount}
-	bz, err := json.Marshal(map[string]interface{}{"transfer": raw})
-	if err != nil {
-		// should be impossible
-		panic(err)
-	}
-	return bz
-}
-
-func CW721TokensQueryPayload(addr sdk.AccAddress, startAfter string) []byte {
-	raw := map[string]interface{}{"owner": addr.String()}
-	if startAfter != "" {
-		raw["start_after"] = startAfter
-	}
-	bz, err := json.Marshal(map[string]interface{}{"tokens": raw})
-	if err != nil {
-		// should be impossible
-		panic(err)
-	}
-	return bz
-}
-
-func ParseCW721TokensQueryResponse(res []byte) ([]string, error) {
-	type response struct {
-		Tokens []string `json:"tokens"`
-	}
-	typed := response{}
-	if err := json.Unmarshal(res, &typed); err != nil {
-		return []string{}, err
-	}
-	return typed.Tokens, nil
-}
-
-func CW721TransferPayload(recipient sdk.AccAddress, token string) []byte {
-	type request struct {
-		Recipient string `json:"recipient"`
-		Token     string `json:"token_id"`
-	}
-	raw := request{Recipient: recipient.String(), Token: token}
-	bz, err := json.Marshal(map[string]interface{}{"transfer_nft": raw})
-	if err != nil {
-		// should be impossible
-		panic(err)
-	}
-	return bz
-}

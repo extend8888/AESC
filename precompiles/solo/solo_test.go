@@ -1,13 +1,8 @@
 package solo_test
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
 	"testing"
-	"time"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -29,7 +24,7 @@ func TestExecute(t *testing.T) {
 	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil).WithChainID("sei-test").WithIsEVM(true)
 	txConfig := testkeeper.EVMTestApp.GetTxConfig()
 	a := pcommon.MustGetABI(solo.F, "abi.json")
-	p := solo.NewExecutor(a, k, k.BankKeeper(), k.AccountKeeper(), wasmkeeper.NewDefaultPermissionKeeper(testkeeper.EVMTestApp.WasmKeeper), testkeeper.EVMTestApp.WasmKeeper, txConfig)
+	p := solo.NewExecutor(a, k, k.BankKeeper(), k.AccountKeeper(), txConfig)
 	evm := vm.NewEVM(vm.BlockContext{}, nil, &params.ChainConfig{}, vm.Config{}, nil)
 	_, _, err := p.Execute(ctx.WithEVMPrecompileCalledFromDelegateCall(true), &abi.Method{}, common.Address{}, common.Address{}, []interface{}{}, nil, false, evm, 0, nil)
 	require.Error(t, err, "cannot delegatecall claim")
@@ -49,7 +44,7 @@ func TestClaim(t *testing.T) {
 	txConfig := testkeeper.EVMTestApp.GetTxConfig()
 	a := pcommon.MustGetABI(solo.F, "abi.json")
 	method := a.Methods["claim"]
-	p := solo.NewExecutor(a, k, k.BankKeeper(), k.AccountKeeper(), wasmkeeper.NewDefaultPermissionKeeper(testkeeper.EVMTestApp.WasmKeeper), testkeeper.EVMTestApp.WasmKeeper, txConfig)
+	p := solo.NewExecutor(a, k, k.BankKeeper(), k.AccountKeeper(), txConfig)
 	claimeeKey := testkeeper.MockPrivateKey()
 	claimee, _ := testkeeper.PrivateKeyToAddresses(claimeeKey)
 	claimerKey := testkeeper.MockPrivateKey()
@@ -137,63 +132,13 @@ func TestClaim(t *testing.T) {
 	require.Error(t, err, "message for Claim must not be MsgClaimSpecific type")
 }
 
-func TestClaimSpecificCW20(t *testing.T) {
-	k := &testkeeper.EVMTestApp.EvmKeeper
-	origCtx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil).WithChainID("sei-test").WithBlockTime(time.Now())
-	txConfig := testkeeper.EVMTestApp.GetTxConfig()
-	a := pcommon.MustGetABI(solo.F, "abi.json")
-	method := a.Methods["claimSpecific"]
-	wKeeper := wasmkeeper.NewDefaultPermissionKeeper(testkeeper.EVMTestApp.WasmKeeper)
-	p := solo.NewExecutor(a, k, k.BankKeeper(), k.AccountKeeper(), wKeeper, testkeeper.EVMTestApp.WasmKeeper, txConfig)
-	claimeeKey := testkeeper.MockPrivateKey()
-	claimee, _ := testkeeper.PrivateKeyToAddresses(claimeeKey)
-	claimerKey := testkeeper.MockPrivateKey()
-	_, claimer := testkeeper.PrivateKeyToAddresses(claimerKey)
-	acc := authtypes.NewBaseAccount(claimee, claimeeKey.PubKey(), 10, 0)
-	k.AccountKeeper().SetAccount(origCtx, acc)
-	contractAddr := setupCW20Contract(origCtx, claimeeKey, *wKeeper)
-	ctx, _ := origCtx.CacheContext()
-	ctx = ctx.WithGasMeter(sdk.NewGasMeter(1000000, 1, 1))
-	_, remainingGas, err := p.ClaimSpecific(ctx, claimer, &method, []interface{}{signClaimMsg(t, evmtypes.NewMsgClaimSpecific(claimee, claimer, &evmtypes.Asset{AssetType: evmtypes.AssetType_TYPECW20, ContractAddress: contractAddr.String()}), claimee, claimer, acc, claimeeKey)}, false)
-	require.NoError(t, err)
-	require.Greater(t, remainingGas, uint64(800000))
-	require.Equal(t, sdk.ZeroInt(), queryCW20Balance(ctx, testkeeper.EVMTestApp.WasmKeeper, contractAddr, claimee))
-	require.Equal(t, sdk.NewInt(1000000000), queryCW20Balance(ctx, testkeeper.EVMTestApp.WasmKeeper, contractAddr, k.GetSeiAddressOrDefault(ctx, claimer)))
-}
-
-func TestClaimSpecificCW721(t *testing.T) {
-	k := &testkeeper.EVMTestApp.EvmKeeper
-	origCtx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil).WithChainID("sei-test").WithBlockTime(time.Now())
-	txConfig := testkeeper.EVMTestApp.GetTxConfig()
-	a := pcommon.MustGetABI(solo.F, "abi.json")
-	method := a.Methods["claimSpecific"]
-	wKeeper := wasmkeeper.NewDefaultPermissionKeeper(testkeeper.EVMTestApp.WasmKeeper)
-	p := solo.NewExecutor(a, k, k.BankKeeper(), k.AccountKeeper(), wKeeper, testkeeper.EVMTestApp.WasmKeeper, txConfig)
-	claimeeKey := testkeeper.MockPrivateKey()
-	claimee, _ := testkeeper.PrivateKeyToAddresses(claimeeKey)
-	claimerKey := testkeeper.MockPrivateKey()
-	_, claimer := testkeeper.PrivateKeyToAddresses(claimerKey)
-	acc := authtypes.NewBaseAccount(claimee, claimeeKey.PubKey(), 10, 0)
-	k.AccountKeeper().SetAccount(origCtx, acc)
-	contractAddr := setupCW721Contract(origCtx, claimeeKey, *wKeeper)
-	ctx, _ := origCtx.CacheContext()
-	ctx = ctx.WithGasMeter(sdk.NewGasMeter(3000000, 1, 1))
-	_, remainingGas, err := p.ClaimSpecific(ctx, claimer, &method, []interface{}{signClaimMsg(t, evmtypes.NewMsgClaimSpecific(claimee, claimer, &evmtypes.Asset{AssetType: evmtypes.AssetType_TYPECW721, ContractAddress: contractAddr.String()}), claimee, claimer, acc, claimeeKey)}, false)
-	ctx = ctx.WithGasMeter(sdk.NewInfiniteGasMeterWithMultiplier(ctx))
-	require.NoError(t, err)
-	require.Greater(t, remainingGas, uint64(500000))
-	for i := 0; i < 15; i++ {
-		require.Equal(t, k.GetSeiAddressOrDefault(ctx, claimer).String(), queryCW721Owner(ctx, testkeeper.EVMTestApp.WasmKeeper, contractAddr, fmt.Sprintf("%d", i)))
-	}
-}
-
 func TestClaimSpecificNative(t *testing.T) {
 	k := &testkeeper.EVMTestApp.EvmKeeper
-	origCtx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil).WithChainID("sei-test").WithBlockTime(time.Now())
+	origCtx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil).WithChainID("sei-test")
 	txConfig := testkeeper.EVMTestApp.GetTxConfig()
 	a := pcommon.MustGetABI(solo.F, "abi.json")
 	method := a.Methods["claimSpecific"]
-	p := solo.NewExecutor(a, k, k.BankKeeper(), k.AccountKeeper(), nil, testkeeper.EVMTestApp.WasmKeeper, txConfig)
+	p := solo.NewExecutor(a, k, k.BankKeeper(), k.AccountKeeper(), txConfig)
 	claimeeKey := testkeeper.MockPrivateKey()
 	claimee, _ := testkeeper.PrivateKeyToAddresses(claimeeKey)
 	claimerKey := testkeeper.MockPrivateKey()
@@ -246,96 +191,4 @@ func signClaimMsg(t *testing.T, msg sdk.Msg, claimee sdk.AccAddress, claimer com
 	return txbz
 }
 
-func setupCW20Contract(ctx sdk.Context, creatorKey cryptotypes.PrivKey, wKeeper wasmkeeper.PermissionedKeeper) sdk.AccAddress {
-	code, err := os.ReadFile("../../contracts/wasm/cw20_base.wasm")
-	if err != nil {
-		panic(err)
-	}
-	creator, _ := testkeeper.PrivateKeyToAddresses(creatorKey)
-	codeID, err := wKeeper.Create(ctx, creator, code, nil)
-	if err != nil {
-		panic(err)
-	}
-	contractAddr, _, err := wKeeper.Instantiate(ctx, codeID, creator, creator, []byte(fmt.Sprintf("{\"name\":\"test\",\"symbol\":\"test\",\"decimals\":6,\"initial_balances\":[{\"address\":\"%s\",\"amount\":\"1000000000\"}]}", creator.String())), "test", sdk.NewCoins())
-	if err != nil {
-		panic(err)
-	}
-	return contractAddr
-}
 
-func queryCW20Balance(ctx sdk.Context, wKeeper wasmkeeper.Keeper, contractAddr sdk.AccAddress, addr sdk.AccAddress) sdk.Int {
-	bz, err := wKeeper.QuerySmart(ctx, contractAddr, solo.CW20BalanceQueryPayload(addr))
-	if err != nil {
-		panic(bz)
-	}
-	res, err := solo.ParseCW20BalanceQueryResponse(bz)
-	if err != nil {
-		panic(bz)
-	}
-	return res
-}
-
-func setupCW721Contract(ctx sdk.Context, creatorKey cryptotypes.PrivKey, wKeeper wasmkeeper.PermissionedKeeper) sdk.AccAddress {
-	code, err := os.ReadFile("../../contracts/wasm/cw721_base.wasm")
-	if err != nil {
-		panic(err)
-	}
-	creator, _ := testkeeper.PrivateKeyToAddresses(creatorKey)
-	codeID, err := wKeeper.Create(ctx, creator, code, nil)
-	if err != nil {
-		panic(err)
-	}
-	contractAddr, _, err := wKeeper.Instantiate(ctx, codeID, creator, creator, []byte(fmt.Sprintf("{\"name\":\"test\",\"symbol\":\"test\",\"minter\":\"%s\"}", creator.String())), "test", sdk.NewCoins())
-	if err != nil {
-		panic(err)
-	}
-	type mintRequest struct {
-		Token string `json:"token_id"`
-		Owner string `json:"owner"`
-	}
-	for i := 0; i < 15; i++ {
-		raw := mintRequest{Token: fmt.Sprintf("%d", i), Owner: creator.String()}
-		bz, err := json.Marshal(map[string]interface{}{"mint": raw})
-		if err != nil {
-			panic(err)
-		}
-		_, err = wKeeper.Execute(ctx, contractAddr, creator, bz, sdk.NewCoins())
-		if err != nil {
-			panic(err)
-		}
-	}
-	return contractAddr
-}
-
-func queryCW721Owner(ctx sdk.Context, wKeeper wasmkeeper.Keeper, contractAddr sdk.AccAddress, token string) string {
-	bz, err := wKeeper.QuerySmart(ctx, contractAddr, CW721OwnerOfQueryPayload(token))
-	if err != nil {
-		panic(bz)
-	}
-	res, err := ParseCW721OwnerOfQueryResponse(bz)
-	if err != nil {
-		panic(bz)
-	}
-	return res
-}
-
-func CW721OwnerOfQueryPayload(token string) []byte {
-	raw := map[string]interface{}{"token_id": token}
-	bz, err := json.Marshal(map[string]interface{}{"owner_of": raw})
-	if err != nil {
-		// should be impossible
-		panic(err)
-	}
-	return bz
-}
-
-func ParseCW721OwnerOfQueryResponse(res []byte) (string, error) {
-	type response struct {
-		Owner string `json:"owner"`
-	}
-	typed := response{}
-	if err := json.Unmarshal(res, &typed); err != nil {
-		return "", err
-	}
-	return typed.Owner, nil
-}

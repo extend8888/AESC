@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	types2 "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -19,7 +18,6 @@ import (
 	"github.com/ethereum/go-ethereum/export"
 	"github.com/sei-protocol/sei-chain/evmrpc"
 	testkeeper "github.com/sei-protocol/sei-chain/testutil/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/rpc/coretypes"
@@ -100,69 +98,6 @@ func TestEncodeBankMsg(t *testing.T) {
 	require.Nil(t, err)
 	txs := res["transactions"].([]interface{})
 	require.Equal(t, 0, len(txs))
-}
-
-func TestEncodeWasmExecuteMsg(t *testing.T) {
-	k := &testkeeper.EVMTestApp.EvmKeeper
-	ctx := testkeeper.EVMTestApp.GetContextForDeliverTx(nil)
-	fromSeiAddr, fromEvmAddr := testkeeper.MockAddressPair()
-	toSeiAddr, _ := testkeeper.MockAddressPair()
-	b := TxConfig.NewTxBuilder()
-	b.SetMsgs(&wasmtypes.MsgExecuteContract{
-		Sender:   fromSeiAddr.String(),
-		Contract: toSeiAddr.String(),
-		Msg:      []byte{1, 2, 3},
-	})
-	tx := b.GetTx()
-	bz, _ := Encoder(tx)
-	k.MockReceipt(ctx, sha256.Sum256(bz), &types.Receipt{
-		TransactionIndex: 1,
-		From:             fromEvmAddr.Hex(),
-	})
-	resBlock := coretypes.ResultBlock{
-		BlockID: MockBlockID,
-		Block: &tmtypes.Block{
-			Header: mockBlockHeader(MockHeight8),
-			Data: tmtypes.Data{
-				Txs: []tmtypes.Tx{bz},
-			},
-			LastCommit: &tmtypes.Commit{
-				Height: MockHeight8 - 1,
-			},
-		},
-	}
-	resBlockRes := coretypes.ResultBlockResults{
-		TxsResults: []*abci.ExecTxResult{
-			{
-				Data: bz,
-			},
-		},
-		ConsensusParamUpdates: &types2.ConsensusParams{
-			Block: &types2.BlockParams{
-				MaxBytes: 100000000,
-				MaxGas:   200000000,
-			},
-		},
-	}
-	res, err := evmrpc.EncodeTmBlock(func(i int64) sdk.Context { return ctx }, func(i int64) client.TxConfig { return TxConfig }, noopEarliestVersionFetcher, &resBlock, &resBlockRes, k, true, false, true, nil, evmrpc.NewBlockCache(3000), &sync.Mutex{})
-	require.Nil(t, err)
-	txs := res["transactions"].([]interface{})
-	require.Equal(t, 1, len(txs))
-	ti := uint64(0)
-	bh := common.HexToHash(MockBlockID.Hash.String())
-	to := common.Address(toSeiAddr)
-	require.Equal(t, &export.RPCTransaction{
-		BlockHash:        &bh,
-		BlockNumber:      (*hexutil.Big)(big.NewInt(MockHeight8)),
-		From:             fromEvmAddr,
-		To:               &to,
-		Input:            []byte{1, 2, 3},
-		Hash:             common.Hash(sha256.Sum256(bz)),
-		TransactionIndex: (*hexutil.Uint64)(&ti),
-		V:                nil,
-		R:                nil,
-		S:                nil,
-	}, txs[0].(*export.RPCTransaction))
 }
 
 func TestEncodeBankTransferMsg(t *testing.T) {
