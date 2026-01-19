@@ -4,7 +4,7 @@ echo "=========================================="
 echo "Genesis Verification Script"
 echo "=========================================="
 
-GENESIS_FILE="${1:-~/.sei/config/genesis.json}"
+GENESIS_FILE="${1:-~/.aesc/config/genesis.json}"
 
 if [ ! -f "$GENESIS_FILE" ]; then
     echo "ERROR: Genesis file not found: $GENESIS_FILE"

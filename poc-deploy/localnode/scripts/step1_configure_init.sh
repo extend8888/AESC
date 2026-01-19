@@ -19,7 +19,7 @@ mkdir -p build/generated/exported_keys/
 mkdir -p build/generated/node_data
 
 # Remove old sei data if exists
-rm -rf ~/.sei
+rm -rf ~/.aesc
 
 # Initialize validator node
 seid init "$MONIKER" --chain-id "$CHAIN_ID" >/dev/null 2>&1
@@ -59,13 +59,13 @@ if ! printf "12345678\n" | seid gentx "$ACCOUNT_NAME" 100000000uaex --chain-id "
 fi
 
 # Verify and copy gentx
-if [ ! -d ~/.sei/config/gentx ] || [ -z "$(ls -A ~/.sei/config/gentx)" ]; then
-    echo "ERROR: No gentx files created in ~/.sei/config/gentx/"
+if [ ! -d ~/.aesc/config/gentx ] || [ -z "$(ls -A ~/.aesc/config/gentx)" ]; then
+    echo "ERROR: No gentx files created in ~/.aesc/config/gentx/"
     exit 1
 fi
 
 echo "Copying gentx to build/generated/gentx/..."
-cp -v ~/.sei/config/gentx/* build/generated/gentx/
+cp -v ~/.aesc/config/gentx/* build/generated/gentx/
 echo "Gentx files: $(ls build/generated/gentx/)"
 
 # Creating testing accounts
