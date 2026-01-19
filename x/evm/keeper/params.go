@@ -12,6 +12,12 @@ import (
 
 const BaseDenom = "uaex"
 
+// wasm-related defaults (wasm module removed, kept for compatibility)
+const (
+	defaultDeliverTxHookWasmGasLimit uint64 = 300000
+	defaultRegisterPointerDisabled   bool   = true
+)
+
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.Paramstore.SetParamSet(ctx, &params)
 }
@@ -197,7 +203,7 @@ func (k *Keeper) GetDeliverTxHookWasmGasLimit(ctx sdk.Context) uint64 {
 	switch {
 	case strings.Compare(ctx.ClosestUpgradeName(), "v5.8.0") < 0:
 		// Not present in pre-5.8.0 params; use default
-		return types.DefaultDeliverTxHookWasmGasLimit
+		return defaultDeliverTxHookWasmGasLimit
 	case strings.Compare(ctx.ClosestUpgradeName(), "v6.0.0") < 0:
 		return k.GetParamsPreV600(ctx).DeliverTxHookWasmGasLimit
 	case strings.Compare(ctx.ClosestUpgradeName(), "v6.0.1") < 0:
@@ -215,8 +221,8 @@ func (k *Keeper) GetRegisterPointerDisabled(ctx sdk.Context) bool {
 	}
 	switch {
 	case strings.Compare(ctx.ClosestUpgradeName(), "v6.0.6") < 0:
-		// Not present in pre-5.8.0 params; use default
-		return types.DefaultRegisterPointerDisabled
+		// Not present in pre-6.0.6 params; use default
+		return defaultRegisterPointerDisabled
 	default:
 		return k.GetParams(ctx).RegisterPointerDisabled
 	}

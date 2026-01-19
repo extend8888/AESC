@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -412,36 +411,6 @@ func EncodeTmBlock(
 			// derive gas used from receipt as TxResult.GasUsed may not be accurate
 			// for ante-failing EVM txs.
 			blockGasUsed += int64(receipt.GasUsed) //nolint:gosec
-		case *wasmtypes.MsgExecuteContract:
-			th := sha256.Sum256(block.Block.Txs[msg.index])
-			receipt, _ := k.GetReceipt(latestCtx, th)
-			if !fullTx {
-				transactions = append(transactions, "0x"+hex.EncodeToString(th[:]))
-			} else {
-				ti := uint64(len(transactions))
-				var to common.Address
-				ercAddress, _, exists := k.GetAnyPointeeInfo(ctx, m.Contract)
-				if exists {
-					to = ercAddress
-				} else {
-					to = k.GetEVMAddressOrDefault(ctx, sdk.MustAccAddressFromBech32(m.Contract))
-				}
-				transactions = append(transactions, &export.RPCTransaction{
-					BlockHash:        &blockhash,
-					BlockNumber:      (*hexutil.Big)(number),
-					From:             common.HexToAddress(receipt.From),
-					To:               &to,
-					Input:            m.Msg.Bytes(),
-					Hash:             th,
-					TransactionIndex: (*hexutil.Uint64)(&ti),
-				})
-			}
-			or := make([]byte, ethtypes.BloomByteLength)
-			bloom := ethtypes.Bloom{}
-			bloom.SetBytes(receipt.LogsBloom)
-			bitutil.ORBytes(or, blockBloom, bloom[:])
-			blockBloom = or
-			blockGasUsed += blockRes.TxsResults[msg.index].GasUsed
 		case *banktypes.MsgSend:
 			th := sha256.Sum256(block.Block.Txs[msg.index])
 			if !fullTx {

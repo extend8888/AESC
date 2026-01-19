@@ -4,8 +4,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 
@@ -53,8 +51,6 @@ func ReplayCmd(defaultNodeHome string) *cobra.Command {
 
 			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 			cache := store.NewCommitKVStoreCacheManager()
-			wasmGasRegisterConfig := wasmkeeper.DefaultGasRegisterConfig()
-			wasmGasRegisterConfig.GasMultiplier = 21_000_000
 			a := app.New(
 				logger,
 				db,
@@ -66,15 +62,7 @@ func ReplayCmd(defaultNodeHome string) *cobra.Command {
 				true,
 				nil,
 				app.MakeEncodingConfig(),
-				wasm.EnableAllProposals,
 				serverCtx.Viper,
-				[]wasm.Option{
-					wasmkeeper.WithGasRegister(
-						wasmkeeper.NewWasmGasRegister(
-							wasmGasRegisterConfig,
-						),
-					),
-				},
 				[]aclkeeper.Option{},
 				app.EmptyAppOptions,
 				baseapp.SetPruning(storetypes.PruneEverything),

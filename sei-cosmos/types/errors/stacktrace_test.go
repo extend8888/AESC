@@ -61,18 +61,6 @@ func (s *errorsTestSuite) TestStackTrace() {
 	}
 }
 
-func (s *errorsTestSuite) TestReplaceWasmdVersionStr() {
-	input := "sei-wasmd@v0.3.11/some/path/file.go"
-	expected := "sei-wasmd@v0.3.10/some/path/file.go"
-	result := replacePackageVersionStr(input)
-	s.Require().Equal(expected, result)
-
-	input = "CosmWasm/wasmd@v0.27.0/some/path/file.go"
-	expected = "sei-protocol/sei-wasmd@v0.3.10/some/path/file.go"
-	result = replacePackageVersionStr(input)
-	s.Require().Equal(expected, result)
-}
-
 func (s *errorsTestSuite) TestReplaceSeiCosmosVersionStr() {
 	input := "sei-cosmos@v0.3.67/some/path/file.go"
 	expected := "sei-cosmos@v0.3.66/some/path/file.go"

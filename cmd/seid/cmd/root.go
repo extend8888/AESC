@@ -10,8 +10,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
@@ -133,7 +131,6 @@ func initRootCmd(
 		),
 		genutilcli.ValidateGenesisCmd(app.ModuleBasics),
 		AddGenesisAccountCmd(app.DefaultNodeHome),
-		AddGenesisWasmMsgCmd(app.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		debugCmd,
 		config.Cmd(),
@@ -264,12 +261,6 @@ func newApp(
 		panic(err)
 	}
 
-	wasmGasRegisterConfig := wasmkeeper.DefaultGasRegisterConfig()
-	// This varies from the default value of 140_000_000 because we would like to appropriately represent the
-	// compute time required as a proportion of block gas used for a wasm contract that performs a lot of compute
-	// This makes it such that the wasm VM gas converts to sdk gas at a 6.66x rate vs that of the previous multiplier
-	wasmGasRegisterConfig.GasMultiplier = 21_000_000
-
 	app := app.New(
 		logger,
 		db,
@@ -281,15 +272,7 @@ func newApp(
 		true,
 		tmConfig,
 		app.MakeEncodingConfig(),
-		wasm.EnableAllProposals,
 		appOpts,
-		[]wasm.Option{
-			wasmkeeper.WithGasRegister(
-				wasmkeeper.NewWasmGasRegister(
-					wasmGasRegisterConfig,
-				),
-			),
-		},
 		[]aclkeeper.Option{},
 		app.EmptyAppOptions,
 		baseapp.SetPruning(pruningOpts),
@@ -370,12 +353,12 @@ func getExportableApp(
 	}
 
 	if height != -1 {
-		exportableApp = app.New(logger, db, traceStore, false, map[int64]bool{}, cast.ToString(appOpts.Get(flags.FlagHome)), uint(1), true, nil, encCfg, app.GetWasmEnabledProposals(), appOpts, app.EmptyWasmOpts, app.EmptyACLOpts, app.EmptyAppOptions)
+		exportableApp = app.New(logger, db, traceStore, false, map[int64]bool{}, cast.ToString(appOpts.Get(flags.FlagHome)), uint(1), true, nil, encCfg, appOpts, app.EmptyACLOpts, app.EmptyAppOptions)
 		if err := exportableApp.LoadHeight(height); err != nil {
 			return nil, err
 		}
 	} else {
-		exportableApp = app.New(logger, db, traceStore, true, map[int64]bool{}, cast.ToString(appOpts.Get(flags.FlagHome)), uint(1), true, nil, encCfg, app.GetWasmEnabledProposals(), appOpts, app.EmptyWasmOpts, app.EmptyACLOpts, app.EmptyAppOptions)
+		exportableApp = app.New(logger, db, traceStore, true, map[int64]bool{}, cast.ToString(appOpts.Get(flags.FlagHome)), uint(1), true, nil, encCfg, appOpts, app.EmptyACLOpts, app.EmptyAppOptions)
 	}
 	return exportableApp, nil
 

@@ -79,8 +79,6 @@ func writeSimpleFrame(s io.Writer, f errors.Frame) {
 }
 
 func replacePackageVersionStr(err string) string {
-	err = strings.Replace(err, "sei-wasmd@v0.3.11", "sei-wasmd@v0.3.10", 1)
-	err = strings.Replace(err, "CosmWasm/wasmd@v0.27.0", "sei-protocol/sei-wasmd@v0.3.10", 1)
 	err = strings.Replace(err, "sei-cosmos@v0.3.67", "sei-cosmos@v0.3.66", 1)
 	err = strings.Replace(err, "sei-cosmos@v0.3.68", "sei-cosmos@v0.3.66", 1)
 	return err

@@ -9,8 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	crptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/simapp"
@@ -208,7 +206,7 @@ func setupReceiptStore() (seidbtypes.StateStore, error) {
 	return receiptStore, nil
 }
 
-func Setup(isCheckTx bool, enableEVMCustomPrecompiles bool, overrideWasmGasMultiplier bool, baseAppOptions ...func(*baseapp.BaseApp)) (res *App) {
+func Setup(isCheckTx bool, enableEVMCustomPrecompiles bool, _ bool, baseAppOptions ...func(*baseapp.BaseApp)) (res *App) {
 	db := dbm.NewMemDB()
 	encodingConfig := MakeEncodingConfig()
 	cdc := encodingConfig.Marshaler
@@ -222,18 +220,6 @@ func Setup(isCheckTx bool, enableEVMCustomPrecompiles bool, overrideWasmGasMulti
 			app.receiptStore = receiptStore
 		},
 	}
-	wasmOpts := EmptyWasmOpts
-	if overrideWasmGasMultiplier {
-		gasRegisterConfig := wasmkeeper.DefaultGasRegisterConfig()
-		gasRegisterConfig.GasMultiplier = 21_000_000
-		wasmOpts = []wasm.Option{
-			wasmkeeper.WithGasRegister(
-				wasmkeeper.NewWasmGasRegister(
-					gasRegisterConfig,
-				),
-			),
-		}
-	}
 
 	res = New(
 		log.NewNopLogger(),
@@ -246,9 +232,7 @@ func Setup(isCheckTx bool, enableEVMCustomPrecompiles bool, overrideWasmGasMulti
 		enableEVMCustomPrecompiles,
 		config.TestConfig(),
 		encodingConfig,
-		wasm.EnableAllProposals,
 		TestAppOpts{},
-		wasmOpts,
 		EmptyACLOpts,
 		options,
 		baseAppOptions...,
@@ -301,9 +285,7 @@ func SetupWithSc(isCheckTx bool, enableEVMCustomPrecompiles bool, baseAppOptions
 		enableEVMCustomPrecompiles,
 		config.TestConfig(),
 		encodingConfig,
-		wasm.EnableAllProposals,
 		TestAppOpts{true},
-		EmptyWasmOpts,
 		EmptyACLOpts,
 		options,
 		baseAppOptions...,
@@ -352,9 +334,7 @@ func SetupTestingAppWithLevelDb(isCheckTx bool, enableEVMCustomPrecompiles bool)
 		enableEVMCustomPrecompiles,
 		nil,
 		encodingConfig,
-		wasm.EnableAllProposals,
 		TestAppOpts{},
-		EmptyWasmOpts,
 		EmptyACLOpts,
 		nil,
 	)

@@ -5,7 +5,6 @@ import (
 	"math/big"
 	"testing"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -78,19 +77,7 @@ func TestMustGetEVMTransactionMessage(t *testing.T) {
 	types.MustGetEVMTransactionMessage(testTx)
 }
 
-func TestMustGetEVMTransactionMessageWrongType(t *testing.T) {
 
-	// Non-EVM tx
-	testMsg := wasmtypes.MsgExecuteContract{
-		Contract: "aesc1y3pxq5dp900czh0mkudhjdqjq5m8cpmmulxzhx",
-		Msg:      []byte("{\"xyz\":{}}"),
-	}
-	testTx := app.NewTestTx([]sdk.Msg{&testMsg})
-
-	defer func() { recover() }()
-	types.MustGetEVMTransactionMessage(testTx)
-	t.Errorf("Should not be able to convert a non evm emssage")
-}
 
 func TestMustGetEVMTransactionMessageMultipleMsgs(t *testing.T) {
 	testMsg := types.MsgEVMTransaction{

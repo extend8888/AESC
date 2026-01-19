@@ -6,7 +6,6 @@ import (
 	"math/big"
 	"strings"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
@@ -16,6 +15,13 @@ import (
 	evmkeeper "github.com/sei-protocol/sei-chain/x/evm/keeper"
 	evmtypes "github.com/sei-protocol/sei-chain/x/evm/types"
 	abci "github.com/tendermint/tendermint/abci/types"
+)
+
+// wasm event type constants (wasm module removed, kept for compatibility)
+const (
+	wasmModuleEventType              = "wasm"
+	eventTypeCW721PreTransferOwner   = "cw721_pre_transfer_owner"
+	attributeKeyContractAddr         = "_contract_address"
 )
 
 var ERC20ApprovalTopic = common.HexToHash("0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925")
@@ -41,7 +47,7 @@ func getOwnerEventKey(contractAddr string, tokenID string) string {
 
 func (app *App) AddCosmosEventsToEVMReceiptIfApplicable(ctx sdk.Context, tx sdk.Tx, checksum [32]byte, response sdk.DeliverTxHookInput) {
 	// hooks will only be called if DeliverTx is successful
-	wasmEvents := GetEventsOfType(response, wasmtypes.WasmModuleEventType)
+	wasmEvents := GetEventsOfType(response, wasmModuleEventType)
 	if len(wasmEvents) == 0 {
 		return
 	}
@@ -55,7 +61,7 @@ func (app *App) AddCosmosEventsToEVMReceiptIfApplicable(ctx sdk.Context, tx sdk.
 	// ERC721 always include owner. The following logic refer to the owner
 	// event emitted before the transfer and use that instead to populate the
 	// synthetic ERC721 event.
-	ownerEvents := GetEventsOfType(response, wasmtypes.EventTypeCW721PreTransferOwner)
+	ownerEvents := GetEventsOfType(response, eventTypeCW721PreTransferOwner)
 	ownerEventsMap := map[string][]abci.Event{}
 	for _, ownerEvent := range ownerEvents {
 		if len(ownerEvent.Attributes) != 3 {
@@ -71,7 +77,7 @@ func (app *App) AddCosmosEventsToEVMReceiptIfApplicable(ctx sdk.Context, tx sdk.
 	}
 	cw721TransferCounterMap := map[string]int{}
 	for _, wasmEvent := range wasmEvents {
-		contractAddr, found := GetAttributeValue(wasmEvent, wasmtypes.AttributeKeyContractAddr)
+		contractAddr, found := GetAttributeValue(wasmEvent, attributeKeyContractAddr)
 		if !found {
 			continue
 		}
@@ -167,31 +173,8 @@ func (app *App) translateCW20Event(ctx sdk.Context, wasmEvent abci.Event, pointe
 				Data: common.BigToHash(action.Amount).Bytes(),
 			})
 		case "increase_allowance", "decrease_allowance":
-			topics := []common.Hash{
-				ERC20ApprovalTopic,
-				action.Owner,
-				action.Spender,
-			}
-			ret, err := app.WasmKeeper.QuerySmart(
-				ctx,
-				sdk.MustAccAddressFromBech32(contractAddr),
-				[]byte(fmt.Sprintf(
-					"{\"allowance\":{\"owner\":\"%s\",\"spender\":\"%s\"}}",
-					app.EvmKeeper.GetSeiAddressOrDefault(ctx, common.BytesToAddress(action.Owner[:])).String(),
-					app.EvmKeeper.GetSeiAddressOrDefault(ctx, common.BytesToAddress(action.Spender[:])).String())),
-			)
-			if err != nil {
-				continue
-			}
-			allowanceResponse := &AllowanceResponse{}
-			if err := json.Unmarshal(ret, allowanceResponse); err != nil {
-				continue
-			}
-			res = append(res, &ethtypes.Log{
-				Address: pointerAddr,
-				Topics:  topics,
-				Data:    common.BigToHash(allowanceResponse.Allowance.BigInt()).Bytes(),
-			})
+			// wasm module removed - skip allowance query
+			continue
 		}
 	}
 	return

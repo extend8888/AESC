@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -9,7 +8,6 @@ import (
 	"os"
 	"strconv"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/sei-protocol/sei-chain/app"
 	"github.com/sei-protocol/sei-chain/evmrpc"
@@ -96,24 +94,6 @@ func mockStateFromJson(ctx sdk.Context, a *app.App, stateRaw json.RawMessage) {
 	err := json.Unmarshal(stateRaw, &typed)
 	check(err)
 	typed = typed["modules"].(map[string]interface{})
-	// initialize WASM code
-	if wasmModule, ok := typed["wasm"]; ok {
-		for key, val := range wasmModule.(map[string]interface{})["reads"].(map[string]interface{}) {
-			if key[:2] == "01" {
-				codeIDBz, err := hex.DecodeString(key[2:])
-				check(err)
-				codeID := binary.BigEndian.Uint64(codeIDBz)
-				code, err := os.ReadFile(fmt.Sprintf("mock_data/%d.code", codeID))
-				check(err)
-				codeInfo := &wasmtypes.CodeInfo{}
-				valBz, err := hex.DecodeString(val.(string))
-				check(err)
-				a.AppCodec().MustUnmarshal(valBz, codeInfo)
-				err = a.WasmKeeper.ImportCode(ctx, codeID, *codeInfo, code)
-				check(err)
-			}
-		}
-	}
 	for moduleName, data := range typed {
 		if moduleName == "evm_transient" {
 			continue

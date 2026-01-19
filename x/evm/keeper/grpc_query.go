@@ -10,9 +10,6 @@ import (
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw1155"
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw20"
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw721"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc1155"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc721"
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/native"
 	"github.com/sei-protocol/sei-chain/x/evm/types"
 )
@@ -179,21 +176,8 @@ func (q Querier) PointerVersion(c context.Context, req *types.QueryPointerVersio
 		return &types.QueryPointerVersionResponse{
 			Version: uint32(cw1155.CurrentVersion),
 		}, nil
-	case types.PointerType_ERC20:
-		return &types.QueryPointerVersionResponse{
-			Version:  uint32(erc20.CurrentVersion),
-			CwCodeId: q.GetStoredPointerCodeID(ctx, types.PointerType_ERC20),
-		}, nil
-	case types.PointerType_ERC721:
-		return &types.QueryPointerVersionResponse{
-			Version:  uint32(erc721.CurrentVersion),
-			CwCodeId: q.GetStoredPointerCodeID(ctx, types.PointerType_ERC721),
-		}, nil
-	case types.PointerType_ERC1155:
-		return &types.QueryPointerVersionResponse{
-			Version:  uint32(erc1155.CurrentVersion),
-			CwCodeId: q.GetStoredPointerCodeID(ctx, types.PointerType_ERC1155),
-		}, nil
+	case types.PointerType_ERC20, types.PointerType_ERC721, types.PointerType_ERC1155:
+		return nil, errors.ErrUnsupported
 	default:
 		return nil, errors.ErrUnsupported
 	}

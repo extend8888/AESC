@@ -2,7 +2,6 @@ package evmrpc
 
 import (
 	"context"
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	"math"
@@ -11,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts"
@@ -427,9 +425,8 @@ func GetEvmTxIndex(ctx sdk.Context, block *coretypes.ResultBlock, msgs []indexed
 		case *types.MsgEVMTransaction:
 			etx, _ = m.AsTransaction()
 			txHash = etx.Hash()
-		case *wasmtypes.MsgExecuteContract:
-			etx = nil
-			txHash = common.Hash(sha256.Sum256(block.Block.Txs[msg.index]))
+		default:
+			continue
 		}
 		receipt, err := k.GetReceipt(ctx, txHash)
 		if err != nil {

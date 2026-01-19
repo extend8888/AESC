@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -79,9 +78,7 @@ func SnapshotCmd() *cobra.Command {
 				true,
 				config,
 				app.MakeEncodingConfig(),
-				app.GetWasmEnabledProposals(),
 				appOpts,
-				[]wasm.Option{},
 				[]aclkeeper.Option{},
 				app.EmptyAppOptions,
 				baseapp.SetSnapshotStore(snapshotStore),

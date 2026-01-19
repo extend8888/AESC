@@ -4,23 +4,13 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/snapshots"
 	"github.com/cosmos/cosmos-sdk/snapshots/types"
 	"github.com/cosmos/cosmos-sdk/store"
 	"github.com/cosmos/cosmos-sdk/store/rootmulti"
 	rootmulti2 "github.com/cosmos/cosmos-sdk/storev2/rootmulti"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
-	"github.com/sei-protocol/sei-chain/app/params"
 	"github.com/sei-protocol/sei-chain/tools/utils"
 	"github.com/sei-protocol/sei-db/config"
 	"github.com/tendermint/tendermint/libs/log"
@@ -89,17 +79,8 @@ func (m *Migrator) Migrate(version int64) error {
 			// end of stream
 			break
 		}
-		metadata := next.GetExtension()
-		if metadata == nil {
-			return sdkerrors.Wrapf(sdkerrors.ErrLogic, "unknown snapshot item %T", next.Item)
-		}
-		wasmSnapshotter := CreateWasmSnapshotter(m.storeV2, m.homeDir)
-		extension := wasmSnapshotter
-		fmt.Printf("Start restoring wasm extension for height: %d\n", version)
-		next, err = extension.Restore(uint64(version), metadata.Format, streamReader)
-		if err != nil {
-			return sdkerrors.Wrapf(err, "extension %s restore", metadata.Name)
-		}
+		// Skip any extension items
+		break
 	}
 	fmt.Printf("Finished restoring SC store for height: %d\n", version)
 	return nil
@@ -112,61 +93,7 @@ func (m *Migrator) createSnapshot(height uint64, chunks chan<- io.ReadCloser) er
 	if err := m.storeV1.Snapshot(height, streamWriter); err != nil {
 		m.logger.Error("Snapshot creation failed", "err", err)
 		streamWriter.CloseWithError(err)
-	}
-
-	// Handle wasm snapshot export
-	wasmSnapshotter := CreateWasmSnapshotter(m.storeV1, m.homeDir)
-	extension := wasmSnapshotter
-	// write extension metadata
-	err := streamWriter.WriteMsg(&types.SnapshotItem{
-		Item: &types.SnapshotItem_Extension{
-			Extension: &types.SnapshotExtensionMeta{
-				Name:   wasmSnapshotter.SnapshotName(),
-				Format: extension.SnapshotFormat(),
-			},
-		},
-	})
-	fmt.Printf("Finished writing extension metadata for height: %d\n", height)
-	if err != nil {
-		streamWriter.CloseWithError(err)
-		return err
-	}
-	fmt.Printf("Start extension snapshot for height: %d\n", height)
-	if err = extension.Snapshot(height, streamWriter); err != nil {
-		streamWriter.CloseWithError(err)
 		return err
 	}
 	return nil
-
-}
-
-func CreateWasmSnapshotter(cms sdk.MultiStore, homeDir string) *keeper.WasmSnapshotter {
-	var (
-		keyParams  = sdk.NewKVStoreKey(paramstypes.StoreKey)
-		tkeyParams = sdk.NewTransientStoreKey(paramstypes.TStoreKey)
-	)
-	encodingConfig := params.MakeEncodingConfig()
-	pk := paramskeeper.NewKeeper(encodingConfig.Marshaler, encodingConfig.Amino, keyParams, tkeyParams)
-	wasmKeeper := keeper.NewKeeper(
-		encodingConfig.Marshaler,
-		utils.ModuleKeys[wasm.StoreKey],
-		paramskeeper.Keeper{},
-		pk.Subspace("wasm"),
-		authkeeper.AccountKeeper{},
-		nil,
-		stakingkeeper.Keeper{},
-		nil,
-		nil,
-		nil,
-		nil,
-		upgradekeeper.Keeper{},
-		nil,
-		nil,
-		nil,
-		filepath.Join(homeDir, "wasm"),
-		wasm.DefaultWasmConfig(),
-		"iterator,staking,stargate,sei",
-	)
-	return keeper.NewWasmSnapshotter(cms, &wasmKeeper)
-
 }

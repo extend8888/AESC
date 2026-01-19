@@ -1,9 +1,6 @@
 package app
 
 import (
-	wasm "github.com/CosmWasm/wasmd/x/wasm"
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/utils/tracing"
@@ -27,13 +24,10 @@ type HandlerOptions struct {
 	ante.HandlerOptions
 
 	IBCKeeper           *ibckeeper.Keeper
-	WasmConfig          *wasmtypes.WasmConfig
-	WasmKeeper          *wasm.Keeper
 	OracleKeeper        *oraclekeeper.Keeper
 	AccessControlKeeper *aclkeeper.Keeper
 	EVMKeeper           *evmkeeper.Keeper
 	UpgradeKeeper       *upgradekeeper.Keeper
-	TXCounterStoreKey   sdk.StoreKey
 	LatestCtxGetter     func() sdk.Context
 
 	TracingInfo *tracing.Info
@@ -48,12 +42,6 @@ func NewAnteHandlerAndDepGenerator(options HandlerOptions) (sdk.AnteHandler, sdk
 	}
 	if options.SignModeHandler == nil {
 		return nil, nil, nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "sign mode handler is required for ante builder")
-	}
-	if options.WasmConfig == nil {
-		return nil, nil, nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "wasm config is required for ante builder")
-	}
-	if options.WasmKeeper == nil {
-		return nil, nil, nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "wasm keeper is required for ante builder")
 	}
 	if options.OracleKeeper == nil {
 		return nil, nil, nil, sdkerrors.Wrap(sdkerrors.ErrLogic, "oracle keeper is required for ante builder")
@@ -84,7 +72,6 @@ func NewAnteHandlerAndDepGenerator(options HandlerOptions) (sdk.AnteHandler, sdk
 	anteDecorators := []sdk.AnteFullDecorator{
 		sdk.DefaultWrappedAnteDecorator(ante.NewSetUpContextDecorator(antedecorators.GetGasMeterSetter(options.ParamsKeeper.(paramskeeper.Keeper)))), // outermost AnteDecorator. SetUpContext must be called first
 		antedecorators.NewGaslessDecorator([]sdk.AnteFullDecorator{ante.NewDeductFeeDecorator(options.AccountKeeper, options.BankKeeper, options.FeegrantKeeper, options.ParamsKeeper.(paramskeeper.Keeper), options.TxFeeChecker)}, *options.OracleKeeper, options.EVMKeeper),
-		sdk.DefaultWrappedAnteDecorator(wasmkeeper.NewLimitSimulationGasDecorator(options.WasmConfig.SimulationGasLimit, antedecorators.GetGasMeterSetter(options.ParamsKeeper.(paramskeeper.Keeper)))), // after setup context to enforce limits early
 		sdk.DefaultWrappedAnteDecorator(ante.NewRejectExtensionOptionsDecorator()),
 		oracle.NewSpammingPreventionDecorator(*options.OracleKeeper),
 		oracle.NewOracleVoteAloneDecorator(),
@@ -103,7 +90,6 @@ func NewAnteHandlerAndDepGenerator(options HandlerOptions) (sdk.AnteHandler, sdk
 		sdk.DefaultWrappedAnteDecorator(evmante.NewEVMAddressDecorator(options.EVMKeeper, options.EVMKeeper.AccountKeeper())),
 		sdk.DefaultWrappedAnteDecorator(antedecorators.NewAuthzNestedMessageDecorator()),
 		sdk.DefaultWrappedAnteDecorator(ibcante.NewAnteDecorator(options.IBCKeeper)),
-		antedecorators.NewACLWasmDependencyDecorator(*options.AccessControlKeeper, *options.WasmKeeper),
 	}
 
 	anteHandler, anteDepGenerator := sdk.ChainAnteDecorators(anteDecorators...)

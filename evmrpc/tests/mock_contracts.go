@@ -3,79 +3,19 @@ package tests
 import (
 	"encoding/hex"
 	"fmt"
-	"math"
 	"os"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/sei-protocol/sei-chain/app"
-	"github.com/sei-protocol/sei-chain/utils"
 	"github.com/sei-protocol/sei-chain/x/evm/derived"
 	"github.com/sei-protocol/sei-chain/x/evm/keeper"
-	"github.com/sei-protocol/sei-chain/x/evm/state"
 	"github.com/sei-protocol/sei-chain/x/evm/types"
 	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
 )
-
-func cw20Initializer(mnemonic string, pointer bool) func(ctx sdk.Context, a *app.App) {
-	return func(ctx sdk.Context, a *app.App) {
-		code, err := os.ReadFile("../../contracts/wasm/cw20_base.wasm")
-		if err != nil {
-			panic(err)
-		}
-		creator := getSeiAddrWithMnemonic(mnemonic)
-		codeID, err := a.EvmKeeper.WasmKeeper().Create(ctx, creator, code, nil)
-		if err != nil {
-			panic(err)
-		}
-		contractAddr, _, err := a.EvmKeeper.WasmKeeper().Instantiate(ctx, codeID, creator, creator,
-			[]byte(fmt.Sprintf("{\"name\":\"test\",\"symbol\":\"test\",\"decimals\":6,\"initial_balances\":[{\"address\":\"%s\",\"amount\":\"1000000000\"}]}",
-				creator.String())), "test", sdk.NewCoins())
-		if err != nil {
-			panic(err)
-		}
-		evmAddr := common.BytesToAddress(contractAddr)
-		a.EvmKeeper.SetAddressMapping(ctx, contractAddr, evmAddr)
-
-		if pointer {
-			blockCtx, err := a.EvmKeeper.GetVMBlockContext(ctx, core.GasPool(math.MaxUint64))
-			if err != nil {
-				panic(err)
-			}
-			cfg := types.DefaultChainConfig().EthereumConfig(a.EvmKeeper.ChainID(ctx))
-			evmInstance := vm.NewEVM(*blockCtx, state.NewDBImpl(ctx, &a.EvmKeeper, false), cfg, vm.Config{}, a.EvmKeeper.CustomPrecompiles(ctx))
-			_, err = a.EvmKeeper.UpsertERCCW20Pointer(ctx, evmInstance, contractAddr.String(), utils.ERCMetadata{Name: "test", Symbol: "test"})
-			if err != nil {
-				panic(err)
-			}
-		}
-	}
-}
-
-func cwIterInitializer(mnemonic string) func(ctx sdk.Context, a *app.App) {
-	return func(ctx sdk.Context, a *app.App) {
-		code, err := os.ReadFile("../../example/cosmwasm/iter/artifacts/iter.wasm")
-		if err != nil {
-			panic(err)
-		}
-		creator := getSeiAddrWithMnemonic(mnemonic)
-		codeID, err := a.EvmKeeper.WasmKeeper().Create(ctx, creator, code, nil)
-		if err != nil {
-			panic(err)
-		}
-		contractAddr, _, err := a.EvmKeeper.WasmKeeper().Instantiate(ctx, codeID, creator, creator, []byte("{}"), "test", sdk.NewCoins())
-		if err != nil {
-			panic(err)
-		}
-		evmAddr := common.BytesToAddress(contractAddr)
-		a.EvmKeeper.SetAddressMapping(ctx, contractAddr, evmAddr)
-	}
-}
 
 var erc20DeployerMnemonics = "number friend tray advice become blame morning glow final under unlock core employ side mimic local load flag birth hire doctor immense guess net"
 var erc20Addr = common.HexToAddress("0x8bFEF0785c95Cb3D4a64202AB283c45ae6c50436") // deterministic with the mnemonic above as the deployer

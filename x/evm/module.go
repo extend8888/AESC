@@ -171,7 +171,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 4, func(ctx sdk.Context) error {
-		return migrations.StoreCWPointerCode(ctx, am.keeper, true, true, false)
+		return nil // Previously: StoreCWPointerCode - wasm removed
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 5, func(ctx sdk.Context) error {
@@ -179,31 +179,19 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 6, func(ctx sdk.Context) error {
-		return migrations.StoreCWPointerCode(ctx, am.keeper, false, true, false)
+		return nil // Previously: StoreCWPointerCode - wasm removed
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 7, func(ctx sdk.Context) error {
-		return migrations.StoreCWPointerCode(ctx, am.keeper, false, true, false)
+		return nil // Previously: StoreCWPointerCode - wasm removed
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 8, func(ctx sdk.Context) error {
-		if err := migrations.MigrateERCNativePointers(ctx, am.keeper); err != nil {
-			return err
-		}
-		if err := migrations.MigrateERCCW20Pointers(ctx, am.keeper); err != nil {
-			return err
-		}
-		return migrations.MigrateERCCW721Pointers(ctx, am.keeper)
+		return nil // Previously: MigrateERCNativePointers and CW20/CW721 pointers - wasm removed
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 9, func(ctx sdk.Context) error {
-		if err := migrations.StoreCWPointerCode(ctx, am.keeper, true, true, false); err != nil {
-			return err
-		}
-		if err := migrations.MigrateCWERC20Pointers(ctx, am.keeper); err != nil {
-			return err
-		}
-		return migrations.MigrateCWERC721Pointers(ctx, am.keeper)
+		return nil // Previously: StoreCWPointerCode and CW pointer migrations - wasm removed
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 10, func(ctx sdk.Context) error {
@@ -211,7 +199,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 11, func(ctx sdk.Context) error {
-		return migrations.MigrateDeliverTxHookWasmGasLimitParam(ctx, am.keeper)
+		return nil // Previously: MigrateDeliverTxHookWasmGasLimitParam - wasm removed
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 12, func(ctx sdk.Context) error {
@@ -227,7 +215,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 15, func(ctx sdk.Context) error {
-		return migrations.StoreCWPointerCode(ctx, am.keeper, false, false, true)
+		return nil // Previously: StoreCWPointerCode - wasm removed
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 16, func(ctx sdk.Context) error {
@@ -235,14 +223,11 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 17, func(ctx sdk.Context) error {
-		if err := migrations.MigrateERCCW721Pointers(ctx, am.keeper); err != nil {
-			return err
-		}
-		return migrations.MigrateERCCW1155Pointers(ctx, am.keeper)
+		return nil // Previously: MigrateERCCW721Pointers and MigrateERCCW1155Pointers - wasm removed
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 18, func(ctx sdk.Context) error {
-		return migrations.MigrateDisableRegisterPointer(ctx, am.keeper)
+		return nil // Previously: MigrateDisableRegisterPointer - wasm removed
 	})
 
 	_ = cfg.RegisterMigration(types.ModuleName, 19, func(ctx sdk.Context) error {

@@ -3,15 +3,11 @@ package utils
 import (
 	"crypto/ecdsa"
 	"encoding/hex"
-	"fmt"
 	"math/big"
 	"math/rand"
-	"os"
 	"testing"
 	"time"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
-	wasmxtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	clienttx "github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -52,14 +48,10 @@ type TestMessage struct {
 }
 
 type TestContext struct {
-	Ctx            sdk.Context
-	CodeID         uint64
-	CW20CodeID     uint64
-	Validator      TestAcct
-	TestAccounts   []TestAcct
-	ContractKeeper *wasmkeeper.PermissionedKeeper
-	TestApp        *app.App
-	CW20Addrs      []string
+	Ctx          sdk.Context
+	Validator    TestAcct
+	TestAccounts []TestAcct
+	TestApp      *app.App
 }
 
 type TestAcct struct {
@@ -119,46 +111,8 @@ func addressToValAddress(addr sdk.AccAddress) sdk.ValAddress {
 	return valAddr
 }
 
-// deployCW20Token deploys a CW20 token contract for testing
-func deployCW20Token(tCtx *TestContext, i int) (string, error) {
-	// CW20 instantiate message with initial balances for the test accounts
-	instantiateMsgCW20 := fmt.Sprintf(`{
-		"name": "TestToken",
-		"symbol": "TTK",
-		"decimals": 6,
-		"initial_balances": [
-			{"address": "%s", "amount": "1000000"},
-			{"address": "%s", "amount": "2000000"}
-		],
-		"mint": {
-			"minter": "%s",
-			"cap": "10000000"
-		}
-	}`, tCtx.TestAccounts[0].AccountAddress.String(), tCtx.TestAccounts[1].AccountAddress.String(), tCtx.TestAccounts[0].AccountAddress.String())
-
-	// Execute the message to instantiate the contract
-	contractAddr, _, err := tCtx.ContractKeeper.Instantiate(
-		tCtx.Ctx,
-		tCtx.CW20CodeID,
-		tCtx.TestAccounts[0].AccountAddress,
-		tCtx.TestAccounts[0].AccountAddress,
-		[]byte(instantiateMsgCW20),
-		fmt.Sprintf("test-cw20-%d", i),
-		Funds(100000),
-	)
-
-	if err != nil {
-		return "", err
-	}
-
-	return contractAddr.String(), nil
-}
-
-// NewTestContext initializes a new TestContext with a new app and a new contract
+// NewTestContext initializes a new TestContext with a new app
 func NewTestContext(t *testing.T, testAccts []TestAcct, blockTime time.Time, workers int, occEnabled bool) *TestContext {
-	contractFile := "../integration_test/contracts/mars.wasm"
-	cw20ContractFile := "../contracts/wasm/cw20_base.wasm"
-
 	wrapper := app.NewTestWrapper(t, blockTime, testAccts[0].PublicKey, true, func(ba *baseapp.BaseApp) {
 		ba.SetOccEnabled(occEnabled)
 		ba.SetConcurrencyWorkers(workers)
@@ -168,44 +122,18 @@ func NewTestContext(t *testing.T, testAccts []TestAcct, blockTime time.Time, wor
 	ctx = ctx.WithBlockHeader(tmproto.Header{Height: ctx.BlockHeader().Height, ChainID: ctx.BlockHeader().ChainID, Time: blockTime})
 	amounts := sdk.NewCoins(sdk.NewCoin("uaex", sdk.NewInt(1000000000000000)), sdk.NewCoin("uusdc", sdk.NewInt(1000000000000000)))
 	bankkeeper := testApp.BankKeeper
-	wasmKeeper := testApp.WasmKeeper
-	contractKeeper := wasmkeeper.NewDefaultPermissionKeeper(&wasmKeeper)
-
-	// deploy a contract so we can use it
-	wasm, err := os.ReadFile(contractFile)
-	panicIfErr(err)
-	var perm *wasmxtypes.AccessConfig
-	codeID, err := contractKeeper.Create(ctx, testAccts[0].AccountAddress, wasm, perm)
-	panicIfErr(err)
-
-	// Upload the CW20 contract
-	cw20Wasm, err := os.ReadFile(cw20ContractFile)
-	panicIfErr(err)
-	cw20CodeID, err := contractKeeper.Create(ctx, testAccts[0].AccountAddress, cw20Wasm, perm)
-	panicIfErr(err)
 
 	for _, ta := range testAccts {
 		panicIfErr(bankkeeper.MintCoins(ctx, minttypes.ModuleName, amounts))
 		panicIfErr(bankkeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, ta.AccountAddress, amounts))
 	}
 
-	tctx := &TestContext{
-		Ctx:            ctx,
-		CodeID:         codeID,
-		CW20CodeID:     cw20CodeID,
-		Validator:      testAccts[0],
-		TestAccounts:   testAccts,
-		ContractKeeper: contractKeeper,
-		TestApp:        testApp,
+	return &TestContext{
+		Ctx:          ctx,
+		Validator:    testAccts[0],
+		TestAccounts: testAccts,
+		TestApp:      testApp,
 	}
-
-	for i := 0; i < 10; i++ {
-		addr, err := deployCW20Token(tctx, i)
-		panicIfErr(err)
-		tctx.CW20Addrs = append(tctx.CW20Addrs, addr)
-	}
-
-	return tctx
 }
 
 func toTxBytes(testCtx *TestContext, msgs []*TestMessage) [][]byte {

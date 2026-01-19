@@ -11,11 +11,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
-	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
@@ -111,13 +109,11 @@ import (
 	"github.com/sei-protocol/sei-chain/app/antedecorators"
 	appparams "github.com/sei-protocol/sei-chain/app/params"
 	"github.com/sei-protocol/sei-chain/app/upgrades"
-	v0upgrade "github.com/sei-protocol/sei-chain/app/upgrades/v0"
 	"github.com/sei-protocol/sei-chain/evmrpc"
 	"github.com/sei-protocol/sei-chain/precompiles"
 	putils "github.com/sei-protocol/sei-chain/precompiles/utils"
 	"github.com/sei-protocol/sei-chain/utils"
 	"github.com/sei-protocol/sei-chain/utils/metrics"
-	"github.com/sei-protocol/sei-chain/wasmbinding"
 	epochmodule "github.com/sei-protocol/sei-chain/x/epoch"
 	epochmodulekeeper "github.com/sei-protocol/sei-chain/x/epoch/keeper"
 	epochmoduletypes "github.com/sei-protocol/sei-chain/x/epoch/types"
@@ -154,10 +150,6 @@ import (
 
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-
 	// unnamed import of statik for openapi/swagger UI support
 	_ "github.com/sei-protocol/sei-chain/docs/swagger"
 	ssconfig "github.com/sei-protocol/sei-db/config"
@@ -165,7 +157,7 @@ import (
 
 // this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
 func getGovProposalHandlers() []govclient.ProposalHandler {
-	govProposalHandlers := append(wasmclient.ProposalHandlers, //nolint:gocritic // ignore: appending to a slice is OK
+	govProposalHandlers := []govclient.ProposalHandler{
 		paramsclient.ProposalHandler,
 		distrclient.ProposalHandler,
 		upgradeclient.ProposalHandler,
@@ -175,7 +167,7 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		aclclient.ResourceDependencyProposalHandler,
 		mintclient.UpdateMinterHandler,
 		// this line is used by starport scaffolding # stargate/app/govProposalHandler
-	)
+	}
 
 	return govProposalHandlers
 }
@@ -209,7 +201,6 @@ var (
 		vesting.AppModuleBasic{},
 		oraclemodule.AppModuleBasic{},
 		evm.AppModuleBasic{},
-		wasm.AppModuleBasic{},
 		epochmodule.AppModuleBasic{},
 		tokenfactorymodule.AppModuleBasic{},
 		aexburnmodule.AppModuleBasic{},
@@ -227,7 +218,6 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		oracletypes.ModuleName:         nil,
-		wasm.ModuleName:                {authtypes.Burner},
 		evmtypes.ModuleName:            {authtypes.Minter, authtypes.Burner},
 		tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
 		aexburntypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
@@ -238,25 +228,9 @@ var (
 		oracletypes.ModuleName: true,
 	}
 
-	// WasmProposalsEnabled enables all x/wasm proposals when it's value is "true"
-	// and EnableSpecificWasmProposals is empty. Otherwise, all x/wasm proposals
-	// are disabled.
-	// Used as a flag to turn it on and off
-	WasmProposalsEnabled = "true"
-
-	// EnableSpecificWasmProposals, if set, must be comma-separated list of values
-	// that are all a subset of "EnableAllProposals", which takes precedence over
-	// WasmProposalsEnabled.
-	//
-	// See: https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
-	EnableSpecificWasmProposals = ""
-
-	// EmptyWasmOpts defines a type alias for a list of wasm options.
-	EmptyWasmOpts []wasm.Option
-
 	// Boolean to only emit seid version and git commit metric once per chain initialization
 	EmittedSeidVersionMetric = false
-	// EmptyAclmOpts defines a type alias for a list of wasm options.
+	// EmptyAclmOpts defines a type alias for a list of acl options.
 	EmptyACLOpts []aclkeeper.Option
 	// EnableOCC allows tests to override default OCC enablement behavior
 	EnableOCC       = true
@@ -279,28 +253,6 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, "."+AppName)
-}
-
-// GetWasmEnabledProposals parses the WasmProposalsEnabled and
-// EnableSpecificWasmProposals values to produce a list of enabled proposals to
-// pass into the application.
-func GetWasmEnabledProposals() []wasm.ProposalType {
-	if EnableSpecificWasmProposals == "" {
-		if WasmProposalsEnabled == "true" {
-			return wasm.EnableAllProposals
-		}
-
-		return wasm.DisableAllProposals
-	}
-
-	chunks := strings.Split(EnableSpecificWasmProposals, ",")
-
-	proposals, err := wasm.ConvertToProposals(chunks)
-	if err != nil {
-		panic(err)
-	}
-
-	return proposals
 }
 
 // App extends an ABCI application, but with most of its parameters exported.
@@ -338,14 +290,12 @@ type App struct {
 	EvidenceKeeper      evidencekeeper.Keeper
 	TransferKeeper      ibctransferkeeper.Keeper
 	FeeGrantKeeper      feegrantkeeper.Keeper
-	WasmKeeper          wasm.Keeper
 	OracleKeeper        oraclekeeper.Keeper
 	EvmKeeper           evmkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
-	ScopedWasmKeeper     capabilitykeeper.ScopedKeeper
 
 	EpochKeeper epochmodulekeeper.Keeper
 
@@ -409,9 +359,7 @@ func New(
 	enableCustomEVMPrecompiles bool,
 	tmConfig *tmcfg.Config,
 	encodingConfig appparams.EncodingConfig,
-	enabledProposals []wasm.ProposalType,
 	appOpts servertypes.AppOptions,
-	wasmOpts []wasm.Option,
 	aclOpts []aclkeeper.Option,
 	appOptions []AppOption,
 	baseAppOptions ...func(*baseapp.BaseApp),
@@ -432,7 +380,7 @@ func New(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey, oracletypes.StoreKey,
-		evmtypes.StoreKey, wasm.StoreKey,
+		evmtypes.StoreKey,
 		epochmoduletypes.StoreKey,
 		tokenfactorytypes.StoreKey,
 		aexburntypes.StoreKey,
@@ -475,7 +423,6 @@ func New(
 	// grant capabilities for the ibc and ibc-transfer modules
 	scopedIBCKeeper := app.CapabilityKeeper.ScopeToModule(ibchost.ModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
-	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
 	// add keepers
@@ -561,12 +508,6 @@ func New(
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper, distrtypes.ModuleName,
 	)
 
-	wasmDir := filepath.Join(homePath, "wasm")
-	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
-	if err != nil {
-		panic(fmt.Sprintf("error while reading wasm config: %s", err))
-	}
-
 	app.EpochKeeper = *epochmodulekeeper.NewKeeper(
 		appCodec,
 		keys[epochmoduletypes.StoreKey],
@@ -586,49 +527,6 @@ func New(
 		app.DistrKeeper,
 	)
 
-	// The last arguments can contain custom message handlers, and custom query handlers,
-	// if we want to allow any custom callbacks
-	supportedFeatures := "iterator,staking,stargate,sei"
-	wasmOpts = append(
-		wasmbinding.RegisterCustomPlugins(
-			&app.OracleKeeper,
-			&app.EpochKeeper,
-			&app.TokenFactoryKeeper,
-			&app.AccountKeeper,
-			app.MsgServiceRouter(),
-			app.IBCKeeper.ChannelKeeper,
-			scopedWasmKeeper,
-			app.BankKeeper,
-			appCodec,
-			app.TransferKeeper,
-			app.AccessControlKeeper,
-			&app.EvmKeeper,
-			app.StakingKeeper,
-		),
-		wasmOpts...,
-	)
-	app.WasmKeeper = wasm.NewKeeper(
-		appCodec,
-		keys[wasm.StoreKey],
-		app.ParamsKeeper,
-		app.GetSubspace(wasm.ModuleName),
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.StakingKeeper,
-		app.DistrKeeper,
-		app.IBCKeeper.ChannelKeeper,
-		&app.IBCKeeper.PortKeeper,
-		scopedWasmKeeper,
-		app.UpgradeKeeper,
-		app.TransferKeeper,
-		app.MsgServiceRouter(),
-		app.GRPCQueryRouter(),
-		wasmDir,
-		wasmConfig,
-		supportedFeatures,
-		wasmOpts...,
-	)
-
 	receiptStorePath := filepath.Join(homePath, "data", "receipt.db")
 	ssConfig := ssconfig.DefaultStateStoreConfig()
 	ssConfig.DedicatedChangelog = true
@@ -636,6 +534,7 @@ func New(
 	ssConfig.DBDirectory = receiptStorePath
 	ssConfig.KeepLastVersion = false
 	if app.receiptStore == nil {
+		var err error
 		app.receiptStore, err = ss.NewStateStore(logger, receiptStorePath, ssConfig)
 		if err != nil {
 			panic(fmt.Sprintf("error while creating receipt store: %s", err))
@@ -644,12 +543,13 @@ func New(
 	app.EvmKeeper = *evmkeeper.NewKeeper(keys[evmtypes.StoreKey],
 		tkeys[evmtypes.TransientStoreKey], app.GetSubspace(evmtypes.ModuleName), app.receiptStore, app.BankKeeper,
 		&app.AccountKeeper, &app.StakingKeeper, app.TransferKeeper,
-		wasmkeeper.NewDefaultPermissionKeeper(app.WasmKeeper), &app.WasmKeeper, &app.UpgradeKeeper)
+		&app.UpgradeKeeper)
 	app.BankKeeper.RegisterRecipientChecker(app.EvmKeeper.CanAddressReceive)
 
 	bApp.SetPreCommitHandler(app.HandlePreCommit)
 	bApp.SetCloseHandler(app.HandleClose)
 
+	var err error
 	app.evmRPCConfig, err = evmrpc.ReadConfig(appOpts)
 	if err != nil {
 		panic(fmt.Sprintf("error reading EVM config due to %s", err))
@@ -713,9 +613,6 @@ func New(
 		AddRoute(tokenfactorytypes.RouterKey, tokenfactorymodule.NewProposalHandler(app.TokenFactoryKeeper)).
 		AddRoute(acltypes.ModuleName, aclmodule.NewProposalHandler(app.AccessControlKeeper)).
 		AddRoute(evmtypes.RouterKey, evm.NewProposalHandler(app.EvmKeeper))
-	if len(enabledProposals) != 0 {
-		govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, enabledProposals))
-	}
 
 	app.GovKeeper = govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
@@ -727,7 +624,6 @@ func New(
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
-	ibcRouter.AddRoute(wasm.ModuleName, wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper))
 	// this line is used by starport scaffolding # ibc/app/router
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -767,7 +663,6 @@ func New(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		oraclemodule.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
-		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		evm.NewAppModule(appCodec, &app.EvmKeeper),
 		transferModule,
 		epochModule,
@@ -803,7 +698,6 @@ func New(
 		ibctransfertypes.ModuleName,
 		oracletypes.ModuleName,
 		evmtypes.ModuleName,
-		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 		acltypes.ModuleName,
 		aexburntypes.ModuleName,
@@ -835,7 +729,6 @@ func New(
 		oracletypes.ModuleName,
 		epochmoduletypes.ModuleName,
 		evmtypes.ModuleName,
-		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 		acltypes.ModuleName,
 		aexburntypes.ModuleName,
@@ -868,7 +761,6 @@ func New(
 		oracletypes.ModuleName,
 		tokenfactorytypes.ModuleName,
 		epochmoduletypes.ModuleName,
-		wasm.ModuleName,
 		evmtypes.ModuleName,
 		acltypes.ModuleName,
 		aexburntypes.ModuleName,
@@ -894,7 +786,6 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		evidence.NewAppModule(app.EvidenceKeeper),
 		oraclemodule.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper),
-		wasm.NewAppModule(appCodec, &app.WasmKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
 		epochModule,
@@ -933,9 +824,6 @@ func New(
 				// BatchVerifier:   app.batchVerifier,
 			},
 			IBCKeeper:           app.IBCKeeper,
-			TXCounterStoreKey:   keys[wasm.StoreKey],
-			WasmConfig:          &wasmConfig,
-			WasmKeeper:          &app.WasmKeeper,
 			OracleKeeper:        &app.OracleKeeper,
 			EVMKeeper:           &app.EvmKeeper,
 			UpgradeKeeper:       &app.UpgradeKeeper,
@@ -961,24 +849,9 @@ func New(
 	app.SetFinalizeBlocker(app.FinalizeBlocker)
 	app.SetInplaceTestnetInitializer(app.inplacetestnetInitializer)
 
-	// Register snapshot extensions to enable state-sync for wasm.
-	if manager := app.SnapshotManager(); manager != nil {
-		err := manager.RegisterExtensions(
-			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.WasmKeeper),
-		)
-		if err != nil {
-			panic(fmt.Errorf("failed to register snapshot extension: %s", err))
-		}
-	}
-
 	loadVersionHandler := func() error {
 		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
-		}
-
-		ctx := app.BaseApp.NewUncachedContext(true, tmproto.Header{})
-		if err := app.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
-			tmos.Exit(fmt.Sprintf("failed initialize pinned codes %s", err))
 		}
 		return nil
 	}
@@ -993,14 +866,12 @@ func New(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
-	app.ScopedWasmKeeper = scopedWasmKeeper
 
 	// Create hard fork manager and register all hard fork upgrade handlers. Note,
 	// when creating the manager, BaseApp must already be instantiated.
 	//
 	// example: app.HardForkManager.RegisterHandler(myHandler)
 	app.HardForkManager = upgrades.NewHardForkManager(app.ChainID)
-	app.HardForkManager.RegisterHandler(v0upgrade.NewHardForkUpgradeHandler(100_000, upgrades.ChainIDSeiHardForkTest, app.WasmKeeper))
 
 	app.RegisterDeliverTxHook(app.AddCosmosEventsToEVMReceiptIfApplicable)
 
@@ -1680,26 +1551,9 @@ func (app *App) DecodeTransactionsConcurrently(ctx sdk.Context, txs [][]byte) []
 	return typedTxs
 }
 
-func (app *App) addBadWasmDependenciesToContext(ctx sdk.Context, txResults []*abci.ExecTxResult) sdk.Context {
-	wasmContractsWithIncorrectDependencies := []sdk.AccAddress{}
-	for _, txResult := range txResults {
-		// we need to iterate in reverse and pick the first one
-		if txResult.Codespace == sdkerrors.RootCodespace && txResult.Code == sdkerrors.ErrInvalidConcurrencyExecution.ABCICode() {
-			for _, event := range txResult.Events {
-				if event.Type == wasmtypes.EventTypeExecute {
-					for _, attr := range event.Attributes {
-						if string(attr.Key) == wasmtypes.AttributeKeyContractAddr {
-							addr, err := sdk.AccAddressFromBech32(string(attr.Value))
-							if err == nil {
-								wasmContractsWithIncorrectDependencies = append(wasmContractsWithIncorrectDependencies, addr)
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return ctx.WithContext(context.WithValue(ctx.Context(), aclconstants.BadWasmDependencyAddressesKey, wasmContractsWithIncorrectDependencies))
+func (app *App) addBadWasmDependenciesToContext(ctx sdk.Context, _ []*abci.ExecTxResult) sdk.Context {
+	// wasm module removed - return empty list
+	return ctx.WithContext(context.WithValue(ctx.Context(), aclconstants.BadWasmDependencyAddressesKey, []sdk.AccAddress{}))
 }
 
 func (app *App) getFinalizeBlockResponse(appHash []byte, events []abci.Event, txResults []*abci.ExecTxResult, endBlockResp abci.ResponseEndBlock) abci.ResponseFinalizeBlock {
@@ -2017,7 +1871,6 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
-	paramsKeeper.Subspace(wasm.ModuleName)
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(epochmoduletypes.ModuleName)
 	paramsKeeper.Subspace(tokenfactorytypes.ModuleName)
@@ -2067,9 +1920,4 @@ func (app *App) inplacetestnetInitializer(pk cryptotypes.PubKey) error {
 		)
 	}
 	return nil
-}
-
-func init() {
-	// override max wasm size to 2MB
-	wasmtypes.MaxWasmSize = 2 * 1024 * 1024
 }

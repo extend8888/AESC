@@ -13,14 +13,11 @@ var (
 	KeyPriorityNormalizer                  = []byte("KeyPriorityNormalizer")
 	KeyMinFeePerGas                        = []byte("KeyMinFeePerGas")
 	KeyMaxFeePerGas                        = []byte("KeyMaximumFeePerGas")
-	KeyDeliverTxHookWasmGasLimit           = []byte("KeyDeliverTxHookWasmGasLimit")
 	KeyMaxDynamicBaseFeeUpwardAdjustment   = []byte("KeyMaxDynamicBaseFeeUpwardAdjustment")
 	KeyMaxDynamicBaseFeeDownwardAdjustment = []byte("KeyMaxDynamicBaseFeeDownwardAdjustment")
 	KeyTargetGasUsedPerBlock               = []byte("KeyTargetGasUsedPerBlock")
 	// deprecated
-	KeyBaseFeePerGas                          = []byte("KeyBaseFeePerGas")
-	KeyWhitelistedCwCodeHashesForDelegateCall = []byte("KeyWhitelistedCwCodeHashesForDelegateCall")
-	KeyRegisterPointerDisabled                = []byte("KeyRegisterPointerDisabled")
+	KeyBaseFeePerGas = []byte("KeyBaseFeePerGas")
 )
 
 var DefaultPriorityNormalizer = sdk.NewDec(1)
@@ -30,15 +27,11 @@ var DefaultPriorityNormalizer = sdk.NewDec(1)
 // Ethereum).
 var DefaultBaseFeePerGas = sdk.NewDec(0)         // used for static base fee, deprecated in favor of dynamic base fee
 var DefaultMinFeePerGas = sdk.NewDec(1000000000) // 1gwei
-var DefaultDeliverTxHookWasmGasLimit = uint64(300000)
-
-var DefaultWhitelistedCwCodeHashesForDelegateCall = generateDefaultWhitelistedCwCodeHashesForDelegateCall()
 
 var DefaultMaxDynamicBaseFeeUpwardAdjustment = sdk.NewDecWithPrec(189, 4)  // 1.89%
 var DefaultMaxDynamicBaseFeeDownwardAdjustment = sdk.NewDecWithPrec(39, 4) // .39%
 var DefaultTargetGasUsedPerBlock = uint64(250000)                          // 250k
 var DefaultMaxFeePerGas = sdk.NewDec(1000000000000)                        // 1,000gwei
-var DefaultRegisterPointerDisabled = false
 
 var _ paramtypes.ParamSet = (*Params)(nil)
 
@@ -48,16 +41,13 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 func DefaultParams() Params {
 	return Params{
-		PriorityNormalizer:                     DefaultPriorityNormalizer,
-		BaseFeePerGas:                          DefaultBaseFeePerGas,
-		MaxDynamicBaseFeeUpwardAdjustment:      DefaultMaxDynamicBaseFeeUpwardAdjustment,
-		MaxDynamicBaseFeeDownwardAdjustment:    DefaultMaxDynamicBaseFeeDownwardAdjustment,
-		MinimumFeePerGas:                       DefaultMinFeePerGas,
-		DeliverTxHookWasmGasLimit:              DefaultDeliverTxHookWasmGasLimit,
-		WhitelistedCwCodeHashesForDelegateCall: DefaultWhitelistedCwCodeHashesForDelegateCall,
-		TargetGasUsedPerBlock:                  DefaultTargetGasUsedPerBlock,
-		MaximumFeePerGas:                       DefaultMaxFeePerGas,
-		RegisterPointerDisabled:                DefaultRegisterPointerDisabled,
+		PriorityNormalizer:                  DefaultPriorityNormalizer,
+		BaseFeePerGas:                       DefaultBaseFeePerGas,
+		MaxDynamicBaseFeeUpwardAdjustment:   DefaultMaxDynamicBaseFeeUpwardAdjustment,
+		MaxDynamicBaseFeeDownwardAdjustment: DefaultMaxDynamicBaseFeeDownwardAdjustment,
+		MinimumFeePerGas:                    DefaultMinFeePerGas,
+		TargetGasUsedPerBlock:               DefaultTargetGasUsedPerBlock,
+		MaximumFeePerGas:                    DefaultMaxFeePerGas,
 	}
 }
 
@@ -68,11 +58,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxDynamicBaseFeeUpwardAdjustment, &p.MaxDynamicBaseFeeUpwardAdjustment, validateBaseFeeAdjustment),
 		paramtypes.NewParamSetPair(KeyMaxDynamicBaseFeeDownwardAdjustment, &p.MaxDynamicBaseFeeDownwardAdjustment, validateBaseFeeAdjustment),
 		paramtypes.NewParamSetPair(KeyMinFeePerGas, &p.MinimumFeePerGas, validateMinFeePerGas),
-		paramtypes.NewParamSetPair(KeyWhitelistedCwCodeHashesForDelegateCall, &p.WhitelistedCwCodeHashesForDelegateCall, validateWhitelistedCwHashesForDelegateCall),
-		paramtypes.NewParamSetPair(KeyDeliverTxHookWasmGasLimit, &p.DeliverTxHookWasmGasLimit, validateDeliverTxHookWasmGasLimit),
 		paramtypes.NewParamSetPair(KeyTargetGasUsedPerBlock, &p.TargetGasUsedPerBlock, func(i interface{}) error { return nil }),
 		paramtypes.NewParamSetPair(KeyMaxFeePerGas, &p.MaximumFeePerGas, validateMaxFeePerGas),
-		paramtypes.NewParamSetPair(KeyRegisterPointerDisabled, &p.RegisterPointerDisabled, validateRegisterPointerDisabled),
 	}
 }
 
@@ -81,7 +68,6 @@ func (ppre580 *ParamsPreV580) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyPriorityNormalizer, &ppre580.PriorityNormalizer, validatePriorityNormalizer),
 		paramtypes.NewParamSetPair(KeyBaseFeePerGas, &ppre580.BaseFeePerGas, validateBaseFeePerGas),
 		paramtypes.NewParamSetPair(KeyMinFeePerGas, &ppre580.MinimumFeePerGas, validateMinFeePerGas),
-		paramtypes.NewParamSetPair(KeyWhitelistedCwCodeHashesForDelegateCall, &ppre580.WhitelistedCwCodeHashesForDelegateCall, validateWhitelistedCwHashesForDelegateCall),
 	}
 }
 
@@ -90,8 +76,6 @@ func (ppre600 *ParamsPreV600) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyPriorityNormalizer, &ppre600.PriorityNormalizer, validatePriorityNormalizer),
 		paramtypes.NewParamSetPair(KeyBaseFeePerGas, &ppre600.BaseFeePerGas, validateBaseFeePerGas),
 		paramtypes.NewParamSetPair(KeyMinFeePerGas, &ppre600.MinimumFeePerGas, validateMinFeePerGas),
-		paramtypes.NewParamSetPair(KeyWhitelistedCwCodeHashesForDelegateCall, &ppre600.WhitelistedCwCodeHashesForDelegateCall, validateWhitelistedCwHashesForDelegateCall),
-		paramtypes.NewParamSetPair(KeyDeliverTxHookWasmGasLimit, &ppre600.DeliverTxHookWasmGasLimit, validateDeliverTxHookWasmGasLimit),
 	}
 }
 
@@ -102,8 +86,6 @@ func (ppre601 *ParamsPreV601) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxDynamicBaseFeeUpwardAdjustment, &ppre601.MaxDynamicBaseFeeUpwardAdjustment, validateBaseFeeAdjustment),
 		paramtypes.NewParamSetPair(KeyMaxDynamicBaseFeeDownwardAdjustment, &ppre601.MaxDynamicBaseFeeDownwardAdjustment, validateBaseFeeAdjustment),
 		paramtypes.NewParamSetPair(KeyMinFeePerGas, &ppre601.MinimumFeePerGas, validateMinFeePerGas),
-		paramtypes.NewParamSetPair(KeyWhitelistedCwCodeHashesForDelegateCall, &ppre601.WhitelistedCwCodeHashesForDelegateCall, validateWhitelistedCwHashesForDelegateCall),
-		paramtypes.NewParamSetPair(KeyDeliverTxHookWasmGasLimit, &ppre601.DeliverTxHookWasmGasLimit, validateDeliverTxHookWasmGasLimit),
 		paramtypes.NewParamSetPair(KeyTargetGasUsedPerBlock, &ppre601.TargetGasUsedPerBlock, func(i interface{}) error { return nil }),
 	}
 }
@@ -115,8 +97,6 @@ func (ppre606 *ParamsPreV606) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxDynamicBaseFeeUpwardAdjustment, &ppre606.MaxDynamicBaseFeeUpwardAdjustment, validateBaseFeeAdjustment),
 		paramtypes.NewParamSetPair(KeyMaxDynamicBaseFeeDownwardAdjustment, &ppre606.MaxDynamicBaseFeeDownwardAdjustment, validateBaseFeeAdjustment),
 		paramtypes.NewParamSetPair(KeyMinFeePerGas, &ppre606.MinimumFeePerGas, validateMinFeePerGas),
-		paramtypes.NewParamSetPair(KeyWhitelistedCwCodeHashesForDelegateCall, &ppre606.WhitelistedCwCodeHashesForDelegateCall, validateWhitelistedCwHashesForDelegateCall),
-		paramtypes.NewParamSetPair(KeyDeliverTxHookWasmGasLimit, &ppre606.DeliverTxHookWasmGasLimit, validateDeliverTxHookWasmGasLimit),
 		paramtypes.NewParamSetPair(KeyTargetGasUsedPerBlock, &ppre606.TargetGasUsedPerBlock, func(i interface{}) error { return nil }),
 		paramtypes.NewParamSetPair(KeyMaxFeePerGas, &ppre606.MaximumFeePerGas, validateMaxFeePerGas),
 	}
@@ -135,9 +115,6 @@ func (p Params) Validate() error {
 	if err := validateMaxFeePerGas(p.MaximumFeePerGas); err != nil {
 		return err
 	}
-	if err := validateDeliverTxHookWasmGasLimit(p.DeliverTxHookWasmGasLimit); err != nil {
-		return err
-	}
 	if p.MinimumFeePerGas.LT(p.BaseFeePerGas) {
 		return errors.New("minimum fee cannot be lower than base fee")
 	}
@@ -147,7 +124,7 @@ func (p Params) Validate() error {
 	if err := validateBaseFeeAdjustment(p.MaxDynamicBaseFeeDownwardAdjustment); err != nil {
 		return fmt.Errorf("invalid max dynamic base fee downward adjustment: %s, err: %s", p.MaxDynamicBaseFeeDownwardAdjustment, err)
 	}
-	return validateWhitelistedCwHashesForDelegateCall(p.WhitelistedCwCodeHashesForDelegateCall)
+	return nil
 }
 
 func validateBaseFeeAdjustment(i interface{}) error {
@@ -238,35 +215,4 @@ func validateMaxFeePerGas(i interface{}) error {
 		return fmt.Errorf("negative max fee per gas: %d", v)
 	}
 	return nil
-}
-
-func validateDeliverTxHookWasmGasLimit(i interface{}) error {
-	v, ok := i.(uint64)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	if v == 0 {
-		return fmt.Errorf("invalid deliver_tx_hook_wasm_gas_limit: must be greater than 0, got %d", v)
-	}
-	return nil
-}
-
-func validateWhitelistedCwHashesForDelegateCall(i interface{}) error {
-	_, ok := i.([][]byte)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	return nil
-}
-
-func validateRegisterPointerDisabled(i interface{}) error {
-	_, ok := i.(bool)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	return nil
-}
-
-func generateDefaultWhitelistedCwCodeHashesForDelegateCall() [][]byte {
-	return [][]byte(nil)
 }

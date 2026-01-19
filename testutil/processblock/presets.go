@@ -3,7 +3,6 @@ package processblock
 import (
 	"fmt"
 
-	"github.com/CosmWasm/wasmd/x/wasm"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -27,7 +26,6 @@ func CommonPreset(app *App) *Preset {
 	fmt.Printf("Distribution module: %s\n", app.AccountKeeper.GetModuleAddress(distrtypes.ModuleName).String())
 	fmt.Printf("Staking bonded pool: %s\n", app.AccountKeeper.GetModuleAddress(stakingtypes.BondedPoolName).String())
 	fmt.Printf("Staking unbonded pool: %s\n", app.AccountKeeper.GetModuleAddress(stakingtypes.NotBondedPoolName).String())
-	fmt.Printf("Wasm module: %s\n", app.AccountKeeper.GetModuleAddress(wasm.ModuleName).String())
 	p := &Preset{
 		Admin: app.NewSignableAccount("admin"),
 	}

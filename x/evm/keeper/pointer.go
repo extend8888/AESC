@@ -11,12 +11,15 @@ import (
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw1155"
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw20"
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/cw721"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc1155"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc20"
-	"github.com/sei-protocol/sei-chain/x/evm/artifacts/erc721"
 	"github.com/sei-protocol/sei-chain/x/evm/artifacts/native"
-	artifactsutils "github.com/sei-protocol/sei-chain/x/evm/artifacts/utils"
 	"github.com/sei-protocol/sei-chain/x/evm/types"
+)
+
+// CW->ERC pointer version constants (wasm artifacts removed)
+const (
+	cw20Erc20PointerCurrentVersion   uint16 = 1
+	cw721Erc721PointerCurrentVersion uint16 = 1
+	cw1155Erc1155PointerCurrentVersion uint16 = 1
 )
 
 type PointerGetter func(sdk.Context, string) (common.Address, uint16, bool)
@@ -166,7 +169,7 @@ func (k *Keeper) DeleteERC1155CW1155Pointer(ctx sdk.Context, cw1155Address strin
 
 // CW20 -> ERC20
 func (k *Keeper) SetCW20ERC20Pointer(ctx sdk.Context, erc20Address common.Address, addr string) error {
-	return k.SetCW20ERC20PointerWithVersion(ctx, erc20Address, addr, erc20.CurrentVersion)
+	return k.SetCW20ERC20PointerWithVersion(ctx, erc20Address, addr, cw20Erc20PointerCurrentVersion)
 }
 
 // CW20 -> ERC20
@@ -183,7 +186,7 @@ func (k *Keeper) SetCW20ERC20PointerWithVersion(ctx sdk.Context, erc20Address co
 
 // CW20 -> ERC20
 func (k *Keeper) GetCW20ERC20Pointer(ctx sdk.Context, erc20Address common.Address) (addr sdk.AccAddress, version uint16, exists bool) {
-	addrBz, version, exists := k.GetPointerInfo(ctx, types.PointerCW20ERC20Key(erc20Address), erc20.CurrentVersion)
+	addrBz, version, exists := k.GetPointerInfo(ctx, types.PointerCW20ERC20Key(erc20Address), cw20Erc20PointerCurrentVersion)
 	if exists {
 		addr = sdk.MustAccAddressFromBech32(string(addrBz))
 	}
@@ -211,7 +214,7 @@ func (k *Keeper) cwAddressIsPointer(ctx sdk.Context, addr string) bool {
 
 // CW721 -> ERC721
 func (k *Keeper) SetCW721ERC721Pointer(ctx sdk.Context, erc721Address common.Address, addr string) error {
-	return k.SetCW721ERC721PointerWithVersion(ctx, erc721Address, addr, erc721.CurrentVersion)
+	return k.SetCW721ERC721PointerWithVersion(ctx, erc721Address, addr, cw721Erc721PointerCurrentVersion)
 }
 
 // CW721 -> ERC721
@@ -228,7 +231,7 @@ func (k *Keeper) SetCW721ERC721PointerWithVersion(ctx sdk.Context, erc721Address
 
 // CW721 -> ERC721
 func (k *Keeper) GetCW721ERC721Pointer(ctx sdk.Context, erc721Address common.Address) (addr sdk.AccAddress, version uint16, exists bool) {
-	addrBz, version, exists := k.GetPointerInfo(ctx, types.PointerCW721ERC721Key(erc721Address), erc721.CurrentVersion)
+	addrBz, version, exists := k.GetPointerInfo(ctx, types.PointerCW721ERC721Key(erc721Address), cw721Erc721PointerCurrentVersion)
 	if exists {
 		addr = sdk.MustAccAddressFromBech32(string(addrBz))
 	}
@@ -246,7 +249,7 @@ func (k *Keeper) DeleteCW721ERC721Pointer(ctx sdk.Context, erc721Address common.
 
 // CW1155 -> ERC1155
 func (k *Keeper) SetCW1155ERC1155Pointer(ctx sdk.Context, erc1155Address common.Address, addr string) error {
-	return k.SetCW1155ERC1155PointerWithVersion(ctx, erc1155Address, addr, erc1155.CurrentVersion)
+	return k.SetCW1155ERC1155PointerWithVersion(ctx, erc1155Address, addr, cw1155Erc1155PointerCurrentVersion)
 }
 
 // CW1155 -> ERC1155
@@ -263,7 +266,7 @@ func (k *Keeper) SetCW1155ERC1155PointerWithVersion(ctx sdk.Context, erc1155Addr
 
 // CW1155 -> ERC1155
 func (k *Keeper) GetCW1155ERC1155Pointer(ctx sdk.Context, erc1155Address common.Address) (addr sdk.AccAddress, version uint16, exists bool) {
-	addrBz, version, exists := k.GetPointerInfo(ctx, types.PointerCW1155ERC1155Key(erc1155Address), erc1155.CurrentVersion)
+	addrBz, version, exists := k.GetPointerInfo(ctx, types.PointerCW1155ERC1155Key(erc1155Address), cw1155Erc1155PointerCurrentVersion)
 	if exists {
 		addr = sdk.MustAccAddressFromBech32(string(addrBz))
 	}
@@ -350,26 +353,8 @@ func (k *Keeper) deletePointerInfo(ctx sdk.Context, pref []byte, version uint16)
 }
 
 func (k *Keeper) GetStoredPointerCodeID(ctx sdk.Context, pointerType types.PointerType) uint64 {
-	store := k.PrefixStore(ctx, types.PointerCWCodePrefix)
-	var versionBz []byte
-	switch pointerType {
-	case types.PointerType_ERC20:
-		store = prefix.NewStore(store, types.PointerCW20ERC20Prefix)
-		versionBz = artifactsutils.GetVersionBz(erc20.CurrentVersion)
-	case types.PointerType_ERC721:
-		store = prefix.NewStore(store, types.PointerCW721ERC721Prefix)
-		versionBz = artifactsutils.GetVersionBz(erc721.CurrentVersion)
-	case types.PointerType_ERC1155:
-		store = prefix.NewStore(store, types.PointerCW1155ERC1155Prefix)
-		versionBz = artifactsutils.GetVersionBz(erc1155.CurrentVersion)
-	default:
-		return 0
-	}
-	bz := store.Get(versionBz)
-	if bz == nil {
-		return 0
-	}
-	return binary.BigEndian.Uint64(bz)
+	// CW->ERC pointer wasm artifacts have been removed, return 0
+	return 0
 }
 
 func (k *Keeper) GetCW20Pointee(ctx sdk.Context, erc20Address common.Address) (cw20Address string, version uint16, exists bool) {

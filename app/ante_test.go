@@ -7,7 +7,6 @@ import (
 	"math/big"
 	"testing"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -74,7 +73,6 @@ func (suite *AnteTestSuite) SetupTest(isCheckTx bool) {
 	suite.clientCtx = client.Context{}.
 		WithTxConfig(encodingConfig.TxConfig)
 
-	wasmConfig := wasmtypes.DefaultWasmConfig()
 	defaultTracer, _ := tracing.DefaultTracerProvider()
 	otel.SetTracerProvider(defaultTracer)
 	tr := defaultTracer.Tracer("component-main")
@@ -95,8 +93,6 @@ func (suite *AnteTestSuite) SetupTest(isCheckTx bool) {
 				// BatchVerifier:   app.batchVerifier,
 			},
 			IBCKeeper:           suite.App.IBCKeeper,
-			WasmConfig:          &wasmConfig,
-			WasmKeeper:          &suite.App.WasmKeeper,
 			OracleKeeper:        &suite.App.OracleKeeper,
 			AccessControlKeeper: &suite.App.AccessControlKeeper,
 			TracingInfo:         tracingInfo,

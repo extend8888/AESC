@@ -17,7 +17,6 @@ import (
 	"github.com/ethereum/go-ethereum/export"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"github.com/sei-protocol/sei-chain/precompiles/wasmd"
 	"github.com/sei-protocol/sei-chain/x/evm/keeper"
 	"github.com/sei-protocol/sei-chain/x/evm/types"
 	"github.com/sei-protocol/sei-chain/x/evm/types/ethtx"
@@ -148,7 +147,7 @@ func (s *SendAPI) simulateTx(ctx context.Context, tx *ethtypes.Transaction) (est
 	nonce_ := hexutil.Uint64(tx.Nonce())
 	al := tx.AccessList()
 	bNrOrHash := rpc.BlockNumberOrHashWithNumber(rpc.LatestBlockNumber)
-	ctx = context.WithValue(ctx, CtxIsWasmdPrecompileCallKey, wasmd.IsWasmdCall(tx.To()))
+	ctx = context.WithValue(ctx, CtxIsWasmdPrecompileCallKey, false) // wasm module removed
 	gp := tx.GasPrice()
 	maxFeePerGas := tx.GasFeeCap()
 	maxPriorityFeePerGas := tx.GasTipCap()
