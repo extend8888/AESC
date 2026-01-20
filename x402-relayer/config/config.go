@@ -24,6 +24,9 @@ const (
 
 	// DefaultEVMRPC is the default EVM RPC endpoint
 	DefaultEVMRPC = "http://localhost:8545"
+
+	// DefaultDBPath is the default SQLite database path
+	DefaultDBPath = "./x402-relayer.db"
 )
 
 // Config defines the configuration for the x402-relayer service
@@ -56,6 +59,9 @@ type Config struct {
 
 	// EVMRPC is the EVM RPC endpoint for broadcasting transactions
 	EVMRPC string `mapstructure:"evm_rpc"`
+
+	// DBPath is the path to the SQLite database file
+	DBPath string `mapstructure:"db_path"`
 }
 
 // DefaultConfig returns the default configuration
@@ -70,6 +76,7 @@ func DefaultConfig() *Config {
 		PrivateKey:     "",
 		RelayFeePerTx:  DefaultRelayFee,
 		EVMRPC:         DefaultEVMRPC,
+		DBPath:         DefaultDBPath,
 	}
 }
 

@@ -14,6 +14,7 @@ import (
 	"github.com/sei-protocol/x402-relayer/handler"
 	"github.com/sei-protocol/x402-relayer/middleware"
 	"github.com/sei-protocol/x402-relayer/relayer"
+	"github.com/sei-protocol/x402-relayer/store"
 )
 
 // Server represents the x402 HTTP server
@@ -28,6 +29,7 @@ type Server struct {
 	settler        *facilitator.Settler
 	broadcaster    *relayer.Broadcaster
 	gasEstimator   *relayer.GasEstimator
+	store          store.Store
 }
 
 // NewServer creates a new x402 server
@@ -83,6 +85,16 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		return nil, fmt.Errorf("failed to create gas estimator: %w", err)
 	}
 
+	// Initialize store
+	dbStore, err := store.NewSQLiteStore(cfg.DBPath)
+	if err != nil {
+		balanceChecker.Close()
+		settler.Close()
+		broadcaster.Close()
+		gasEstimator.Close()
+		return nil, fmt.Errorf("failed to create store: %w", err)
+	}
+
 	// Create router
 	router := mux.NewRouter()
 
@@ -94,6 +106,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		settler:        settler,
 		broadcaster:    broadcaster,
 		gasEstimator:   gasEstimator,
+		store:          dbStore,
 	}
 
 	// Setup routes
@@ -112,7 +125,11 @@ func (s *Server) setupRoutes() {
 		s.settler,
 		s.broadcaster,
 		s.gasEstimator,
+		s.store,
 	)
+
+	// Create records handler
+	recordsHandler := handler.NewRecordsHandler(s.store)
 
 	// Create payment middleware
 	paymentMiddleware := middleware.NewPaymentMiddleware(
@@ -135,6 +152,11 @@ func (s *Server) setupRoutes() {
 
 	// Payment requirements endpoint
 	s.router.HandleFunc("/payment-requirements", relayHandler.HandlePaymentRequirements).Methods("GET")
+
+	// Records endpoints (for debugging/admin)
+	s.router.HandleFunc("/records", recordsHandler.HandleList).Methods("GET")
+	s.router.HandleFunc("/records/{id}", recordsHandler.HandleGet).Methods("GET")
+	s.router.HandleFunc("/records/stats", recordsHandler.HandleStats).Methods("GET")
 }
 
 // Start starts the HTTP server
@@ -157,6 +179,7 @@ func (s *Server) Stop(ctx context.Context) error {
 	s.settler.Close()
 	s.broadcaster.Close()
 	s.gasEstimator.Close()
+	s.store.Close()
 
 	// Shutdown HTTP server
 	return s.httpServer.Shutdown(ctx)
