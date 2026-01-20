@@ -10,11 +10,11 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"github.com/sei-protocol/sei-chain/services/x402"
+	"github.com/sei-protocol/sei-chain/services/x402/types"
 )
 
 // Settler handles payment settlement by calling the USDT precompile
@@ -58,7 +58,7 @@ func (s *Settler) Close() {
 }
 
 // Settle executes the transferWithAuthorization to settle the payment
-func (s *Settler) Settle(ctx context.Context, auth *x402.EIP3009Authorization) (*types.Receipt, error) {
+func (s *Settler) Settle(ctx context.Context, auth *types.EIP3009Authorization) (*ethtypes.Receipt, error) {
 	if auth == nil {
 		return nil, errors.New("authorization is nil")
 	}
@@ -99,10 +99,10 @@ func (s *Settler) Settle(ctx context.Context, auth *x402.EIP3009Authorization) (
 	gasLimit := uint64(100000) // Conservative estimate for precompile call
 
 	// Create transaction
-	tx := types.NewTransaction(nonce, s.usdtAddress, big.NewInt(0), gasLimit, gasPrice, data)
+	tx := ethtypes.NewTransaction(nonce, s.usdtAddress, big.NewInt(0), gasLimit, gasPrice, data)
 
 	// Sign transaction
-	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(s.chainID), s.privateKey)
+	signedTx, err := ethtypes.SignTx(tx, ethtypes.NewEIP155Signer(s.chainID), s.privateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (s *Settler) Settle(ctx context.Context, auth *x402.EIP3009Authorization) (
 		return nil, err
 	}
 
-	if receipt.Status != types.ReceiptStatusSuccessful {
+	if receipt.Status != ethtypes.ReceiptStatusSuccessful {
 		return receipt, errors.New("settlement transaction failed")
 	}
 
