@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sei-protocol/sei-chain/services/x402/config"
-	"github.com/sei-protocol/sei-chain/services/x402/facilitator"
-	"github.com/sei-protocol/sei-chain/services/x402/relayer"
-	"github.com/sei-protocol/sei-chain/services/x402/types"
+	"github.com/sei-protocol/x402-relayer/config"
+	"github.com/sei-protocol/x402-relayer/facilitator"
+	"github.com/sei-protocol/x402-relayer/relayer"
+	"github.com/sei-protocol/x402-relayer/types"
 )
 
 // RelayHandler handles transaction relay requests

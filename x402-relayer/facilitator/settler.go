@@ -14,7 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"github.com/sei-protocol/sei-chain/services/x402/types"
+	"github.com/sei-protocol/x402-relayer/types"
 )
 
 // Settler handles payment settlement by calling the USDT precompile
