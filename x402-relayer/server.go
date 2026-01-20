@@ -154,9 +154,10 @@ func (s *Server) setupRoutes() {
 	s.router.HandleFunc("/payment-requirements", relayHandler.HandlePaymentRequirements).Methods("GET")
 
 	// Records endpoints (for debugging/admin)
+	// Note: /records/stats must be registered before /records/{id} to avoid being matched as an ID
+	s.router.HandleFunc("/records/stats", recordsHandler.HandleStats).Methods("GET")
 	s.router.HandleFunc("/records", recordsHandler.HandleList).Methods("GET")
 	s.router.HandleFunc("/records/{id}", recordsHandler.HandleGet).Methods("GET")
-	s.router.HandleFunc("/records/stats", recordsHandler.HandleStats).Methods("GET")
 }
 
 // Start starts the HTTP server
