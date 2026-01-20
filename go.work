@@ -4,7 +4,7 @@ use (
 	.
 	./sei-cosmos
 	./sei-tendermint
-
+	./x402-relayer
 )
 
 replace github.com/cosmos/iavl => github.com/sei-protocol/sei-iavl v0.2.0

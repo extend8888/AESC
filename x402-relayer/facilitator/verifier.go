@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/sei-protocol/sei-chain/services/x402/types"
+	"github.com/sei-protocol/x402-relayer/types"
 )
 
 const (

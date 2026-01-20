@@ -1,4 +1,4 @@
-package x402
+package x402relayer
 
 import (
 	"context"
@@ -9,11 +9,11 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/sei-protocol/sei-chain/services/x402/config"
-	"github.com/sei-protocol/sei-chain/services/x402/facilitator"
-	"github.com/sei-protocol/sei-chain/services/x402/handler"
-	"github.com/sei-protocol/sei-chain/services/x402/middleware"
-	"github.com/sei-protocol/sei-chain/services/x402/relayer"
+	"github.com/sei-protocol/x402-relayer/config"
+	"github.com/sei-protocol/x402-relayer/facilitator"
+	"github.com/sei-protocol/x402-relayer/handler"
+	"github.com/sei-protocol/x402-relayer/middleware"
+	"github.com/sei-protocol/x402-relayer/relayer"
 )
 
 // Server represents the x402 HTTP server

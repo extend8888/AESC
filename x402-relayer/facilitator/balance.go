@@ -14,9 +14,9 @@ import (
 
 // BalanceChecker handles USDT balance and authorization state queries
 type BalanceChecker struct {
-	client         *ethclient.Client
-	usdtAddress    common.Address
-	usdtABI        abi.ABI
+	client      *ethclient.Client
+	usdtAddress common.Address
+	usdtABI     abi.ABI
 }
 
 // NewBalanceChecker creates a new BalanceChecker instance

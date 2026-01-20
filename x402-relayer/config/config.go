@@ -144,41 +144,16 @@ func ReadConfig(v *viper.Viper) (*Config, error) {
 	return cfg, nil
 }
 
-// ConfigTemplate is the TOML configuration template for x402-relayer
-const ConfigTemplate = `
-###############################################################################
-###                         x402-relayer Configuration                       ###
-###############################################################################
+// ReadConfigFromFile reads configuration from a TOML file
+func ReadConfigFromFile(path string) (*Config, error) {
+	v := viper.New()
+	v.SetConfigFile(path)
+	v.SetConfigType("toml")
 
-[x402-relayer]
-# Enable the x402-relayer service
-enabled = {{ .X402Relayer.Enabled }}
+	if err := v.ReadInConfig(); err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
+	}
 
-# HTTP server port
-port = {{ .X402Relayer.Port }}
-
-# Wallet address that receives USDT payments (required if enabled)
-pay_to_address = "{{ .X402Relayer.PayToAddress }}"
-
-# USDT precompile contract address (fixed, do not change)
-usdt_precompile = "{{ .X402Relayer.USDTPrecompile }}"
-
-# Bank module denom for USDT
-usdt_denom = "{{ .X402Relayer.USDTDenom }}"
-
-# Network identifier in CAIP-2 format (e.g., "eip155:CHAIN_ID")
-network_id = "{{ .X402Relayer.NetworkID }}"
-
-# Private key for the relayer (used for broadcasting transactions)
-# SECURITY: Use environment variable reference for production
-# Example: "${X402_RELAYER_KEY}"
-private_key = "{{ .X402Relayer.PrivateKey }}"
-
-# Relay fee per transaction in USDT smallest unit (6 decimals)
-# Example: 0.01 USDT = 10000
-relay_fee_per_tx = "{{ .X402Relayer.RelayFeePerTx }}"
-
-# EVM RPC endpoint for broadcasting transactions
-evm_rpc = "{{ .X402Relayer.EVMRPC }}"
-`
+	return ReadConfig(v)
+}
 
