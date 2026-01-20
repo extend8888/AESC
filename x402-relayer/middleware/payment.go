@@ -108,9 +108,14 @@ func (pm *PaymentMiddleware) validatePayment(ctx context.Context, payload *types
 	}
 
 	// Verify signature
-	_, err := pm.verifier.VerifyPayment(&payload.Payload)
+	signer, err := pm.verifier.VerifyPayment(&payload.Payload)
 	if err != nil {
 		return &PaymentError{Message: "invalid signature: " + err.Error()}
+	}
+
+	// Verify signer matches from address
+	if signer != payload.Payload.From {
+		return &PaymentError{Message: "signer does not match from address"}
 	}
 
 	// Check balance

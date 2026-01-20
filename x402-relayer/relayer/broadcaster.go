@@ -6,6 +6,7 @@ import (
 	"errors"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -107,15 +108,27 @@ func (b *Broadcaster) ValidateTx(tx *types.Transaction) error {
 	return nil
 }
 
-// WaitForReceipt waits for a transaction receipt
+// WaitForReceipt waits for a transaction receipt with polling
 func (b *Broadcaster) WaitForReceipt(ctx context.Context, txHash common.Hash) (*types.Receipt, error) {
-	// Use the eth client's built-in receipt retrieval with context
-	receipt, err := b.client.TransactionReceipt(ctx, txHash)
-	if err != nil {
-		return nil, err
-	}
+	// Poll for receipt with timeout
+	ticker := time.NewTicker(500 * time.Millisecond)
+	defer ticker.Stop()
 
-	return receipt, nil
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-ticker.C:
+			receipt, err := b.client.TransactionReceipt(ctx, txHash)
+			if err == nil {
+				return receipt, nil
+			}
+			// Continue polling if not found
+			if err.Error() != "not found" {
+				return nil, err
+			}
+		}
+	}
 }
 
 // GetReceipt retrieves a transaction receipt by hash

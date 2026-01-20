@@ -4,12 +4,16 @@ set -e
 
 CHAIN_ID=${CHAIN_ID:-aesc-poc}
 
+# Use file keyring backend with password
+KEYRING_BACKEND="file"
+KEYRING_PASSWORD="12345678"
+
 echo "Preparing genesis file..."
 
 # Create admin account
 ACCOUNT_NAME="admin"
 echo "Creating admin account: $ACCOUNT_NAME"
-printf "12345678\n12345678\ny\n" | seid keys add $ACCOUNT_NAME 2>&1 | grep -v "override the existing name" || true
+printf "${KEYRING_PASSWORD}\n${KEYRING_PASSWORD}\ny\n" | seid keys add $ACCOUNT_NAME --keyring-backend "$KEYRING_BACKEND" 2>&1 | grep -v "override the existing name" || true
 
 # Helper function to override genesis
 override_genesis() {
@@ -56,21 +60,25 @@ override_genesis '.app_state["gov"]["tally_params"]["expedited_threshold"]="0.9"
 
 echo "Adding genesis accounts..."
 
+# USDT amount for testing (1 billion USDT = 1e15 with 6 decimals)
+USDT_AMOUNT="1000000000000000usdt"
+
 # Add validator account (大额余额用于测试)
-VALIDATOR_ADDRESS=$(printf "12345678\n" | seid keys show validator -a)
-seid add-genesis-account "$VALIDATOR_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom
+VALIDATOR_ADDRESS=$(printf "${KEYRING_PASSWORD}\n" | seid keys show validator -a --keyring-backend "$KEYRING_BACKEND")
+seid add-genesis-account "$VALIDATOR_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
 
 # Add admin account
-printf "12345678\n" | seid add-genesis-account admin 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom
+ADMIN_ADDRESS=$(printf "${KEYRING_PASSWORD}\n" | seid keys show admin -a --keyring-backend "$KEYRING_BACKEND")
+seid add-genesis-account "$ADMIN_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
 
 # Add admin1-admin10 accounts for batch testing
 echo "Adding admin1-admin10 accounts to genesis..."
 for i in {1..10}; do
     ADMIN_NAME="admin$i"
-    ADMIN_ADDRESS=$(printf "12345678\n" | seid keys show "$ADMIN_NAME" -a 2>/dev/null)
+    ADMIN_ADDRESS=$(printf "${KEYRING_PASSWORD}\n" | seid keys show "$ADMIN_NAME" -a --keyring-backend "$KEYRING_BACKEND" 2>/dev/null)
     if [ -n "$ADMIN_ADDRESS" ]; then
         echo "Adding $ADMIN_NAME: $ADMIN_ADDRESS"
-        seid add-genesis-account "$ADMIN_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom
+        seid add-genesis-account "$ADMIN_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
     else
         echo "Warning: $ADMIN_NAME key not found, skipping"
     fi
@@ -81,9 +89,27 @@ echo "Admin accounts added to genesis"
 if [ -f build/generated/genesis_accounts.txt ]; then
     while read account; do
       echo "Adding: $account"
-      seid add-genesis-account "$account" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom
+      seid add-genesis-account "$account" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
     done <build/generated/genesis_accounts.txt
 fi
+
+# Add x402-relayer E2E test accounts (hardcoded for deterministic testing)
+# User account (Hardhat #0): pays USDT to relayer
+# Private key: ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+# EVM address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+# Sei address: aesc17w0adeg64ky0daxwd2ugyuneellmjgnxn7tzgf
+echo "Adding x402 E2E test accounts..."
+X402_USER_ACCOUNT="aesc17w0adeg64ky0daxwd2ugyuneellmjgnxn7tzgf"
+seid add-genesis-account "$X402_USER_ACCOUNT" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
+echo "Added x402 user account: $X402_USER_ACCOUNT"
+
+# Relayer account (Hardhat #1): receives USDT payments and broadcasts transactions
+# Private key: 59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+# EVM address: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+# Sei address: aesc1wzvhjux9rqfdcwspp37srdgwp5tac7wgm40au0
+X402_RELAYER_ACCOUNT="aesc1wzvhjux9rqfdcwspp37srdgwp5tac7wgm40au0"
+seid add-genesis-account "$X402_RELAYER_ACCOUNT" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
+echo "Added x402 relayer account: $X402_RELAYER_ACCOUNT"
 
 # Copy gentx files
 echo "Copying gentx files..."
