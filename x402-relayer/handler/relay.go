@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -10,6 +11,7 @@ import (
 	"github.com/sei-protocol/x402-relayer/config"
 	"github.com/sei-protocol/x402-relayer/facilitator"
 	"github.com/sei-protocol/x402-relayer/relayer"
+	"github.com/sei-protocol/x402-relayer/store"
 	"github.com/sei-protocol/x402-relayer/types"
 )
 
@@ -21,6 +23,7 @@ type RelayHandler struct {
 	settler        *facilitator.Settler
 	broadcaster    *relayer.Broadcaster
 	gasEstimator   *relayer.GasEstimator
+	store          store.Store
 }
 
 // NewRelayHandler creates a new RelayHandler
@@ -31,6 +34,7 @@ func NewRelayHandler(
 	settler *facilitator.Settler,
 	broadcaster *relayer.Broadcaster,
 	gasEstimator *relayer.GasEstimator,
+	s store.Store,
 ) *RelayHandler {
 	return &RelayHandler{
 		config:         cfg,
@@ -39,6 +43,7 @@ func NewRelayHandler(
 		settler:        settler,
 		broadcaster:    broadcaster,
 		gasEstimator:   gasEstimator,
+		store:          s,
 	}
 }
 
@@ -66,35 +71,75 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Create relay record
+	record := &store.RelayRecord{
+		UserAddress:   payment.Payload.From.Hex(),
+		SignedTxHash:  req.SignedTx[:66], // First 66 chars as identifier
+		PaymentFrom:   payment.Payload.From.Hex(),
+		PaymentTo:     payment.Payload.To.Hex(),
+		PaymentAmount: payment.Payload.Value.String(),
+		PaymentNonce:  hex.EncodeToString(payment.Payload.Nonce[:]),
+		SettleStatus:  store.StatusPending,
+		RelayStatus:   store.StatusPending,
+		ClientIP:      r.RemoteAddr,
+		UserAgent:     r.UserAgent(),
+	}
+
+	// Save initial record
+	if err := h.store.Create(record); err != nil {
+		h.writeError(w, http.StatusInternalServerError, "failed to create record")
+		return
+	}
+
 	// Settle the payment first
 	receipt, err := h.settler.Settle(ctx, &payment.Payload)
 	if err != nil {
+		record.SettleStatus = store.StatusFailed
+		record.SettleError = err.Error()
+		h.store.Update(record)
 		h.writeError(w, http.StatusPaymentRequired, "payment settlement failed: "+err.Error())
 		return
 	}
 
+	// Update settlement status
+	record.SettleTxHash = receipt.TxHash.Hex()
+	record.SettleGasUsed = receipt.GasUsed
 	if receipt.Status == 0 {
+		record.SettleStatus = store.StatusFailed
+		record.SettleError = "transaction reverted"
+		h.store.Update(record)
 		h.writeError(w, http.StatusPaymentRequired, "payment settlement transaction failed")
 		return
 	}
+	record.SettleStatus = store.StatusSuccess
+	h.store.Update(record)
 
 	// Broadcast the user's transaction
 	txReceipt, err := h.broadcaster.BroadcastRawTx(ctx, req.SignedTx)
 	if err != nil {
-		// Payment was already settled, but broadcast failed
-		// In production, you might want to refund or retry
+		record.RelayStatus = store.StatusFailed
+		record.RelayError = err.Error()
+		h.store.Update(record)
 		h.writeJSON(w, http.StatusInternalServerError, types.RelayResponse{
-			Success: false,
-			Error:   "transaction broadcast failed: " + err.Error(),
+			Success:  false,
+			Error:    "transaction broadcast failed: " + err.Error(),
+			RecordID: record.ID,
 		})
 		return
 	}
 
+	// Update relay status
+	record.RelayTxHash = txReceipt.TxHash.Hex()
+	record.RelayGasUsed = txReceipt.GasUsed
+	record.RelayStatus = store.StatusSuccess
+	h.store.Update(record)
+
 	// Return success response
 	h.writeJSON(w, http.StatusOK, types.RelayResponse{
-		Success: true,
-		TxHash:  txReceipt.TxHash.Hex(),
-		GasUsed: txReceipt.GasUsed,
+		Success:  true,
+		TxHash:   txReceipt.TxHash.Hex(),
+		GasUsed:  txReceipt.GasUsed,
+		RecordID: record.ID,
 	})
 }
 

@@ -116,6 +116,9 @@ type RelayResponse struct {
 
 	// GasUsed is the amount of gas used
 	GasUsed uint64 `json:"gasUsed,omitempty"`
+
+	// RecordID is the database record ID for tracking
+	RecordID string `json:"recordId,omitempty"`
 }
 
 // VerifyRequest represents a request to verify a payment
