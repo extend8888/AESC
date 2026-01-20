@@ -113,6 +113,10 @@ type EVMKeeper interface {
 	) (contractAddr common.Address, err error)
 	GetEVMGasLimitFromCtx(ctx sdk.Context) uint64
 	GetCosmosGasLimitFromEVMGas(ctx sdk.Context, evmGas uint64) uint64
+	// EVM state storage methods (used by USDT precompile)
+	ChainID(ctx sdk.Context) *big.Int
+	GetState(ctx sdk.Context, addr common.Address, hash common.Hash) common.Hash
+	SetState(ctx sdk.Context, addr common.Address, key common.Hash, val common.Hash)
 }
 
 type AccountKeeper interface {

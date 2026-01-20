@@ -18,6 +18,7 @@ import (
 	"github.com/sei-protocol/sei-chain/precompiles/pointerview"
 	"github.com/sei-protocol/sei-chain/precompiles/solo"
 	"github.com/sei-protocol/sei-chain/precompiles/staking"
+	"github.com/sei-protocol/sei-chain/precompiles/usdt"
 	"github.com/sei-protocol/sei-chain/precompiles/utils"
 )
 
@@ -56,6 +57,7 @@ func GetCustomPrecompiles(
 		ecommon.HexToAddress(pointerview.PointerViewAddress): pointerview.GetVersioned(latestUpgrade, keepers),
 		ecommon.HexToAddress(p256.P256VerifyAddress):         p256.GetVersioned(latestUpgrade, keepers),
 		ecommon.HexToAddress(solo.SoloAddress):               solo.GetVersioned(latestUpgrade, keepers),
+		ecommon.HexToAddress(usdt.USDTAddress):               usdt.GetVersioned(latestUpgrade, keepers),
 	}
 }
 
@@ -114,6 +116,11 @@ func InitializePrecompiles(
 		return err
 	}
 
+	usdtp, err := usdt.NewPrecompile(keepers)
+	if err != nil {
+		return err
+	}
+
 	PrecompileNamesToInfo[bankp.GetName()] = PrecompileInfo{ABI: bankp.GetABI(), Address: bankp.Address()}
 	PrecompileNamesToInfo[jsonp.GetName()] = PrecompileInfo{ABI: jsonp.GetABI(), Address: jsonp.Address()}
 	PrecompileNamesToInfo[addrp.GetName()] = PrecompileInfo{ABI: addrp.GetABI(), Address: addrp.Address()}
@@ -125,6 +132,7 @@ func InitializePrecompiles(
 	PrecompileNamesToInfo[pointerp.GetName()] = PrecompileInfo{ABI: pointerp.GetABI(), Address: pointerp.Address()}
 	PrecompileNamesToInfo[pointerviewp.GetName()] = PrecompileInfo{ABI: pointerviewp.GetABI(), Address: pointerviewp.Address()}
 	PrecompileNamesToInfo[p256p.GetName()] = PrecompileInfo{ABI: p256p.GetABI(), Address: p256p.Address()}
+	PrecompileNamesToInfo[usdtp.GetName()] = PrecompileInfo{ABI: usdtp.GetABI(), Address: usdtp.Address()}
 
 	if !dryRun {
 		addPrecompileToVM(bankp)
@@ -138,6 +146,7 @@ func InitializePrecompiles(
 		addPrecompileToVM(pointerp)
 		addPrecompileToVM(pointerviewp)
 		addPrecompileToVM(p256p)
+		addPrecompileToVM(usdtp)
 		Initialized = true
 	}
 	return nil
