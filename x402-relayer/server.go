@@ -141,14 +141,9 @@ func (s *Server) setupRoutes() {
 	// Health check (no payment required)
 	s.router.HandleFunc("/health", handler.HealthHandler).Methods("GET")
 
-	// Relay endpoint (payment required)
-	relayRoute := s.router.HandleFunc("/relay", relayHandler.HandleRelay).Methods("POST")
-	_ = relayRoute // Apply middleware in subrouter
-
-	// Apply payment middleware to relay endpoint
-	relaySubrouter := s.router.PathPrefix("/relay").Subrouter()
-	relaySubrouter.Use(paymentMiddleware.Middleware)
-	relaySubrouter.HandleFunc("", relayHandler.HandleRelay).Methods("POST")
+	// Relay endpoint (payment required) - wrap handler with middleware
+	relayWithPayment := paymentMiddleware.Middleware(http.HandlerFunc(relayHandler.HandleRelay))
+	s.router.Handle("/relay", relayWithPayment).Methods("POST")
 
 	// Payment requirements endpoint
 	s.router.HandleFunc("/payment-requirements", relayHandler.HandlePaymentRequirements).Methods("GET")

@@ -1,6 +1,8 @@
 package types
 
 import (
+	"encoding/json"
+	"errors"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -92,6 +94,76 @@ type EIP3009Authorization struct {
 	V uint8    `json:"v"`
 	R [32]byte `json:"r"`
 	S [32]byte `json:"s"`
+}
+
+// eip3009AuthorizationJSON is the JSON representation of EIP3009Authorization
+type eip3009AuthorizationJSON struct {
+	From        string `json:"from"`
+	To          string `json:"to"`
+	Value       string `json:"value"`
+	ValidAfter  string `json:"validAfter"`
+	ValidBefore string `json:"validBefore"`
+	Nonce       string `json:"nonce"`
+	V           uint8  `json:"v"`
+	R           string `json:"r"`
+	S           string `json:"s"`
+}
+
+// MarshalJSON implements json.Marshaler for EIP3009Authorization
+func (a EIP3009Authorization) MarshalJSON() ([]byte, error) {
+	return json.Marshal(eip3009AuthorizationJSON{
+		From:        a.From.Hex(),
+		To:          a.To.Hex(),
+		Value:       a.Value.String(),
+		ValidAfter:  a.ValidAfter.String(),
+		ValidBefore: a.ValidBefore.String(),
+		Nonce:       common.Bytes2Hex(a.Nonce[:]),
+		V:           a.V,
+		R:           common.Bytes2Hex(a.R[:]),
+		S:           common.Bytes2Hex(a.S[:]),
+	})
+}
+
+// UnmarshalJSON implements json.Unmarshaler for EIP3009Authorization
+func (a *EIP3009Authorization) UnmarshalJSON(data []byte) error {
+	var j eip3009AuthorizationJSON
+	if err := json.Unmarshal(data, &j); err != nil {
+		return err
+	}
+
+	a.From = common.HexToAddress(j.From)
+	a.To = common.HexToAddress(j.To)
+
+	value, ok := new(big.Int).SetString(j.Value, 10)
+	if !ok {
+		return errors.New("invalid value")
+	}
+	a.Value = value
+
+	validAfter, ok := new(big.Int).SetString(j.ValidAfter, 10)
+	if !ok {
+		return errors.New("invalid validAfter")
+	}
+	a.ValidAfter = validAfter
+
+	validBefore, ok := new(big.Int).SetString(j.ValidBefore, 10)
+	if !ok {
+		return errors.New("invalid validBefore")
+	}
+	a.ValidBefore = validBefore
+
+	nonceBytes := common.Hex2Bytes(j.Nonce)
+	copy(a.Nonce[:], nonceBytes)
+
+	a.V = j.V
+
+	rBytes := common.Hex2Bytes(j.R)
+	copy(a.R[:], rBytes)
+
+	sBytes := common.Hex2Bytes(j.S)
+	copy(a.S[:], sBytes)
+
+	return nil
 }
 
 // RelayRequest represents a request to relay a transaction

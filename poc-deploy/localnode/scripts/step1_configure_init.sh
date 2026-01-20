@@ -6,6 +6,10 @@ NUM_ACCOUNTS=${NUM_ACCOUNTS:-5}
 CHAIN_ID=${CHAIN_ID:-aesc-poc}
 MONIKER=${MONIKER:-sei-node-poc}
 
+# Use file keyring backend with password
+KEYRING_BACKEND="file"
+KEYRING_PASSWORD="12345678"
+
 echo "Configuring and initializing node..."
 echo "Chain ID: $CHAIN_ID"
 echo "Moniker: $MONIKER"
@@ -29,10 +33,10 @@ echo "Node initialized successfully"
 # Create validator account
 ACCOUNT_NAME="validator"
 echo "Creating validator account: $ACCOUNT_NAME"
-printf "12345678\n12345678\ny\n" | seid keys add "$ACCOUNT_NAME" 2>&1 | grep -v "override the existing name" || true
+printf "${KEYRING_PASSWORD}\n${KEYRING_PASSWORD}\ny\n" | seid keys add "$ACCOUNT_NAME" --keyring-backend "$KEYRING_BACKEND" 2>&1 | grep -v "override the existing name" || true
 
 # Get genesis account info
-GENESIS_ACCOUNT_ADDRESS=$(printf "12345678\n" | seid keys show "$ACCOUNT_NAME" -a)
+GENESIS_ACCOUNT_ADDRESS=$(printf "${KEYRING_PASSWORD}\n" | seid keys show "$ACCOUNT_NAME" -a --keyring-backend "$KEYRING_BACKEND")
 echo "Validator address: $GENESIS_ACCOUNT_ADDRESS"
 
 # Add funds to genesis account (大额余额用于测试)
@@ -43,17 +47,17 @@ echo "Creating admin account keys for batch testing..."
 for i in {1..10}; do
     ADMIN_NAME="admin$i"
     echo "Creating account key: $ADMIN_NAME"
-    printf "12345678\n12345678\ny\n" | seid keys add "$ADMIN_NAME" 2>&1 | grep -v "override the existing name" || true
+    printf "${KEYRING_PASSWORD}\n${KEYRING_PASSWORD}\ny\n" | seid keys add "$ADMIN_NAME" --keyring-backend "$KEYRING_BACKEND" 2>&1 | grep -v "override the existing name" || true
 
     # Get admin account address
-    ADMIN_ADDRESS=$(printf "12345678\n" | seid keys show "$ADMIN_NAME" -a)
+    ADMIN_ADDRESS=$(printf "${KEYRING_PASSWORD}\n" | seid keys show "$ADMIN_NAME" -a --keyring-backend "$KEYRING_BACKEND")
     echo "  Address: $ADMIN_ADDRESS"
 done
 echo "Admin account keys created successfully"
 
 # Create gentx (质押 100 UAEX，power 将是 100)
 echo "Creating genesis transaction..."
-if ! printf "12345678\n" | seid gentx "$ACCOUNT_NAME" 100000000uaex --chain-id "$CHAIN_ID"; then
+if ! printf "${KEYRING_PASSWORD}\n" | seid gentx "$ACCOUNT_NAME" 100000000uaex --chain-id "$CHAIN_ID" --keyring-backend "$KEYRING_BACKEND"; then
     echo "ERROR: Failed to create gentx"
     exit 1
 fi
@@ -76,8 +80,8 @@ if [ "$NUM_ACCOUNTS" -gt 0 ]; then
 fi
 
 # Export validator key
-SEIVALOPER_INFO=$(printf "12345678\n" | seid keys show "$ACCOUNT_NAME" --bech=val -a)
-PRIV_KEY=$(printf "12345678\n12345678\n" | seid keys export "$ACCOUNT_NAME")
+SEIVALOPER_INFO=$(printf "${KEYRING_PASSWORD}\n" | seid keys show "$ACCOUNT_NAME" --bech=val -a --keyring-backend "$KEYRING_BACKEND")
+PRIV_KEY=$(printf "${KEYRING_PASSWORD}\n${KEYRING_PASSWORD}\n" | seid keys export "$ACCOUNT_NAME" --keyring-backend "$KEYRING_BACKEND")
 echo "$PRIV_KEY" > build/generated/exported_keys/"$SEIVALOPER_INFO".txt
 
 echo "Validator info: $SEIVALOPER_INFO"
