@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/sei-protocol/sei-chain/services/x402"
+	"github.com/sei-protocol/sei-chain/services/x402/types"
 )
 
 const (
@@ -44,7 +44,7 @@ func NewVerifier(chainID *big.Int) *Verifier {
 
 // VerifyPayment verifies an x402 payment authorization
 // Returns the recovered signer address if valid
-func (v *Verifier) VerifyPayment(auth *x402.EIP3009Authorization) (common.Address, error) {
+func (v *Verifier) VerifyPayment(auth *types.EIP3009Authorization) (common.Address, error) {
 	if auth == nil {
 		return common.Address{}, errors.New("authorization is nil")
 	}
@@ -64,7 +64,7 @@ func (v *Verifier) VerifyPayment(auth *x402.EIP3009Authorization) (common.Addres
 }
 
 // RecoverSigner recovers the signer address from an EIP-3009 authorization
-func (v *Verifier) RecoverSigner(auth *x402.EIP3009Authorization) (common.Address, error) {
+func (v *Verifier) RecoverSigner(auth *types.EIP3009Authorization) (common.Address, error) {
 	// Compute struct hash
 	structHash := crypto.Keccak256Hash(
 		TransferWithAuthorizationTypehash.Bytes(),
@@ -119,7 +119,7 @@ func (v *Verifier) ComputeDomainSeparator() [32]byte {
 }
 
 // ValidateTimeWindow validates the authorization time window
-func ValidateTimeWindow(auth *x402.EIP3009Authorization, nowUnix int64) error {
+func ValidateTimeWindow(auth *types.EIP3009Authorization, nowUnix int64) error {
 	now := big.NewInt(nowUnix)
 
 	if now.Cmp(auth.ValidAfter) <= 0 {

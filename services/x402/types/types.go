@@ -1,4 +1,4 @@
-package x402
+package types
 
 import (
 	"math/big"
@@ -89,7 +89,7 @@ type EIP3009Authorization struct {
 	Nonce [32]byte `json:"nonce"`
 
 	// Signature components
-	V uint8  `json:"v"`
+	V uint8    `json:"v"`
 	R [32]byte `json:"r"`
 	S [32]byte `json:"s"`
 }
