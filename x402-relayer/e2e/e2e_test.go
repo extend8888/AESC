@@ -5,6 +5,7 @@ package e2e
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -304,6 +305,298 @@ func TestFullRelayWithPayment(t *testing.T) {
 			t.Logf("Record details: %+v", record)
 		}
 	}
+}
+
+// TestFailureScenarios tests various failure cases
+func TestFailureScenarios(t *testing.T) {
+	t.Run("InvalidSignature", testInvalidSignature)
+	t.Run("ExpiredAuthorization", testExpiredAuthorization)
+	t.Run("InvalidNetwork", testInvalidNetwork)
+	t.Run("MalformedPaymentHeader", testMalformedPaymentHeader)
+}
+
+func testInvalidSignature(t *testing.T) {
+	privateKey, _ := crypto.HexToECDSA(testPrivateKeyHex)
+	fromAddress := crypto.PubkeyToAddress(privateKey.PublicKey)
+	toAddress := common.HexToAddress(relayerAddress)
+	chainID := big.NewInt(ChainID)
+
+	paymentAmount := big.NewInt(10000)
+	validAfter := big.NewInt(0)
+	validBefore := big.NewInt(time.Now().Add(5 * time.Minute).Unix())
+	nonce := generateRandomNonce()
+
+	// Get valid signature first
+	v, r, s, _ := signTransferWithAuthorization(
+		privateKey, fromAddress, toAddress, paymentAmount,
+		validAfter, validBefore, nonce, chainID,
+	)
+
+	// Corrupt the signature
+	r[0] ^= 0xFF
+
+	auth := types.EIP3009Authorization{
+		From: fromAddress, To: toAddress, Value: paymentAmount,
+		ValidAfter: validAfter, ValidBefore: validBefore, Nonce: nonce,
+		V: v, R: r, S: s,
+	}
+
+	paymentBase64, _ := createPaymentPayload(auth)
+
+	// Create relay request
+	reqBody := map[string]string{"signedTx": "0x1234"}
+	body, _ := json.Marshal(reqBody)
+
+	req, _ := http.NewRequest("POST", x402RelayerURL+"/relay", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-PAYMENT", paymentBase64)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusPaymentRequired {
+		respBody, _ := io.ReadAll(resp.Body)
+		t.Logf("Response: %s", string(respBody))
+		// Accept 402 (signature validation failed) or 500 (ecrecover failed)
+		if resp.StatusCode != http.StatusInternalServerError {
+			t.Errorf("expected 402 or 500, got %d", resp.StatusCode)
+		}
+	}
+	t.Logf("✅ Invalid signature correctly rejected (status %d)", resp.StatusCode)
+}
+
+func testExpiredAuthorization(t *testing.T) {
+	privateKey, _ := crypto.HexToECDSA(testPrivateKeyHex)
+	fromAddress := crypto.PubkeyToAddress(privateKey.PublicKey)
+	toAddress := common.HexToAddress(relayerAddress)
+	chainID := big.NewInt(ChainID)
+
+	paymentAmount := big.NewInt(10000)
+	validAfter := big.NewInt(0)
+	validBefore := big.NewInt(time.Now().Add(-1 * time.Minute).Unix()) // Already expired
+	nonce := generateRandomNonce()
+
+	v, r, s, _ := signTransferWithAuthorization(
+		privateKey, fromAddress, toAddress, paymentAmount,
+		validAfter, validBefore, nonce, chainID,
+	)
+
+	auth := types.EIP3009Authorization{
+		From: fromAddress, To: toAddress, Value: paymentAmount,
+		ValidAfter: validAfter, ValidBefore: validBefore, Nonce: nonce,
+		V: v, R: r, S: s,
+	}
+
+	paymentBase64, _ := createPaymentPayload(auth)
+
+	reqBody := map[string]string{"signedTx": "0x1234"}
+	body, _ := json.Marshal(reqBody)
+
+	req, _ := http.NewRequest("POST", x402RelayerURL+"/relay", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-PAYMENT", paymentBase64)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusPaymentRequired {
+		respBody, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected 402, got %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	respBody, _ := io.ReadAll(resp.Body)
+	t.Logf("✅ Expired authorization correctly rejected: %s", string(respBody))
+}
+
+func testInvalidNetwork(t *testing.T) {
+	privateKey, _ := crypto.HexToECDSA(testPrivateKeyHex)
+	fromAddress := crypto.PubkeyToAddress(privateKey.PublicKey)
+	toAddress := common.HexToAddress(relayerAddress)
+	chainID := big.NewInt(ChainID)
+
+	paymentAmount := big.NewInt(10000)
+	validAfter := big.NewInt(0)
+	validBefore := big.NewInt(time.Now().Add(5 * time.Minute).Unix())
+	nonce := generateRandomNonce()
+
+	v, r, s, _ := signTransferWithAuthorization(
+		privateKey, fromAddress, toAddress, paymentAmount,
+		validAfter, validBefore, nonce, chainID,
+	)
+
+	auth := types.EIP3009Authorization{
+		From: fromAddress, To: toAddress, Value: paymentAmount,
+		ValidAfter: validAfter, ValidBefore: validBefore, Nonce: nonce,
+		V: v, R: r, S: s,
+	}
+
+	// Create payload with wrong network
+	payload := types.PaymentPayload{
+		X402Version: 1,
+		Scheme:      "exact",
+		Network:     "eip155:999999", // Wrong network
+		Payload:     auth,
+	}
+	jsonBytes, _ := json.Marshal(payload)
+	paymentBase64 := base64.StdEncoding.EncodeToString(jsonBytes)
+
+	reqBody := map[string]string{"signedTx": "0x1234"}
+	body, _ := json.Marshal(reqBody)
+
+	req, _ := http.NewRequest("POST", x402RelayerURL+"/relay", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-PAYMENT", paymentBase64)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusPaymentRequired {
+		respBody, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected 402, got %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	respBody, _ := io.ReadAll(resp.Body)
+	t.Logf("✅ Wrong network correctly rejected: %s", string(respBody))
+}
+
+func testMalformedPaymentHeader(t *testing.T) {
+	reqBody := map[string]string{"signedTx": "0x1234"}
+	body, _ := json.Marshal(reqBody)
+
+	req, _ := http.NewRequest("POST", x402RelayerURL+"/relay", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-PAYMENT", "not-valid-base64!!!")
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusPaymentRequired {
+		respBody, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected 402, got %d: %s", resp.StatusCode, string(respBody))
+	}
+
+	t.Logf("✅ Malformed payment header correctly rejected (status %d)", resp.StatusCode)
+}
+
+// TestConcurrentRelays tests concurrent transaction processing
+func TestConcurrentRelays(t *testing.T) {
+	const numConcurrent = 5
+
+	privateKey, err := crypto.HexToECDSA(testPrivateKeyHex)
+	if err != nil {
+		t.Fatalf("failed to load private key: %v", err)
+	}
+
+	fromAddress := crypto.PubkeyToAddress(privateKey.PublicKey)
+	toAddress := common.HexToAddress(relayerAddress)
+	chainID := big.NewInt(ChainID)
+
+	// Create multiple concurrent requests
+	results := make(chan struct {
+		status int
+		err    error
+	}, numConcurrent)
+
+	startTime := time.Now()
+
+	for i := 0; i < numConcurrent; i++ {
+		go func(idx int) {
+			paymentAmount := big.NewInt(10000)
+			validAfter := big.NewInt(0)
+			validBefore := big.NewInt(time.Now().Add(5 * time.Minute).Unix())
+			nonce := generateRandomNonce()
+
+			v, r, s, _ := signTransferWithAuthorization(
+				privateKey, fromAddress, toAddress, paymentAmount,
+				validAfter, validBefore, nonce, chainID,
+			)
+
+			auth := types.EIP3009Authorization{
+				From: fromAddress, To: toAddress, Value: paymentAmount,
+				ValidAfter: validAfter, ValidBefore: validBefore, Nonce: nonce,
+				V: v, R: r, S: s,
+			}
+
+			paymentBase64, _ := createPaymentPayload(auth)
+
+			// Create unique transaction with different nonce
+			txTo := common.HexToAddress("0x0000000000000000000000000000000000000001")
+			signedTx, _ := signTransaction(
+				privateKey, uint64(idx), txTo, big.NewInt(0),
+				21000, big.NewInt(1000000000), chainID,
+			)
+			txBytes, _ := rlp.EncodeToBytes(signedTx)
+			signedTxHex := "0x" + hex.EncodeToString(txBytes)
+
+			reqBody := map[string]string{"signedTx": signedTxHex}
+			body, _ := json.Marshal(reqBody)
+
+			req, _ := http.NewRequest("POST", x402RelayerURL+"/relay", bytes.NewReader(body))
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("X-PAYMENT", paymentBase64)
+
+			client := &http.Client{Timeout: 30 * time.Second}
+			resp, err := client.Do(req)
+			if err != nil {
+				results <- struct {
+					status int
+					err    error
+				}{0, err}
+				return
+			}
+			resp.Body.Close()
+
+			results <- struct {
+				status int
+				err    error
+			}{resp.StatusCode, nil}
+		}(i)
+	}
+
+	// Collect results
+	successCount := 0
+	failedCount := 0
+	for i := 0; i < numConcurrent; i++ {
+		result := <-results
+		if result.err != nil {
+			t.Logf("Request %d failed: %v", i, result.err)
+			failedCount++
+		} else if result.status == http.StatusOK {
+			successCount++
+		} else {
+			// 402/500 are expected for concurrent requests (nonce conflicts, etc.)
+			failedCount++
+		}
+	}
+
+	duration := time.Since(startTime)
+	t.Logf("✅ Concurrent test completed in %v", duration)
+	t.Logf("   Success: %d, Failed/Rejected: %d", successCount, failedCount)
+	t.Logf("   Throughput: %.2f req/s", float64(numConcurrent)/duration.Seconds())
+
+	// At least verify the server didn't crash
+	resp, err := http.Get(x402RelayerURL + "/health")
+	if err != nil || resp.StatusCode != http.StatusOK {
+		t.Fatalf("Server health check failed after concurrent test")
+	}
+	resp.Body.Close()
+	t.Logf("✅ Server remained healthy after concurrent requests")
 }
 
 func init() {
