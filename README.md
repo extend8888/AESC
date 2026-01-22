@@ -115,6 +115,38 @@ WantedBy=multi-user.target
 * SSH into a docker container: `docker exec -it [container_name] /bin/bash`
 * Stop local 4 node cluster: `make docker-cluster-stop`
 
+## E2E Tests
+
+### Tokenomics E2E Tests
+Tests for tokenomics functionality including AEX gas token, STAEX staking, aexburn mechanism, and USDT precompile.
+
+**Prerequisites:**
+- Local node running (start with `docker-compose up` or appropriate localnode start command)
+- Dependencies: `curl`, `jq`, `bc`, `seid`/`aescd`
+
+**Run:**
+```bash
+make test-tokenomics-e2e
+```
+
+### Consensus E2E Tests
+Tests for multi-node consensus including chain-id consistency, block sync, cross-node transaction propagation, and state consistency.
+
+**Prerequisites:**
+- Docker installed and running
+- Dependencies: `curl`, `jq`, `docker`
+
+**Run:**
+```bash
+make test-consensus-e2e
+```
+
+This command will:
+1. Build Docker image for nodes
+2. Start a 4-node cluster in detached mode
+3. Run consensus E2E tests
+4. Stop and cleanup the cluster
+
 ### Create Validator Transaction
 ```bash
 seid tx staking create-validator \

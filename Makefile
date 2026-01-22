@@ -171,16 +171,16 @@ test-tokenomics-e2e:
 	@bash poc-deploy/localnode/scripts/run_tokenomics_e2e_tests.sh
 .PHONY: test-tokenomics-e2e
 
-# Run Consensus E2E tests (requires running 4-node docker cluster)
-# Usage: make docker-cluster-start && make test-consensus-e2e
-test-consensus-e2e:
-	@echo "Running Consensus E2E tests (4-node cluster)..."
+# Run Consensus E2E tests (automatically starts 4-node docker cluster in detached mode)
+test-consensus-e2e: docker-cluster-start-detached
+	@echo "🚀 Running Consensus E2E tests (4-node cluster)..."
 	@if [ ! -f docker/localnode/scripts/run_consensus_e2e_tests.sh ]; then \
 		echo "Error: run_consensus_e2e_tests.sh not found"; \
 		exit 1; \
 	fi
 	@chmod +x docker/localnode/scripts/run_consensus_e2e_tests.sh
-	@bash docker/localnode/scripts/run_consensus_e2e_tests.sh
+	@bash docker/localnode/scripts/run_consensus_e2e_tests.sh --no-cleanup || (make docker-cluster-stop && exit 1)
+	@make docker-cluster-stop
 .PHONY: test-consensus-e2e
 
 build-loadtest:
@@ -271,25 +271,42 @@ kill-sei-node:
 kill-rpc-node:
 	docker ps --filter name=sei-rpc-node --filter status=running -aq | xargs docker kill 2> /dev/null || true
 
-# Run a 4-node docker containers
+# Run a 4-node docker containers (foreground mode)
 docker-cluster-start: docker-cluster-stop build-docker-node
 	@rm -rf $(PROJECT_HOME)/build/generated
 	@mkdir -p $(shell go env GOPATH)/pkg/mod
 	@mkdir -p $(shell go env GOCACHE)
 	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 INVARIANT_CHECK_INTERVAL=${INVARIANT_CHECK_INTERVAL} UPGRADE_VERSION_LIST=${UPGRADE_VERSION_LIST} MOCK_BALANCES=${MOCK_BALANCES} docker compose up
+.PHONY: docker-cluster-start
 
-.PHONY: localnet-start
+# Run a 4-node docker containers (detached/background mode for E2E tests)
+docker-cluster-start-detached: docker-cluster-stop build-docker-node
+	@rm -rf $(PROJECT_HOME)/build/generated
+	@mkdir -p $(shell go env GOPATH)/pkg/mod
+	@mkdir -p $(shell go env GOCACHE)
+	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 INVARIANT_CHECK_INTERVAL=${INVARIANT_CHECK_INTERVAL} UPGRADE_VERSION_LIST=${UPGRADE_VERSION_LIST} MOCK_BALANCES=${MOCK_BALANCES} docker compose up -d
+	@echo "Waiting for nodes to start..."
+	@sleep 60
+.PHONY: docker-cluster-start-detached
 
 # Use this to skip the seid build process
 docker-cluster-start-skipbuild: docker-cluster-stop build-docker-node
 	@rm -rf $(PROJECT_HOME)/build/generated
 	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 SKIP_BUILD=true docker compose up
-.PHONY: localnet-start
+.PHONY: docker-cluster-start-skipbuild
 
-# Stop 4-node docker containers
+# Use this to skip build and run in detached mode (for quick E2E testing)
+docker-cluster-start-skipbuild-detached: docker-cluster-stop build-docker-node
+	@rm -rf $(PROJECT_HOME)/build/generated
+	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) NUM_ACCOUNTS=10 SKIP_BUILD=true docker compose up -d
+	@echo "Waiting for nodes to start..."
+	@sleep 30
+.PHONY: docker-cluster-start-skipbuild-detached
+
+# Stop 4-node docker containers and remove volumes for clean state
 docker-cluster-stop:
-	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) docker compose down
-.PHONY: localnet-stop
+	@cd docker && USERID=$(shell id -u) GROUPID=$(shell id -g) GOCACHE=$(shell go env GOCACHE) docker compose down --volumes
+.PHONY: docker-cluster-stop
 
 
 # Implements test splitting and running. This is pulled directly from
