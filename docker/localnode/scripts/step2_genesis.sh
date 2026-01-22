@@ -2,15 +2,16 @@
 
 # Input parameters
 NODE_ID=${ID:-0}
+KEYRING_BACKEND="file"
 
 echo "Preparing genesis file"
 
 ACCOUNT_NAME="admin"
 echo "Adding account $ACCOUNT_NAME"
-printf "12345678\n12345678\ny\n" | seid keys add $ACCOUNT_NAME >/dev/null 2>&1
+printf "12345678\n12345678\ny\n" | seid keys add $ACCOUNT_NAME --keyring-backend "$KEYRING_BACKEND" >/dev/null 2>&1
 
 override_genesis() {
-  cat ~/.sei/config/genesis.json | jq "$1" > ~/.sei/config/tmp_genesis.json && mv ~/.sei/config/tmp_genesis.json ~/.sei/config/genesis.json;
+  cat ~/.aesc/config/genesis.json | jq "$1" > ~/.aesc/config/tmp_genesis.json && mv ~/.aesc/config/tmp_genesis.json ~/.aesc/config/genesis.json;
 }
 
 override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="uaex"'
@@ -53,10 +54,10 @@ while read account; do
 done <build/generated/genesis_accounts.txt
 
 # add funds to admin account
-printf "12345678\n" | seid add-genesis-account admin 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom
+printf "12345678\n" | seid add-genesis-account admin 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom --keyring-backend "$KEYRING_BACKEND"
 
 mkdir -p ~/exported_keys
-cp -r build/generated/gentx/* ~/.sei/config/gentx
+cp -r build/generated/gentx/* ~/.aesc/config/gentx
 cp -r build/generated/exported_keys ~/exported_keys
 
 # add validators to genesis
@@ -66,5 +67,5 @@ cp -r build/generated/exported_keys ~/exported_keys
 echo "Collecting all gentx"
 seid collect-gentxs >/dev/null 2>&1
 
-cp ~/.sei/config/genesis.json build/generated/genesis.json
+cp ~/.aesc/config/genesis.json build/generated/genesis.json
 echo "Genesis file has been created successfully"

@@ -10,10 +10,24 @@ export BUILD_PATH=/sei-protocol/sei-chain/build
 export PATH=$GOBIN:$PATH:/usr/local/go/bin:$BUILD_PATH
 echo "export GOPATH=$HOME/go" >> "$HOME/.bashrc"
 echo "GOBIN=$GOPATH/bin" >> "$HOME/.bashrc"
-echo "export PATH=$GOBIN:$PATH:/usr/local/go/bin:$BUILD_PATH:$HOME/.foundry/bin" >> "$HOME/.bashrc"
-rm -rf build/generated
+echo "export PATH=$GOBIN:$PATH:/usr/local/go/bin:$BUILD_PATH" >> "$HOME/.bashrc"
+# Only node 0 cleans up build/generated to avoid race conditions
+if [ "$NODE_ID" = 0 ]; then
+  rm -rf build/generated
+  mkdir -p build/generated
+  touch build/generated/cleanup.complete
+fi
 /bin/bash -c "source $HOME/.bashrc"
 mkdir -p $GOBIN
+
+# Other nodes wait for node 0 to complete cleanup
+if [ "$NODE_ID" != 0 ]; then
+  until [ -f build/generated/cleanup.complete ]
+  do
+       sleep 1
+  done
+fi
+
 # Step 0: Build on node 0
 if [ "$NODE_ID" = 0 ] && [ -z "$SKIP_BUILD" ]
 then

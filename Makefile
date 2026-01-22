@@ -159,6 +159,30 @@ test-coverage: test-unit
 	@echo "Coverage report generated: coverage.html"
 .PHONY: test-coverage
 
+# Run Tokenomics E2E tests (requires running localnode)
+# Usage: make test-tokenomics-e2e
+test-tokenomics-e2e:
+	@echo "Running Tokenomics E2E tests..."
+	@if [ ! -f poc-deploy/localnode/scripts/run_tokenomics_e2e_tests.sh ]; then \
+		echo "Error: run_tokenomics_e2e_tests.sh not found"; \
+		exit 1; \
+	fi
+	@chmod +x poc-deploy/localnode/scripts/run_tokenomics_e2e_tests.sh
+	@bash poc-deploy/localnode/scripts/run_tokenomics_e2e_tests.sh
+.PHONY: test-tokenomics-e2e
+
+# Run Consensus E2E tests (requires running 4-node docker cluster)
+# Usage: make docker-cluster-start && make test-consensus-e2e
+test-consensus-e2e:
+	@echo "Running Consensus E2E tests (4-node cluster)..."
+	@if [ ! -f docker/localnode/scripts/run_consensus_e2e_tests.sh ]; then \
+		echo "Error: run_consensus_e2e_tests.sh not found"; \
+		exit 1; \
+	fi
+	@chmod +x docker/localnode/scripts/run_consensus_e2e_tests.sh
+	@bash docker/localnode/scripts/run_consensus_e2e_tests.sh
+.PHONY: test-consensus-e2e
+
 build-loadtest:
 	go build -o build/loadtest ./loadtest/
 

@@ -3,6 +3,7 @@
 # Input parameters
 NODE_ID=${ID:-0}
 NUM_ACCOUNTS=${NUM_ACCOUNTS:-5}
+KEYRING_BACKEND="file"
 echo "Configure and initialize environment"
 
 cp build/seid "$GOBIN"/
@@ -20,7 +21,7 @@ seid version # Uncomment the below line if there are any dependency issues
 # Initialize validator node
 MONIKER="sei-node-$NODE_ID"
 
-seid init "$MONIKER" --chain-id sei >/dev/null 2>&1
+seid init "$MONIKER" --chain-id aesc >/dev/null 2>&1
 
 # Copy configs
 ORACLE_CONFIG_FILE="build/generated/node_$NODE_ID/price_feeder_config.toml"
@@ -30,6 +31,8 @@ cp docker/localnode/config/app.toml "$APP_CONFIG_FILE"
 cp docker/localnode/config/config.toml "$TENDERMINT_CONFIG_FILE"
 cp docker/localnode/config/price_feeder_config.toml "$ORACLE_CONFIG_FILE"
 
+# Ensure RPC binds to all interfaces (0.0.0.0) for Docker port mapping
+sed -i 's|laddr = "tcp://127.0.0.1:26657"|laddr = "tcp://0.0.0.0:26657"|g' "$TENDERMINT_CONFIG_FILE"
 
 # Set up persistent peers
 SEI_NODE_ID=$(seid tendermint show-node-id)
@@ -39,18 +42,18 @@ echo "$SEI_NODE_ID@$NODE_IP:26656" >> build/generated/persistent_peers.txt
 # Create a new account
 ACCOUNT_NAME="node_admin"
 echo "Adding account $ACCOUNT_NAME"
-printf "12345678\n12345678\ny\n" | seid keys add "$ACCOUNT_NAME" >/dev/null 2>&1
+printf "12345678\n12345678\ny\n" | seid keys add "$ACCOUNT_NAME" --keyring-backend "$KEYRING_BACKEND" >/dev/null 2>&1
 
 # Get genesis account info
-GENESIS_ACCOUNT_ADDRESS=$(printf "12345678\n" | seid keys show "$ACCOUNT_NAME" -a)
+GENESIS_ACCOUNT_ADDRESS=$(printf "12345678\n" | seid keys show "$ACCOUNT_NAME" -a --keyring-backend "$KEYRING_BACKEND")
 echo "$GENESIS_ACCOUNT_ADDRESS" >> build/generated/genesis_accounts.txt
 
 # Add funds to genesis account
 seid add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 10000000uaex,10000000uusdc,10000000uatom
 
 # Create gentx
-printf "12345678\n" | seid gentx "$ACCOUNT_NAME" 10000000uaex --chain-id sei
-cp ~/.sei/config/gentx/* build/generated/gentx/
+printf "12345678\n" | seid gentx "$ACCOUNT_NAME" 10000000uaex --chain-id aesc --keyring-backend "$KEYRING_BACKEND"
+cp ~/.aesc/config/gentx/* build/generated/gentx/
 
 # Creating some testing accounts
 echo "Creating $NUM_ACCOUNTS accounts"
@@ -58,8 +61,8 @@ python3 loadtest/scripts/populate_genesis_accounts.py "$NUM_ACCOUNTS" loc >/dev/
 echo "Finished $NUM_ACCOUNTS accounts creation"
 
 # Set node seivaloper info
-SEIVALOPER_INFO=$(printf "12345678\n" | seid keys show "$ACCOUNT_NAME" --bech=val -a)
-PRIV_KEY=$(printf "12345678\n12345678\n" | seid keys export "$ACCOUNT_NAME")
+SEIVALOPER_INFO=$(printf "12345678\n" | seid keys show "$ACCOUNT_NAME" --bech=val -a --keyring-backend "$KEYRING_BACKEND")
+PRIV_KEY=$(printf "12345678\n12345678\n" | seid keys export "$ACCOUNT_NAME" --keyring-backend "$KEYRING_BACKEND")
 echo "$PRIV_KEY" >> build/generated/exported_keys/"$SEIVALOPER_INFO".txt
 
 # Update price_feeder_config.toml with address info

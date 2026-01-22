@@ -3,27 +3,19 @@ services:
     platform: linux/amd64
     container_name: sei-node-0
     image: "sei-chain/localnode"
-    user: "${USERID}:${GROUPID}"
     ports:
       - "26656-26658:26656-26658"
       - "9090-9091:9090-9091"
       - "8545-8546:8545-8546"
+      - "1317:1317"
     environment:
       - ID=0
       - CLUSTER_SIZE=4
-      - NUM_ACCOUNTS
-      - SKIP_BUILD
-      - INVARIANT_CHECK_INTERVAL
-      - UPGRADE_VERSION_LIST
-      - MOCK_BALANCES
+      - NUM_ACCOUNTS=${NUM_ACCOUNTS:-10}
+      - SKIP_BUILD=${SKIP_BUILD:-false}
     volumes:
-      - "${PROJECT_HOME}:/sei-protocol/sei-chain:Z"
-      - "${PROJECT_HOME}/../sei-tendermint:/sei-protocol/sei-tendermint:Z"
-      - "${PROJECT_HOME}/../sei-cosmos:/sei-protocol/sei-cosmos:Z"
-      - "${PROJECT_HOME}/../sei-db:/sei-protocol/sei-db:Z"
-      - "${PROJECT_HOME}/../go-ethereum:/sei-protocol/go-ethereum:Z"
-      - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
-      - "${GOCACHE}:/root/.cache/go-build:Z"
+      - ../:/sei-protocol/sei-chain:Z
+      - aesc-data-0:/root/.aesc
     networks:
       localnet:
         ipv4_address: 192.168.10.10
@@ -32,25 +24,17 @@ services:
     platform: linux/amd64
     container_name: sei-node-1
     image: "sei-chain/localnode"
-    user: "${USERID}:${GROUPID}"
     ports:
       - "26659-26661:26656-26658"
       - "9092-9093:9090-9091"
     environment:
       - ID=1
       - CLUSTER_SIZE=4
-      - NUM_ACCOUNTS
-      - SKIP_BUILD
-      - INVARIANT_CHECK_INTERVAL
-      - UPGRADE_VERSION_LIST
+      - NUM_ACCOUNTS=${NUM_ACCOUNTS:-10}
+      - SKIP_BUILD=${SKIP_BUILD:-false}
     volumes:
-      - "${PROJECT_HOME}:/sei-protocol/sei-chain:Z"
-      - "${PROJECT_HOME}/../sei-tendermint:/sei-protocol/sei-tendermint:Z"
-      - "${PROJECT_HOME}/../sei-cosmos:/sei-protocol/sei-cosmos:Z"
-      - "${PROJECT_HOME}/../sei-db:/sei-protocol/sei-db:Z"
-      - "${PROJECT_HOME}/../go-ethereum:/sei-protocol/go-ethereum:Z"
-      - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
-      - "${GOCACHE}:/root/.cache/go-build:Z"
+      - ../:/sei-protocol/sei-chain:Z
+      - aesc-data-1:/root/.aesc
     networks:
       localnet:
         ipv4_address: 192.168.10.11
@@ -59,25 +43,17 @@ services:
     platform: linux/amd64
     container_name: sei-node-2
     image: "sei-chain/localnode"
-    user: "${USERID}:${GROUPID}"
-    environment:
-      - ID=2
-      - CLUSTER_SIZE=4
-      - NUM_ACCOUNTS
-      - SKIP_BUILD
-      - INVARIANT_CHECK_INTERVAL
-      - UPGRADE_VERSION_LIST
     ports:
       - "26662-26664:26656-26658"
       - "9094-9095:9090-9091"
+    environment:
+      - ID=2
+      - CLUSTER_SIZE=4
+      - NUM_ACCOUNTS=${NUM_ACCOUNTS:-10}
+      - SKIP_BUILD=${SKIP_BUILD:-false}
     volumes:
-      - "${PROJECT_HOME}:/sei-protocol/sei-chain:Z"
-      - "${PROJECT_HOME}/../sei-tendermint:/sei-protocol/sei-tendermint:Z"
-      - "${PROJECT_HOME}/../sei-cosmos:/sei-protocol/sei-cosmos:Z"
-      - "${PROJECT_HOME}/../sei-db:/sei-protocol/sei-db:Z"
-      - "${PROJECT_HOME}/../go-ethereum:/sei-protocol/go-ethereum:Z"
-      - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
-      - "${GOCACHE}:/root/.cache/go-build:Z"
+      - ../:/sei-protocol/sei-chain:Z
+      - aesc-data-2:/root/.aesc
     networks:
       localnet:
         ipv4_address: 192.168.10.12
@@ -86,28 +62,26 @@ services:
     platform: linux/amd64
     container_name: sei-node-3
     image: "sei-chain/localnode"
-    user: "${USERID}:${GROUPID}"
-    environment:
-      - ID=3
-      - CLUSTER_SIZE=4
-      - NUM_ACCOUNTS
-      - SKIP_BUILD
-      - INVARIANT_CHECK_INTERVAL
-      - UPGRADE_VERSION_LIST
     ports:
       - "26665-26667:26656-26658"
       - "9096-9097:9090-9091"
+    environment:
+      - ID=3
+      - CLUSTER_SIZE=4
+      - NUM_ACCOUNTS=${NUM_ACCOUNTS:-10}
+      - SKIP_BUILD=${SKIP_BUILD:-false}
     volumes:
-      - "${PROJECT_HOME}:/sei-protocol/sei-chain:Z"
-      - "${PROJECT_HOME}/../sei-tendermint:/sei-protocol/sei-tendermint:Z"
-      - "${PROJECT_HOME}/../sei-cosmos:/sei-protocol/sei-cosmos:Z"
-      - "${PROJECT_HOME}/../sei-db:/sei-protocol/sei-db:Z"
-      - "${PROJECT_HOME}/../go-ethereum:/sei-protocol/go-ethereum:Z"
-      - "${GO_PKG_PATH}/mod:/root/go/pkg/mod:Z"
-      - "${GOCACHE}:/root/.cache/go-build:Z"
+      - ../:/sei-protocol/sei-chain:Z
+      - aesc-data-3:/root/.aesc
     networks:
       localnet:
         ipv4_address: 192.168.10.13
+
+volumes:
+  aesc-data-0:
+  aesc-data-1:
+  aesc-data-2:
+  aesc-data-3:
 
 networks:
   localnet:
