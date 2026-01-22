@@ -1,13 +1,13 @@
 # AEX Gas Token 规格
 
-> 归档自变更：`aex-gas-token`, `review-aex-gas-token` (2026-01-19)
+> 归档自变更：`aex-gas-token`, `review-aex-gas-token` (2026-01-19), `aex-staex-token-split` (2026-01-21)
 
 ## Requirements
 
-### Requirement: Gas 代币基础配置
-系统必须（SHALL）使用 AEX 作为链的原生 Gas 代币。
+### Requirement: 双代币架构
+系统必须（SHALL）实现 AEX 和 STAEX 双代币架构，分离 Gas 和质押功能。
 
-#### Scenario: 代币参数配置
+#### Scenario: AEX Gas 代币配置
 - **GIVEN** 系统已初始化
 - **WHEN** 查询 Gas 代币配置
 - **THEN** 代币名称应为 "AEX"
@@ -15,19 +15,35 @@
 - **AND** 精度应为 6 (1 AEX = 10^6 uaex)
 - **AND** 初始发行量应为 500,000,000 AEX
 
-#### Scenario: Gas 代币用途限定
+#### Scenario: AEX 代币用途限定
 - **GIVEN** AEX 代币
 - **WHEN** 检查代币用途
 - **THEN** 仅用于交易手续费（Gas）
-- **AND** 不参与节点/质押/裂变激励
+- **AND** 不参与质押、治理或验证者激励
+
+#### Scenario: STAEX 质押代币配置
+- **GIVEN** 系统已初始化
+- **WHEN** 查询质押代币配置
+- **THEN** 代币名称应为 "STAEX"
+- **AND** 最小单位应为 `ustaex`
+- **AND** 精度应为 6 (1 STAEX = 10^6 ustaex)
+- **AND** 链的 `bond_denom` 应设置为 `ustaex`
+
+#### Scenario: STAEX 代币用途限定
+- **GIVEN** STAEX 代币
+- **WHEN** 检查代币用途
+- **THEN** 用于验证者质押（staking）
+- **AND** 用于治理投票
+- **AND** 验证者激励以 STAEX 发放
 
 ### Requirement: 通胀机制
-系统必须（SHALL）实现可控的通胀机制，年通胀上限为 3%。
+系统必须（SHALL）实现可控的通胀机制，年通胀上限为 3%（硬约束）。
 
 #### Scenario: 年通胀上限约束
 - **GIVEN** 当前年度已通胀量
 - **WHEN** 计算本次通胀量
 - **THEN** 累计年通胀不得超过初始供给的 3%
+- **AND** 此为硬约束，不可通过治理修改
 
 #### Scenario: 通胀触发条件
 - **GIVEN** 一个 epoch 周期结束
@@ -36,23 +52,25 @@
 - **AND** 铸造量基于使用率动态计算
 
 ### Requirement: 净供给硬约束
-系统必须（SHALL）确保任意连续 12 个月的净增发不超过初始供给的 5%。
+系统必须（SHALL）确保任意连续 12 个月的净增发不超过初始供给的 5%（硬约束）。
 
 #### Scenario: 12个月滚动窗口约束
 - **GIVEN** 过去 12 个月的通胀和销毁数据
 - **WHEN** 计算净供给变化
 - **THEN** 净增发量不得超过初始供给的 5%
 - **AND** 如超出限制，阻止进一步通胀
+- **AND** 此为硬约束，不可通过治理修改
 
 ### Requirement: 手续费销毁机制
-系统必须（SHALL）销毁部分交易手续费，销毁比例在 30%-60% 之间动态调节。
+系统必须（SHALL）销毁部分交易手续费，销毁比例在 30%-60% 之间动态调节（硬约束边界）。
 
-#### Scenario: 动态销毁比例计算
+#### Scenario: 动态销毁比例计算（保护验证者收益）
 - **GIVEN** 当前 Gas 使用率
 - **WHEN** 计算销毁比例
-- **THEN** 使用率低时销毁比例接近 30%
-- **AND** 使用率正常时销毁比例约 50%
-- **AND** 使用率高时销毁比例接近 60%
+- **THEN** 使用率低时销毁比例接近 60%（低活跃期多销毁）
+- **AND** 使用率正常时销毁比例约 45%
+- **AND** 使用率高时销毁比例接近 30%（高活跃期少销毁，保留更多给验证者）
+- **AND** 销毁比例边界 30%-60% 为硬约束
 
 #### Scenario: 销毁执行
 - **GIVEN** 一笔交易支付手续费
@@ -81,14 +99,26 @@
 - **THEN** 恢复使用基于 Gas 使用率的动态计算逻辑
 
 ### Requirement: 真实 Gas 使用率计算
-系统必须（MUST）基于真实的链上 Gas 使用数据计算使用率。
+系统必须（MUST）基于真实的链上 Gas 使用数据计算使用率，使用 EpochGasData 结构跟踪。
 
-#### Scenario: 基于实际区块 Gas 计算使用率
+#### Scenario: 基于 Epoch Gas 统计计算使用率
 - **GIVEN** 一个 epoch 周期结束
 - **WHEN** 计算该周期的 Gas 使用率
-- **THEN** 使用该周期内所有区块的累计 Gas 消耗
-- **AND** 除以该周期内所有区块的累计 Gas 上限
+- **THEN** 从 EpochGasData 获取累计 gas_used 和 gas_limit
+- **AND** 使用率 = gas_used / gas_limit
 - **AND** 返回介于 0 和 1 之间的使用率
+
+#### Scenario: EndBlocker 更新 Gas 统计
+- **GIVEN** 每个区块结束时
+- **WHEN** EndBlocker 被调用
+- **THEN** 累加当前区块的 gas_used 到 EpochGasData
+- **AND** 累加当前区块的 gas_limit 到 EpochGasData
+
+#### Scenario: Epoch 结束时重置统计
+- **GIVEN** 当前 epoch 周期结束
+- **WHEN** 开始新的 epoch
+- **THEN** 重置 EpochGasData 的 gas_used 和 gas_limit 为 0
+- **AND** 保存上一周期的使用率用于计算
 
 ### Requirement: 验证者收入平滑机制
 系统应（SHOULD）提供可选的验证者收入平滑机制，默认关闭。
