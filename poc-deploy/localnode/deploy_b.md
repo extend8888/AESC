@@ -4,6 +4,18 @@
 
 **方案 B** 采用"单节点启动 + 动态加入验证者"的方式部署多节点测试网络。
 
+## 代币说明
+
+本链使用双代币模型：
+
+| 代币 | Denom | 用途 |
+|------|-------|------|
+| **AEX** | `uaex` | Gas 代币，用于交易手续费 |
+| **STAEX** | `ustaex` | 质押代币，用于质押/治理/投票 |
+
+- **1 AEX = 1,000,000 uaex**
+- **1 STAEX = 1,000,000 ustaex**
+
 ### 核心思路
 
 1. **启动单节点**：使用 `deploy.sh` 脚本启动 1 个 genesis 验证者
@@ -113,12 +125,13 @@ echo $! > build/generated/seid.pid
 # 创建账户
 printf "12345678\n" | seid keys add validator1
 
-# 在 validator0 上转账
+# 在 validator0 上转账 AEX (Gas 代币) 和 STAEX (质押代币)
 seid tx bank send admin <validator1_address> 100000000uaex --chain-id aesc-poc --fees 2000uaex -y
+seid tx bank send admin <validator1_address> 100000000ustaex --chain-id aesc-poc --fees 2000uaex -y
 
-# 创建验证者
+# 创建验证者（使用 STAEX 质押）
 printf "12345678\n" | seid tx staking create-validator \
-  --amount=10000000uaex \
+  --amount=10000000ustaex \
   --pubkey=$(seid tendermint show-validator) \
   --moniker="validator1" \
   --chain-id="aesc-poc" \
@@ -372,9 +385,11 @@ seid tendermint show-validator
 在 **validator0** 上执行：
 
 ```bash
-# 给每个验证者账户转账（用于质押）
+# 给每个验证者账户转账（用于 Gas 和质押）
 # 注意：使用 admin 账户转账，CHAIN_ID 是 aesc-poc
+# AEX (uaex) 用于交易手续费，STAEX (ustaex) 用于质押
 
+# 转账 AEX (Gas 代币)
 seid tx bank send admin <validator1_address> 100000000uaex \
   --chain-id aesc-poc \
   --fees 2000uaex \
@@ -386,6 +401,22 @@ seid tx bank send admin <validator2_address> 100000000uaex \
   -y
 
 seid tx bank send admin <validator3_address> 100000000uaex \
+  --chain-id aesc-poc \
+  --fees 2000uaex \
+  -y
+
+# 转账 STAEX (质押代币)
+seid tx bank send admin <validator1_address> 100000000ustaex \
+  --chain-id aesc-poc \
+  --fees 2000uaex \
+  -y
+
+seid tx bank send admin <validator2_address> 100000000ustaex \
+  --chain-id aesc-poc \
+  --fees 2000uaex \
+  -y
+
+seid tx bank send admin <validator3_address> 100000000ustaex \
   --chain-id aesc-poc \
   --fees 2000uaex \
   -y
@@ -411,9 +442,9 @@ seid query bank balances <validator_address>
 # 设置验证者名称（每个节点不同）
 VALIDATOR_NAME="validator1"  # validator1, validator2, validator3
 
-# 创建验证者
+# 创建验证者（使用 STAEX 质押，AEX 支付手续费）
 printf "12345678\n" | seid tx staking create-validator \
-  --amount=10000000uaex \
+  --amount=10000000ustaex \
   --pubkey=$(seid tendermint show-validator) \
   --moniker="$VALIDATOR_NAME" \
   --chain-id="aesc-poc" \
@@ -490,8 +521,14 @@ curl http://localhost:26657/validators | jq '.result.validators[] | {address, vo
 # 创建测试账户
 printf "12345678\n" | seid keys add test_user
 
-# 转账测试（使用 admin 账户）
+# 转账 AEX 测试（Gas 代币）
 seid tx bank send admin $(seid keys show test_user -a) 1000000uaex \
+  --chain-id aesc-poc \
+  --fees 2000uaex \
+  -y
+
+# 转账 STAEX 测试（质押代币）
+seid tx bank send admin $(seid keys show test_user -a) 1000000ustaex \
   --chain-id aesc-poc \
   --fees 2000uaex \
   -y
@@ -605,8 +642,8 @@ echo $! > build/generated/seid.pid
 ### 删除验证者
 
 ```bash
-# 解绑验证者（需要等待 21 天）
-seid tx staking unbond $(seid keys show "$VALIDATOR_NAME" --bech val -a) 10000000uaex \
+# 解绑验证者（需要等待 21 天，使用 STAEX）
+seid tx staking unbond $(seid keys show "$VALIDATOR_NAME" --bech val -a) 10000000ustaex \
   --from="$VALIDATOR_NAME" \
   --chain-id aesc-poc \
   --fees 2000uaex \
@@ -667,8 +704,10 @@ seid query staking validator <validator_address>
 | MONIKER | aesc-node-poc | validator0 的节点名称 |
 | P2P 端口 | 26656 | 节点间通信端口 |
 | RPC 端口 | 26657 | RPC 服务端口 |
-| Genesis 验证者质押 | 100 UAEX | validator0 的初始质押 |
-| 动态验证者质押 | 10 UAEX | validator1-3 的质押 |
+| Genesis 验证者质押 | 100 STAEX | validator0 的初始质押（ustaex）|
+| 动态验证者质押 | 10 STAEX | validator1-3 的质押（ustaex）|
+| Gas 代币 | uaex | 用于交易手续费 |
+| 质押代币 | ustaex | 用于质押/治理/投票 |
 
 ### 脚本位置
 
@@ -701,10 +740,10 @@ export MONIKER="validator0"
 
 ### Q4: 如何增加验证者的质押金额？
 
-**A**: 使用 `delegate` 命令：
+**A**: 使用 `delegate` 命令（使用 STAEX 质押代币）：
 
 ```bash
-seid tx staking delegate <validator_address> 10000000uaex \
+seid tx staking delegate <validator_address> 10000000ustaex \
   --from=<account_name> \
   --chain-id aesc-poc \
   --fees 2000uaex \

@@ -2,6 +2,18 @@
 
 这是一个简化的单节点验证人部署方案，基于 `docker/localnode` 但移除了 Docker 和多节点支持。
 
+## 代币说明
+
+本链使用双代币模型：
+
+| 代币 | Denom | 用途 |
+|------|-------|------|
+| **AEX** | `uaex` | Gas 代币，用于交易手续费 |
+| **STAEX** | `ustaex` | 质押代币，用于质押/治理/投票 |
+
+- **1 AEX = 1,000,000 uaex**
+- **1 STAEX = 1,000,000 ustaex**
+
 ## 目录结构
 
 ```
@@ -45,8 +57,8 @@ chmod +x poc-deploy/localnode/scripts/*.sh
 - **Step 0**: 构建 seid 二进制文件
 - **Step 1**: 初始化节点和创建验证人账户
   - 初始化链配置（chain-id: aesc-poc）
-  - 创建 validator 账户（余额: 10 UAEX）
-  - 生成 gentx（质押: 10 UAEX，voting power: 10）
+  - 创建 validator 账户（余额: 10 AEX + 10 STAEX）
+  - 生成 gentx（质押: 10 STAEX，voting power: 10）
 - **Step 2**: 准备 genesis 文件
   - 配置 genesis 参数（staking、oracle、gov 等）
   - 添加账户到 genesis
@@ -101,8 +113,9 @@ tail -f build/generated/logs/seid.log
 |------|--------|------|
 | **Chain ID** | `aesc-poc` | 链标识符 |
 | **Moniker** | `aesc-node-poc` | 节点名称 |
-| **初始余额** | `10000000uaex` | 10 UAEX（与 docker/localnode 一致）|
-| **质押金额** | `10000000uaex` | 10 UAEX |
+| **初始 AEX 余额** | `10000000uaex` | 10 AEX（Gas 代币，用于手续费）|
+| **初始 STAEX 余额** | `10000000ustaex` | 10 STAEX（质押代币）|
+| **质押金额** | `10000000ustaex` | 10 STAEX |
 | **Voting Power** | `10` | delegation / 1,000,000 |
 | **测试账户** | `5` | 自动创建的测试账户数量 |
 
@@ -133,17 +146,17 @@ export MOCK_BALANCES=true
 
 1. **validator** - 验证人账户
    - 密码: `12345678`
-   - 初始余额: `10000000uaex` (10 UAEX) + `10000000uusdc` + `10000000uatom`
-   - 质押金额: `10000000uaex` (10 UAEX)
+   - 初始余额: `10000000uaex` (10 AEX) + `10000000ustaex` (10 STAEX) + `10000000uusdc` + `10000000uatom`
+   - 质押金额: `10000000ustaex` (10 STAEX)
    - Voting Power: `10`
 
 2. **admin** - 管理员账户
    - 密码: `12345678`
-   - 初始余额: `1000000000000000000000uaex` + `1000000000000000000000uusdc` + `1000000000000000000000uatom`
+   - 初始余额: `1000000000000000000000uaex` (AEX) + `1000000000000000000000ustaex` (STAEX) + uusdc + uatom
 
 3. **测试账户** - 由 `populate_genesis_accounts.py` 创建
    - 数量: 由 `NUM_ACCOUNTS` 环境变量控制（默认 5 个）
-   - 每个账户余额: `1000000000000000000000uaex` + uusdc + uatom
+   - 每个账户余额: `1000000000000000000000uaex` (AEX) + `1000000000000000000000ustaex` (STAEX) + uusdc + uatom
 
 ## 查看账户
 
@@ -165,8 +178,11 @@ seid query bank balances $(seid keys show validator -a)
 # 查询验证人信息
 seid query staking validators
 
-# 发送交易
+# 发送 AEX 交易（Gas 代币）
 seid tx bank send validator <recipient-address> 1000uaex --chain-id aesc-poc --fees 1000uaex
+
+# 发送 STAEX 交易（质押代币）
+seid tx bank send validator <recipient-address> 1000ustaex --chain-id aesc-poc --fees 1000uaex
 ```
 
 ## 生成的文件
@@ -255,8 +271,9 @@ POWER=$(echo "$DELEGATION / 1000000" | bc)  # 结果: 100000000000000000 (正确
 **问题**: 初始使用过大的质押金额导致 power 值溢出。
 
 **修复**: 改为与 `docker/localnode` 一致的配置：
-- 初始余额: `10000000uaex` (10 UAEX)
-- 质押金额: `10000000uaex` (10 UAEX)
+- 初始 AEX 余额: `10000000uaex` (10 AEX) - 用于 Gas 手续费
+- 初始 STAEX 余额: `10000000ustaex` (10 STAEX) - 用于质押
+- 质押金额: `10000000ustaex` (10 STAEX)
 - Voting Power: `10`
 
 ## 与 docker/localnode 的区别

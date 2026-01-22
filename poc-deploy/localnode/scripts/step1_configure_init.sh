@@ -40,7 +40,9 @@ GENESIS_ACCOUNT_ADDRESS=$(printf "${KEYRING_PASSWORD}\n" | seid keys show "$ACCO
 echo "Validator address: $GENESIS_ACCOUNT_ADDRESS"
 
 # Add funds to genesis account (大额余额用于测试)
-seid add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom
+# uaex: Gas 代币, ustaex: 质押代币
+# Note: This is required before gentx. step2_genesis.sh should NOT add validator account again.
+seid add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" 1000000000000000000000uaex,1000000000000000000000ustaex,1000000000000000000000uusdc,1000000000000000000000uatom
 
 # Create admin accounts for batch testing (keys only, balances added in step2)
 echo "Creating admin account keys for batch testing..."
@@ -55,9 +57,9 @@ for i in {1..10}; do
 done
 echo "Admin account keys created successfully"
 
-# Create gentx (质押 100 UAEX，power 将是 100)
+# Create gentx (质押 100 USTAEX，power 将是 100)
 echo "Creating genesis transaction..."
-if ! printf "${KEYRING_PASSWORD}\n" | seid gentx "$ACCOUNT_NAME" 100000000uaex --chain-id "$CHAIN_ID" --keyring-backend "$KEYRING_BACKEND"; then
+if ! printf "${KEYRING_PASSWORD}\n" | seid gentx "$ACCOUNT_NAME" 100000000ustaex --chain-id "$CHAIN_ID" --keyring-backend "$KEYRING_BACKEND"; then
     echo "ERROR: Failed to create gentx"
     exit 1
 fi

@@ -40,8 +40,9 @@ echo "Validator address: $GENESIS_ACCOUNT_ADDRESS"
 
 # 压力测试配置: 少量初始代币
 # 1000 AEX = 1,000,000,000 uaex (用于快速观察变化)
-INITIAL_BALANCE="1000000000uaex,1000000000uusdc"
-echo "Initial balance: $INITIAL_BALANCE (1000 AEX)"
+# uaex: Gas 代币, ustaex: 质押代币
+INITIAL_BALANCE="1000000000uaex,1000000000ustaex,1000000000uusdc"
+echo "Initial balance: $INITIAL_BALANCE (1000 AEX + 1000 STAEX)"
 
 seid add-genesis-account "$GENESIS_ACCOUNT_ADDRESS" "$INITIAL_BALANCE"
 
@@ -54,9 +55,9 @@ for i in {1..3}; do
     echo "  $ADMIN_NAME: $ADMIN_ADDRESS"
 done
 
-# Create gentx (质押 10 AEX)
+# Create gentx (质押 10 STAEX)
 echo "Creating genesis transaction..."
-printf "12345678\n" | seid gentx "$ACCOUNT_NAME" 10000000uaex --chain-id "$CHAIN_ID"
+printf "12345678\n" | seid gentx "$ACCOUNT_NAME" 10000000ustaex --chain-id "$CHAIN_ID"
 
 # Copy gentx
 cp ~/.aesc/config/gentx/* build/generated/gentx/

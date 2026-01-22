@@ -42,13 +42,14 @@ VALIDATOR_ADDRESS=$(printf "12345678\n" | seid keys show "$VALIDATOR_NAME" -a)
 echo "Validator address: $VALIDATOR_ADDRESS"
 
 # Add funds to genesis account
+# uaex: Gas 代币, ustaex: 质押代币
 echo "Adding funds to validator account..."
-seid add-genesis-account "$VALIDATOR_ADDRESS" 10000000uaex,10000000uusdc,10000000uatom
+seid add-genesis-account "$VALIDATOR_ADDRESS" 10000000uaex,10000000ustaex,10000000uusdc,10000000uatom
 
-# Create gentx
+# Create gentx (使用 ustaex 质押代币)
 echo ""
 echo "Creating genesis transaction..."
-if ! printf "12345678\n" | seid gentx "$VALIDATOR_NAME" 10000000uaex --chain-id "$CHAIN_ID"; then
+if ! printf "12345678\n" | seid gentx "$VALIDATOR_NAME" 10000000ustaex --chain-id "$CHAIN_ID"; then
     echo "ERROR: Failed to create gentx"
     exit 1
 fi

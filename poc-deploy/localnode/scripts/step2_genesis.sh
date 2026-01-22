@@ -25,7 +25,7 @@ echo "Configuring genesis parameters..."
 # Basic parameters
 override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="uaex"'
 override_genesis '.app_state["mint"]["params"]["mint_denom"]="uaex"'
-override_genesis '.app_state["staking"]["params"]["bond_denom"]="uaex"'
+override_genesis '.app_state["staking"]["params"]["bond_denom"]="ustaex"'
 override_genesis '.app_state["oracle"]["params"]["vote_period"]="2"'
 # Disable Oracle slashing to prevent validator from being jailed without price feeder
 override_genesis '.app_state["oracle"]["params"]["min_valid_per_window"]="0"'
@@ -47,9 +47,9 @@ override_genesis '.app_state["bank"]["balances"]=[]'
 override_genesis '.app_state["genutil"]["gen_txs"]=[]'
 override_genesis '.app_state["bank"]["denom_metadata"]=[{"denom_units":[{"denom":"UATOM","exponent":6,"aliases":["UATOM"]}],"base":"uatom","display":"uatom","name":"UATOM","symbol":"UATOM"}]'
 
-# Gov parameters
-override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="uaex"'
-override_genesis '.app_state["gov"]["deposit_params"]["min_expedited_deposit"][0]["denom"]="uaex"'
+# Gov parameters (使用质押代币 ustaex)
+override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="ustaex"'
+override_genesis '.app_state["gov"]["deposit_params"]["min_expedited_deposit"][0]["denom"]="ustaex"'
 override_genesis '.app_state["gov"]["deposit_params"]["max_deposit_period"]="100s"'
 override_genesis '.app_state["gov"]["voting_params"]["voting_period"]="30s"'
 override_genesis '.app_state["gov"]["voting_params"]["expedited_voting_period"]="15s"'
@@ -63,13 +63,16 @@ echo "Adding genesis accounts..."
 # USDT amount for testing (1 billion USDT = 1e15 with 6 decimals)
 USDT_AMOUNT="1000000000000000usdt"
 
-# Add validator account (大额余额用于测试)
+# STAEX amount for staking (同等数量的质押代币)
+STAEX_AMOUNT="1000000000000000000000ustaex"
+
+# Re-add validator account (step1 added it before gentx, but we cleared balances above)
 VALIDATOR_ADDRESS=$(printf "${KEYRING_PASSWORD}\n" | seid keys show validator -a --keyring-backend "$KEYRING_BACKEND")
-seid add-genesis-account "$VALIDATOR_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
+seid add-genesis-account "$VALIDATOR_ADDRESS" 1000000000000000000000uaex,$STAEX_AMOUNT,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
 
 # Add admin account
 ADMIN_ADDRESS=$(printf "${KEYRING_PASSWORD}\n" | seid keys show admin -a --keyring-backend "$KEYRING_BACKEND")
-seid add-genesis-account "$ADMIN_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
+seid add-genesis-account "$ADMIN_ADDRESS" 1000000000000000000000uaex,$STAEX_AMOUNT,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
 
 # Add admin1-admin10 accounts for batch testing
 echo "Adding admin1-admin10 accounts to genesis..."
@@ -78,7 +81,7 @@ for i in {1..10}; do
     ADMIN_ADDRESS=$(printf "${KEYRING_PASSWORD}\n" | seid keys show "$ADMIN_NAME" -a --keyring-backend "$KEYRING_BACKEND" 2>/dev/null)
     if [ -n "$ADMIN_ADDRESS" ]; then
         echo "Adding $ADMIN_NAME: $ADMIN_ADDRESS"
-        seid add-genesis-account "$ADMIN_ADDRESS" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
+        seid add-genesis-account "$ADMIN_ADDRESS" 1000000000000000000000uaex,$STAEX_AMOUNT,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
     else
         echo "Warning: $ADMIN_NAME key not found, skipping"
     fi
@@ -89,7 +92,7 @@ echo "Admin accounts added to genesis"
 if [ -f build/generated/genesis_accounts.txt ]; then
     while read account; do
       echo "Adding: $account"
-      seid add-genesis-account "$account" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
+      seid add-genesis-account "$account" 1000000000000000000000uaex,$STAEX_AMOUNT,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
     done <build/generated/genesis_accounts.txt
 fi
 
@@ -100,7 +103,7 @@ fi
 # Sei address: aesc17w0adeg64ky0daxwd2ugyuneellmjgnxn7tzgf
 echo "Adding x402 E2E test accounts..."
 X402_USER_ACCOUNT="aesc17w0adeg64ky0daxwd2ugyuneellmjgnxn7tzgf"
-seid add-genesis-account "$X402_USER_ACCOUNT" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
+seid add-genesis-account "$X402_USER_ACCOUNT" 1000000000000000000000uaex,$STAEX_AMOUNT,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
 echo "Added x402 user account: $X402_USER_ACCOUNT"
 
 # Relayer account (Hardhat #1): receives USDT payments and broadcasts transactions
@@ -108,7 +111,7 @@ echo "Added x402 user account: $X402_USER_ACCOUNT"
 # EVM address: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 # Sei address: aesc1wzvhjux9rqfdcwspp37srdgwp5tac7wgm40au0
 X402_RELAYER_ACCOUNT="aesc1wzvhjux9rqfdcwspp37srdgwp5tac7wgm40au0"
-seid add-genesis-account "$X402_RELAYER_ACCOUNT" 1000000000000000000000uaex,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
+seid add-genesis-account "$X402_RELAYER_ACCOUNT" 1000000000000000000000uaex,$STAEX_AMOUNT,1000000000000000000000uusdc,1000000000000000000000uatom,$USDT_AMOUNT
 echo "Added x402 relayer account: $X402_RELAYER_ACCOUNT"
 
 # Copy gentx files

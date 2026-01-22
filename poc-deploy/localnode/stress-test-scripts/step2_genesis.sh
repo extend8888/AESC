@@ -18,7 +18,7 @@ override_genesis() {
 # Basic parameters
 override_genesis '.app_state["crisis"]["constant_fee"]["denom"]="uaex"'
 override_genesis '.app_state["mint"]["params"]["mint_denom"]="uaex"'
-override_genesis '.app_state["staking"]["params"]["bond_denom"]="uaex"'
+override_genesis '.app_state["staking"]["params"]["bond_denom"]="ustaex"'
 override_genesis '.app_state["oracle"]["params"]["vote_period"]="2"'
 override_genesis '.app_state["oracle"]["params"]["min_valid_per_window"]="0"'
 override_genesis '.app_state["staking"]["params"]["unbonding_time"]="10s"'
@@ -34,8 +34,8 @@ override_genesis '.app_state["auth"]["accounts"]=[]'
 override_genesis '.app_state["bank"]["balances"]=[]'
 override_genesis '.app_state["genutil"]["gen_txs"]=[]'
 
-# Gov (快速投票)
-override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="uaex"'
+# Gov (快速投票，使用质押代币 ustaex)
+override_genesis '.app_state["gov"]["deposit_params"]["min_deposit"][0]["denom"]="ustaex"'
 override_genesis '.app_state["gov"]["deposit_params"]["max_deposit_period"]="30s"'
 override_genesis '.app_state["gov"]["voting_params"]["voting_period"]="15s"'
 
@@ -71,23 +71,24 @@ override_genesis '.app_state["aexburn"]["params"]["reverse_brake_trigger_count"]
 
 echo "Adding genesis accounts..."
 
-# Add accounts with small balances (总共约 1000 AEX)
+# Add accounts with small balances (总共约 1000 AEX + 1000 STAEX)
+# uaex: Gas 代币, ustaex: 质押代币
 VALIDATOR_ADDRESS=$(printf "12345678\n" | seid keys show validator -a)
-seid add-genesis-account "$VALIDATOR_ADDRESS" 500000000uaex,100000000uusdc
+seid add-genesis-account "$VALIDATOR_ADDRESS" 500000000uaex,500000000ustaex,100000000uusdc
 
 # Add stress test accounts
 for i in {1..3}; do
     STRESS_ADDRESS=$(printf "12345678\n" | seid keys show "stress$i" -a 2>/dev/null) || true
     if [ -n "$STRESS_ADDRESS" ]; then
         echo "Adding stress$i: $STRESS_ADDRESS"
-        seid add-genesis-account "$STRESS_ADDRESS" 100000000uaex,100000000uusdc
+        seid add-genesis-account "$STRESS_ADDRESS" 100000000uaex,100000000ustaex,100000000uusdc
     fi
 done
 
 # Add testing accounts
 if [ -f build/generated/genesis_accounts.txt ]; then
     while read account; do
-      seid add-genesis-account "$account" 50000000uaex,50000000uusdc
+      seid add-genesis-account "$account" 50000000uaex,50000000ustaex,50000000uusdc
     done <build/generated/genesis_accounts.txt
 fi
 

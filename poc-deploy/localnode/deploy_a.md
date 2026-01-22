@@ -4,6 +4,18 @@
 
 本文档描述如何在 **4 台独立服务器**上部署 Sei Chain 测试网络（4 个验证者节点）。
 
+## 代币说明
+
+本链使用双代币模型：
+
+| 代币 | Denom | 用途 |
+|------|-------|------|
+| **AEX** | `uaex` | Gas 代币，用于交易手续费 |
+| **STAEX** | `ustaex` | 质押代币，用于质押/治理/投票 |
+
+- **1 AEX = 1,000,000 uaex**
+- **1 STAEX = 1,000,000 ustaex**
+
 ### 网络拓扑
 
 ```
@@ -441,8 +453,15 @@ seid status | jq '.SyncInfo.catching_up'
 # 查看账户余额
 seid query bank balances $(seid keys show validator0 -a)
 
-# 发送测试交易
+# 发送 AEX 测试交易（Gas 代币）
 seid tx bank send validator0 <接收地址> 1000uaex \
+  --chain-id sei-testnet \
+  --fees 2000uaex \
+  --gas 200000 \
+  -y
+
+# 发送 STAEX 测试交易（质押代币）
+seid tx bank send validator0 <接收地址> 1000ustaex \
   --chain-id sei-testnet \
   --fees 2000uaex \
   --gas 200000 \
