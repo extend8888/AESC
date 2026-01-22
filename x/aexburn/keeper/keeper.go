@@ -241,3 +241,80 @@ func (k Keeper) SetIncomeBuffer(ctx sdk.Context, buffer types.IncomeBuffer) {
 	bz := k.cdc.MustMarshal(&buffer)
 	store.Set(types.IncomeBufferKey, bz)
 }
+
+// ========== Epoch Gas Data ==========
+
+// GetEpochGasData returns the epoch gas accumulation data
+func (k Keeper) GetEpochGasData(ctx sdk.Context) types.EpochGasData {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.EpochGasDataKey)
+	if bz == nil {
+		return types.NewEpochGasData()
+	}
+
+	var data types.EpochGasData
+	if err := data.Unmarshal(bz); err != nil {
+		return types.NewEpochGasData()
+	}
+	return data
+}
+
+// SetEpochGasData sets the epoch gas accumulation data
+func (k Keeper) SetEpochGasData(ctx sdk.Context, data types.EpochGasData) {
+	store := ctx.KVStore(k.storeKey)
+	bz, err := data.Marshal()
+	if err != nil {
+		k.Logger(ctx).Error("failed to marshal epoch gas data", "error", err)
+		return
+	}
+	store.Set(types.EpochGasDataKey, bz)
+}
+
+// ResetEpochGasData resets the epoch gas data to zero values
+func (k Keeper) ResetEpochGasData(ctx sdk.Context) {
+	k.SetEpochGasData(ctx, types.NewEpochGasData())
+}
+
+// AccumulateBlockGas accumulates gas data from the current block
+// This should be called in EndBlocker for each block
+func (k Keeper) AccumulateBlockGas(ctx sdk.Context) {
+	// Get current epoch gas data
+	data := k.GetEpochGasData(ctx)
+
+	// Get gas limit from consensus params
+	consensusParams := ctx.ConsensusParams()
+	var maxGas int64 = 0
+	if consensusParams != nil && consensusParams.Block != nil && consensusParams.Block.MaxGas > 0 {
+		maxGas = consensusParams.Block.MaxGas
+	}
+
+	// Get gas used from the context's gas meter
+	// Note: In EndBlocker, the gas meter tracks cumulative gas used in the block's EndBlocker calls
+	// This is an approximation - ideally we would use BlockGasMeter but it's not publicly accessible
+	gasMeter := ctx.GasMeter()
+	var gasUsed uint64 = 0
+	if gasMeter != nil {
+		gasUsed = gasMeter.GasConsumed()
+	}
+
+	// If we don't have valid gas limit, skip accumulation
+	if maxGas <= 0 {
+		k.Logger(ctx).Debug("skipping gas accumulation: no valid max gas limit")
+		return
+	}
+
+	// Accumulate the data
+	data.TotalGasUsed = data.TotalGasUsed.Add(sdk.NewInt(int64(gasUsed)))
+	data.TotalGasLimit = data.TotalGasLimit.Add(sdk.NewInt(maxGas))
+	data.BlockCount++
+
+	// Save the updated data
+	k.SetEpochGasData(ctx, data)
+
+	k.Logger(ctx).Debug("accumulated block gas",
+		"block_height", ctx.BlockHeight(),
+		"gas_used", gasUsed,
+		"max_gas", maxGas,
+		"total_blocks", data.BlockCount,
+	)
+}

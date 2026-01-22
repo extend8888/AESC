@@ -38,6 +38,14 @@ var (
 	KeyMaxBufferSize           = []byte("MaxBufferSize")
 )
 
+// Hard limits that cannot be exceeded by governance
+var (
+	HardMaxAnnualInflationRate  = sdk.NewDecWithPrec(3, 2)  // 3% max
+	HardMaxNetSupplyRatePerYear = sdk.NewDecWithPrec(5, 2)  // 5% max
+	HardMinBurnRate             = sdk.NewDecWithPrec(30, 2) // 30% min
+	HardMaxBurnRate             = sdk.NewDecWithPrec(60, 2) // 60% max
+)
+
 var (
 	// Burn defaults
 	DefaultBurnEnabled      = true
@@ -158,6 +166,14 @@ func (p Params) Validate() error {
 		return fmt.Errorf("low gas threshold must be less than high gas threshold")
 	}
 
+	// Hard constraints for burn rates (cannot be exceeded by governance)
+	if p.MinBurnRate.LT(HardMinBurnRate) {
+		return fmt.Errorf("min burn rate cannot be less than hard limit %s", HardMinBurnRate)
+	}
+	if p.MaxBurnRate.GT(HardMaxBurnRate) {
+		return fmt.Errorf("max burn rate cannot exceed hard limit %s", HardMaxBurnRate)
+	}
+
 	// Validate inflation params
 	if err := validateInflationRate(p.MaxAnnualInflationRate); err != nil {
 		return fmt.Errorf("invalid max annual inflation rate: %w", err)
@@ -170,6 +186,14 @@ func (p Params) Validate() error {
 	}
 	if p.EpochsPerYear == 0 {
 		return fmt.Errorf("epochs per year must be positive")
+	}
+
+	// Hard constraints for inflation rates (cannot be exceeded by governance)
+	if p.MaxAnnualInflationRate.GT(HardMaxAnnualInflationRate) {
+		return fmt.Errorf("max annual inflation rate cannot exceed hard limit %s", HardMaxAnnualInflationRate)
+	}
+	if p.MaxNetSupplyRatePerYear.GT(HardMaxNetSupplyRatePerYear) {
+		return fmt.Errorf("max net supply rate per year cannot exceed hard limit %s", HardMaxNetSupplyRatePerYear)
 	}
 
 	// Validate reverse brake params

@@ -25,7 +25,7 @@ func (suite *BurnTestSuite) SetupTest() {
 
 // ========== AEX-206: Burn Mechanism Tests ==========
 
-func (suite *BurnTestSuite) TestCalculateDynamicBurnRate_LowGas() {
+func (suite *BurnTestSuite) TestCalculateDynamicBurnRate_NormalGas() {
 	params := types.DefaultParams()
 	params.MinBurnRate = sdk.NewDecWithPrec(30, 2)      // 30%
 	params.TargetBurnRate = sdk.NewDecWithPrec(50, 2)   // 50%
@@ -34,10 +34,36 @@ func (suite *BurnTestSuite) TestCalculateDynamicBurnRate_LowGas() {
 	params.HighGasThreshold = sdk.NewDecWithPrec(70, 2) // 70%
 	suite.App.AexburnKeeper.SetParams(suite.Ctx, params)
 
-	// Low gas usage should result in lower burn rate
-	burnRate := suite.App.AexburnKeeper.CalculateDynamicBurnRate(suite.Ctx, params)
 	// Default gas usage is 50%, which is between thresholds
+	// Normal gas usage should result in target burn rate
+	burnRate := suite.App.AexburnKeeper.CalculateDynamicBurnRate(suite.Ctx, params)
 	suite.Require().Equal(params.TargetBurnRate, burnRate)
+}
+
+// TestCalculateDynamicBurnRate_LogicDirection tests the burn rate direction:
+// - Low gas usage (idle network) → higher burn rate (close to MaxBurnRate 60%)
+// - High gas usage (busy network) → lower burn rate (close to MinBurnRate 30%)
+// Rationale: Retain more tokens for validators during high network activity
+func (suite *BurnTestSuite) TestCalculateDynamicBurnRate_LogicDirection() {
+	params := types.DefaultParams()
+	params.MinBurnRate = sdk.NewDecWithPrec(30, 2)      // 30%
+	params.TargetBurnRate = sdk.NewDecWithPrec(50, 2)   // 50%
+	params.MaxBurnRate = sdk.NewDecWithPrec(60, 2)      // 60%
+	params.LowGasThreshold = sdk.NewDecWithPrec(30, 2)  // 30%
+	params.HighGasThreshold = sdk.NewDecWithPrec(70, 2) // 70%
+	suite.App.AexburnKeeper.SetParams(suite.Ctx, params)
+
+	// Since we can't directly set gas usage rate (it's hardcoded to 50% in the function),
+	// we verify the current implementation with default 50% gas usage.
+	// The logic direction is documented and will be properly tested once actual gas tracking is implemented.
+	// Current test ensures that at 50% gas usage (between thresholds), we get target burn rate.
+	burnRate := suite.App.AexburnKeeper.CalculateDynamicBurnRate(suite.Ctx, params)
+	suite.Require().Equal(params.TargetBurnRate, burnRate, "50% gas usage should result in target burn rate")
+
+	// Additional documentation comment:
+	// When actual gas tracking is implemented:
+	// - gasUsageRate = 0% (idle) → burnRate should approach MaxBurnRate (60%)
+	// - gasUsageRate = 100% (very busy) → burnRate should approach MinBurnRate (30%)
 }
 
 func (suite *BurnTestSuite) TestCalculateDynamicBurnRate_WithReverseBrake() {

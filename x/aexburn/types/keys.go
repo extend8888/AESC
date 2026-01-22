@@ -39,6 +39,9 @@ var (
 
 	// IncomeBufferKey is the key for storing income buffer state
 	IncomeBufferKey = []byte{0x08}
+
+	// EpochGasDataKey is the key for storing epoch gas accumulation data
+	EpochGasDataKey = []byte{0x09}
 )
 
 // GetMonthlyBurnDataKey returns the key for a specific month's burn data

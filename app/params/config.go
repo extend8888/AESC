@@ -15,7 +15,11 @@ const (
 	BaseCoinUnit  = "uaex"
 	UaexExponent  = 6
 
-	DefaultBondDenom = BaseCoinUnit
+	HumanStakeCoinUnit = "staex"
+	BaseStakeCoinUnit  = "ustaex"
+	UstaexExponent     = 6
+
+	DefaultBondDenom = BaseStakeCoinUnit
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address.
 	Bech32PrefixAccAddr = "aesc"
@@ -44,6 +48,8 @@ func init() {
 }
 
 func RegisterDenoms() {
+	// Register AEX (Gas token) denominations
+	// aex = 1, uaex = 10^-6
 	err := sdk.RegisterDenom(HumanCoinUnit, sdk.OneDec())
 	if err != nil {
 		panic(err)
@@ -52,6 +58,16 @@ func RegisterDenoms() {
 	if err != nil {
 		panic(err)
 	}
+
+	// Note: We intentionally do NOT register STAEX denominations (staex/ustaex)
+	// in the denom conversion system. This is because:
+	// 1. The Cosmos SDK's denom normalization assumes a single base denom
+	// 2. If we register ustaex with the same unit (10^-6) as uaex,
+	//    ParseCoinsNormalized would convert ustaex to uaex (the first registered base denom)
+	// 3. STAEX is an independent token that should not be converted to AEX
+	//
+	// Instead, ustaex is used directly without conversion, which is the correct behavior
+	// for a separate staking token.
 }
 
 func SetAddressPrefixes() {
