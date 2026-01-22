@@ -58,11 +58,15 @@
 
 | 位置 | 字段 | 说明 |
 |------|------|------|
-| `bank.balances` | 各账户余额 | 配置初始代币分配 |
-| `crisis.constant_fee.denom` | uaex | 危机模块费用 |
-| `gov.deposit_params` | uaex | 治理提案押金 |
-| `mint.params.mint_denom` | uaex | 铸币 denom |
-| `staking.params.bond_denom` | uaex | 质押 denom |
+| `bank.balances` | 各账户余额 | 配置初始代币分配（需同时包含 uaex 和 ustaex） |
+| `crisis.constant_fee.denom` | uaex | 危机模块费用（Gas 代币） |
+| `gov.deposit_params` | ustaex | 治理提案押金（治理代币） |
+| `mint.params.mint_denom` | uaex | 铸币 denom（Gas 代币） |
+| `staking.params.bond_denom` | ustaex | 质押 denom（质押代币） |
+
+**重要说明**:
+- `uaex` - Gas 代币，用于支付交易费用
+- `ustaex` - 质押代币，用于质押和治理
 
 ### 5. Mint 模块配置（通胀）
 

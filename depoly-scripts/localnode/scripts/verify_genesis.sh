@@ -60,8 +60,8 @@ if [ "$GENTX_COUNT" -gt 0 ]; then
     echo "  Delegation: $GENTX_DELEGATION"
     echo "  Validator Address: $GENTX_VALIDATOR_ADDR"
     
-    # Calculate expected power
-    EXPECTED_POWER=$((${GENTX_DELEGATION%uaex} / 1000000))
+    # Calculate expected power (质押代币为 ustaex)
+    EXPECTED_POWER=$((${GENTX_DELEGATION%ustaex} / 1000000))
     echo "  Expected Power: $EXPECTED_POWER"
     
     # Calculate address from pubkey

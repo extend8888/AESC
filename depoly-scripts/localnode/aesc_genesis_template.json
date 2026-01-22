@@ -174,6 +174,10 @@
               "amount": "1000000000000000000000"
             },
             {
+              "denom": "ustaex",
+              "amount": "1000000000000000000000"
+            },
+            {
               "denom": "uusdc",
               "amount": "1000000000000000000000"
             }
@@ -188,6 +192,10 @@
             },
             {
               "denom": "uaex",
+              "amount": "1000000000000000000000"
+            },
+            {
+              "denom": "ustaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -208,6 +216,10 @@
               "amount": "1000000000000000000000"
             },
             {
+              "denom": "ustaex",
+              "amount": "1000000000000000000000"
+            },
+            {
               "denom": "uusdc",
               "amount": "1000000000000000000000"
             }
@@ -222,6 +234,10 @@
             },
             {
               "denom": "uaex",
+              "amount": "1000000000000000000000"
+            },
+            {
+              "denom": "ustaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -242,6 +258,10 @@
               "amount": "1000000000000000000000"
             },
             {
+              "denom": "ustaex",
+              "amount": "1000000000000000000000"
+            },
+            {
               "denom": "uusdc",
               "amount": "1000000000000000000000"
             }
@@ -256,6 +276,10 @@
             },
             {
               "denom": "uaex",
+              "amount": "1000000000000000000000"
+            },
+            {
+              "denom": "ustaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -276,6 +300,10 @@
               "amount": "1000000000000000000000"
             },
             {
+              "denom": "ustaex",
+              "amount": "1000000000000000000000"
+            },
+            {
               "denom": "uusdc",
               "amount": "1000000000000000000000"
             }
@@ -290,6 +318,10 @@
             },
             {
               "denom": "uaex",
+              "amount": "1000000000000000000000"
+            },
+            {
+              "denom": "ustaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -310,6 +342,10 @@
               "amount": "1000000000000000000000"
             },
             {
+              "denom": "ustaex",
+              "amount": "1000000000000000000000"
+            },
+            {
               "denom": "uusdc",
               "amount": "1000000000000000000000"
             }
@@ -324,6 +360,10 @@
             },
             {
               "denom": "uaex",
+              "amount": "1000000000000000000000"
+            },
+            {
+              "denom": "ustaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -344,6 +384,10 @@
               "amount": "1000000000000000000000"
             },
             {
+              "denom": "ustaex",
+              "amount": "1000000000000000000000"
+            },
+            {
               "denom": "uusdc",
               "amount": "1000000000000000000000"
             }
@@ -358,6 +402,10 @@
             },
             {
               "denom": "uaex",
+              "amount": "1000000000000000000000"
+            },
+            {
+              "denom": "ustaex",
               "amount": "1000000000000000000000"
             },
             {
@@ -511,7 +559,7 @@
                   "key": "rEJXrL75TxmcbRT1ehDcEzBWq8GEj6ASdp0tRr8qBi0="
                 },
                 "value": {
-                  "denom": "uaex",
+                  "denom": "ustaex",
                   "amount": "100000000"
                 }
               }
@@ -558,14 +606,14 @@
       "deposit_params": {
         "min_deposit": [
           {
-            "denom": "uaex",
+            "denom": "ustaex",
             "amount": "10000000"
           }
         ],
         "max_deposit_period": "100s",
         "min_expedited_deposit": [
           {
-            "denom": "uaex",
+            "denom": "ustaex",
             "amount": "20000000"
           }
         ]
@@ -703,7 +751,7 @@
         "max_validators": "50",
         "max_entries": 7,
         "historical_entries": 10000,
-        "bond_denom": "uaex",
+        "bond_denom": "ustaex",
         "min_commission_rate": "0.050000000000000000",
         "max_voting_power_ratio": "0.200000000000000000",
         "max_voting_power_enforcement_threshold": "1000000"
