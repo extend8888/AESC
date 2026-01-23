@@ -83,3 +83,21 @@ func (k Keeper) NetSupply(c context.Context, req *types.QueryNetSupplyRequest) (
 	}, nil
 }
 
+// EpochGasData returns the current epoch's accumulated gas data
+func (k Keeper) EpochGasData(c context.Context, req *types.QueryEpochGasDataRequest) (*types.QueryEpochGasDataResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	// Get current epoch gas data
+	data := k.GetEpochGasData(ctx)
+
+	// Calculate usage rate
+	usageRate := data.CalculateUsageRate()
+
+	return &types.QueryEpochGasDataResponse{
+		TotalGasUsed:  data.TotalGasUsed,
+		TotalGasLimit: data.TotalGasLimit,
+		BlockCount:    data.BlockCount,
+		UsageRate:     usageRate,
+	}, nil
+}
+

@@ -513,11 +513,13 @@ test_tc_tk_05() {
     log_info "Querying epoch gas data..."
     EPOCH_GAS=$(curl -s "$REST_API/aesc/aexburn/v1/epoch_gas_data" 2>/dev/null || echo "")
 
-    if echo "$EPOCH_GAS" | jq -e '.epoch_gas_data' > /dev/null 2>&1; then
-        GAS_USED=$(echo "$EPOCH_GAS" | jq -r '.epoch_gas_data.gas_used // .epoch_gas_data.total_gas_used // "0"')
-        GAS_LIMIT=$(echo "$EPOCH_GAS" | jq -r '.epoch_gas_data.gas_limit // .epoch_gas_data.total_gas_limit // "0"')
+    # The response structure is: {total_gas_used, total_gas_limit, block_count, usage_rate}
+    if echo "$EPOCH_GAS" | jq -e '.total_gas_used' > /dev/null 2>&1; then
+        GAS_USED=$(echo "$EPOCH_GAS" | jq -r '.total_gas_used // "0"')
+        GAS_LIMIT=$(echo "$EPOCH_GAS" | jq -r '.total_gas_limit // "0"')
+        BLOCK_COUNT=$(echo "$EPOCH_GAS" | jq -r '.block_count // "0"')
 
-        log_info "Epoch gas_used: $GAS_USED, gas_limit: $GAS_LIMIT"
+        log_info "Epoch gas_used: $GAS_USED, gas_limit: $GAS_LIMIT, block_count: $BLOCK_COUNT"
 
         # Verify gas_used > 0 (chain must have processed transactions after our load generation)
         if [ "$GAS_USED" != "0" ] && [ "$GAS_USED" != "null" ] && [ -n "$GAS_USED" ]; then
@@ -679,16 +681,21 @@ test_tc_tk_09() {
         log_info "Using EVM private key from PRIVATE_KEY environment variable"
     fi
 
-    # Method 2: Try to export from seid/aescd keyring
+    # Method 2: Try to export from seid/aescd keyring using 'keys export --unarmored-hex --unsafe'
+    # Input order: first 'y' to confirm, then keyring password
     if [ -z "$EVM_PRIVATE_KEY" ]; then
         for cli in seid aescd; do
             for key_name in admin validator; do
                 if printf "12345678\n" | $cli keys show "$key_name" -a --keyring-backend file >/dev/null 2>&1; then
-                    # Try to get EVM address and private key
+                    # Try to get EVM address
                     SENDER_EVM_ADDR=$(printf "12345678\n" | $cli keys show "$key_name" --output json --keyring-backend file 2>/dev/null | jq -r '.evm_address // ""')
-                    # Try to export private key (requires unsafe-export-eth-key if available)
-                    EVM_PRIVATE_KEY=$(printf "12345678\n" | $cli keys unsafe-export-eth-key "$key_name" --keyring-backend file 2>/dev/null || echo "")
-                    if [ -n "$EVM_PRIVATE_KEY" ] && [ "$EVM_PRIVATE_KEY" != "null" ]; then
+                    # Export private key using 'keys export --unarmored-hex --unsafe'
+                    # Input: first 'y' to confirm unsafe export, then keyring password
+                    EXPORTED_KEY=$(printf "y\n12345678\n" | $cli keys export "$key_name" --unarmored-hex --unsafe --keyring-backend file 2>/dev/null || echo "")
+                    # Validate: private key should be 64 hex chars (optionally with 0x prefix)
+                    CLEAN_KEY=$(echo "$EXPORTED_KEY" | tr -d '[:space:]' | sed 's/^0x//')
+                    if echo "$CLEAN_KEY" | grep -qE '^[0-9a-fA-F]{64}$'; then
+                        EVM_PRIVATE_KEY="0x${CLEAN_KEY}"
                         log_info "Exported EVM private key from $cli keyring ($key_name)"
                         break 2
                     fi

@@ -34,6 +34,11 @@ service Query {
   rpc NetSupply(QueryNetSupplyRequest) returns (QueryNetSupplyResponse) {
     option (google.api.http).get = "/aesc/aexburn/v1/net_supply";
   }
+
+  // EpochGasData returns the current epoch's accumulated gas data
+  rpc EpochGasData(QueryEpochGasDataRequest) returns (QueryEpochGasDataResponse) {
+    option (google.api.http).get = "/aesc/aexburn/v1/epoch_gas_data";
+  }
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -101,6 +106,30 @@ message QueryNetSupplyResponse {
   // remaining_mint_capacity is how much more can be minted within constraints
   string remaining_mint_capacity = 6 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryEpochGasDataRequest is the request type for the Query/EpochGasData RPC method.
+message QueryEpochGasDataRequest {}
+
+// QueryEpochGasDataResponse is the response type for the Query/EpochGasData RPC method.
+message QueryEpochGasDataResponse {
+  // total_gas_used is the cumulative gas used in the current epoch
+  string total_gas_used = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  // total_gas_limit is the cumulative gas limit in the current epoch
+  string total_gas_limit = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  // block_count is the number of blocks in the current epoch
+  uint64 block_count = 3;
+  // usage_rate is the calculated gas usage rate (total_gas_used / total_gas_limit)
+  string usage_rate = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
 }
