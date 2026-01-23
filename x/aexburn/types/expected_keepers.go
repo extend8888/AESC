@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	epochtypes "github.com/sei-protocol/sei-chain/x/epoch/types"
 )
 
 // AccountKeeper defines the expected account keeper interface
@@ -23,6 +24,6 @@ type BankKeeper interface {
 
 // EpochKeeper defines the expected epoch keeper interface
 type EpochKeeper interface {
-	GetEpoch(ctx sdk.Context) interface{}
+	GetEpoch(ctx sdk.Context) epochtypes.Epoch
 }
 

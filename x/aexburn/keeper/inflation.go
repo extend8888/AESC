@@ -142,6 +142,7 @@ func (k Keeper) calculateInflationAmount(ctx sdk.Context, params types.Params, e
 }
 
 // updateMonthlyMintData updates the monthly mint tracking data
+// Uses epoch-based month calculation and shared ring buffer helper
 func (k Keeper) updateMonthlyMintData(ctx sdk.Context, epochNumber uint64, mintedAmount sdk.Int, epochsPerYear uint64) {
 	// Calculate month index (0-11) based on epoch
 	epochsPerMonth := epochsPerYear / 12
@@ -150,17 +151,10 @@ func (k Keeper) updateMonthlyMintData(ctx sdk.Context, epochNumber uint64, minte
 	}
 	monthIndex := uint32((epochNumber / epochsPerMonth) % 12)
 
-	data, found := k.GetMonthlyBurnData(ctx, monthIndex)
-	if !found {
-		data = types.MonthlyBurnData{
-			MonthIndex:   monthIndex,
-			BurnedAmount: sdk.ZeroInt(),
-			MintedAmount: sdk.ZeroInt(),
-			StartEpoch:   epochNumber,
-			EndEpoch:     epochNumber,
-		}
-	}
+	// Get or reset the monthly slot using shared helper
+	data := k.GetOrResetMonthlySlot(ctx, monthIndex, epochNumber, epochsPerMonth)
 
+	// Accumulate mint amount
 	data.MintedAmount = data.MintedAmount.Add(mintedAmount)
 	data.EndEpoch = epochNumber
 

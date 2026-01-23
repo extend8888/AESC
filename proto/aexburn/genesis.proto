@@ -26,5 +26,11 @@ message GenesisState {
 
   // income_buffer contains the validator income smoothing buffer state
   IncomeBuffer income_buffer = 6 [(gogoproto.nullable) = false];
+
+  // last_gas_usage_rate is the gas usage rate from the previous epoch
+  // Used as fallback when current epoch has no data. Nullable to distinguish "not set" from "zero".
+  string last_gas_usage_rate = 7 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"
+  ];
 }
 

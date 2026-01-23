@@ -162,10 +162,9 @@ func (AppModule) ConsensusVersion() uint64 { return 1 }
 func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 
 // EndBlock executes all ABCI EndBlock logic respective to the module
-// It accumulates gas data for each block to calculate epoch gas usage rate
+// Note: Gas accumulation has been moved to App-level EndBlocker to ensure
+// BurnFees (through distr hook) has access to the latest gas data
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	// Accumulate gas data from this block
-	am.keeper.AccumulateBlockGas(ctx)
 	return []abci.ValidatorUpdate{}
 }
 

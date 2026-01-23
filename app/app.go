@@ -436,6 +436,16 @@ func New(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
 	app.AuthzKeeper = authzkeeper.NewKeeper(keys[authzkeeper.StoreKey], appCodec, app.MsgServiceRouter())
+
+	// Create EpochKeeper first (without hooks) to allow other keepers to reference it
+	epochKeeperPtr := epochmodulekeeper.NewKeeper(
+		appCodec,
+		keys[epochmoduletypes.StoreKey],
+		keys[epochmoduletypes.MemStoreKey],
+		app.GetSubspace(epochmoduletypes.ModuleName),
+	)
+	app.EpochKeeper = *epochKeeperPtr
+
 	app.MintKeeper = mintkeeper.NewKeeper(
 		appCodec, keys[minttypes.StoreKey], app.GetSubspace(minttypes.ModuleName), &stakingKeeper,
 		app.AccountKeeper, app.BankKeeper, app.EpochKeeper, authtypes.FeeCollectorName,
@@ -446,12 +456,14 @@ func New(
 	)
 
 	// Create AEX Burn Keeper for fee burning mechanism
+	// Pass epochKeeper reference for getting current epoch in monthly data calculations
 	app.AexburnKeeper = aexburnkeeper.NewKeeper(
 		appCodec,
 		keys[aexburntypes.StoreKey],
 		app.GetSubspace(aexburntypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
+		&app.EpochKeeper,
 	)
 
 	// Set fee burn hook on distribution keeper for AEX fee burning
@@ -508,12 +520,8 @@ func New(
 		app.AccountKeeper, app.BankKeeper, app.DistrKeeper, &stakingKeeper, distrtypes.ModuleName,
 	)
 
-	app.EpochKeeper = *epochmodulekeeper.NewKeeper(
-		appCodec,
-		keys[epochmoduletypes.StoreKey],
-		keys[epochmoduletypes.MemStoreKey],
-		app.GetSubspace(epochmoduletypes.ModuleName),
-	).SetHooks(epochmoduletypes.NewMultiEpochHooks(
+	// Set EpochKeeper hooks after all dependent keepers are created
+	app.EpochKeeper = *epochKeeperPtr.SetHooks(epochmoduletypes.NewMultiEpochHooks(
 		app.MintKeeper.Hooks(),
 		app.AexburnKeeper.Hooks(),
 	))
@@ -996,6 +1004,12 @@ func (app *App) MidBlocker(ctx sdk.Context, height int64) []abci.Event {
 
 // EndBlocker application updates every end block
 func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	// Accumulate gas data before module EndBlocks run
+	// This ensures BurnFees (triggered via distr module's hook) has access to the latest data
+	if gasUsed, gasLimit, ok := aexburntypes.GetBlockGasData(ctx); ok {
+		app.AexburnKeeper.AccumulateBlockGas(ctx, gasUsed, gasLimit)
+	}
+
 	return app.mm.EndBlock(ctx, req)
 }
 
@@ -1484,13 +1498,24 @@ func (app *App) ProcessBlock(ctx sdk.Context, txs [][]byte, req BlockProcessRequ
 	lazyWriteEvents := app.BankKeeper.WriteDeferredBalances(ctx)
 	events = append(events, lazyWriteEvents...)
 
-	// Sum up total used per block only for evm transactions
+	// Sum up total gas used from all transactions for gas tracking
+	blockGasUsed := int64(0)
 	evmTotalGasUsed := int64(0)
 	for _, txResult := range txResults {
 		if txResult.EvmTxInfo != nil {
 			evmTotalGasUsed += txResult.GasUsed
 		}
+		blockGasUsed += txResult.GasUsed
 	}
+
+	// Calculate block gas limit using fallback chain:
+	// 1. MaxGas from consensus params (if > 0)
+	// 2. MaxGasWanted from consensus params (if > 0)
+	// 3. Sum of effective gas from transactions (matching checkTotalBlockGas logic)
+	blockGasLimit := app.CalculateBlockGasLimit(ctx, typedTxs)
+
+	// Inject gas data into context for aexburn module
+	ctx = aexburntypes.WithBlockGasData(ctx, blockGasUsed, blockGasLimit)
 
 	endBlockResp := app.EndBlock(ctx, abci.RequestEndBlock{
 		Height:       req.GetHeight(),
@@ -1836,6 +1861,71 @@ func (app *App) checkTotalBlockGas(ctx sdk.Context, txs [][]byte) bool {
 		}
 	}
 	return true
+}
+
+// CalculateBlockGasLimit calculates the gas limit for block gas tracking using a fallback chain:
+// 1. MaxGas from consensus params (if > 0)
+// 2. MaxGasWanted from consensus params (if > 0)
+// 3. Sum of effective gas from transactions (consistent with checkTotalBlockGas logic)
+func (app *App) CalculateBlockGasLimit(ctx sdk.Context, typedTxs []sdk.Tx) int64 {
+	consensusParams := ctx.ConsensusParams()
+
+	// Try MaxGas first
+	if consensusParams != nil && consensusParams.Block != nil && consensusParams.Block.MaxGas > 0 {
+		return consensusParams.Block.MaxGas
+	}
+
+	// Fallback to MaxGasWanted
+	if consensusParams != nil && consensusParams.Block != nil && consensusParams.Block.MaxGasWanted > 0 {
+		return consensusParams.Block.MaxGasWanted
+	}
+
+	// Final fallback: calculate effective gas from transactions
+	// This matches the logic in checkTotalBlockGas
+	totalEffectiveGas := int64(0)
+	for _, decodedTx := range typedTxs {
+		if decodedTx == nil {
+			continue
+		}
+
+		// Check gasless first
+		isGasless, err := antedecorators.IsTxGasless(decodedTx, ctx, app.OracleKeeper, &app.EvmKeeper)
+		if err != nil || isGasless {
+			continue
+		}
+
+		// Check whether it's an EVM or Cosmos tx
+		gasWanted := uint64(0)
+		isEVM, err := evmante.IsEVMMessage(decodedTx)
+		if err != nil {
+			continue
+		}
+
+		if isEVM {
+			msg := evmtypes.MustGetEVMTransactionMessage(decodedTx)
+			if msg.IsAssociateTx() {
+				continue
+			}
+			etx, _ := msg.AsTransaction()
+			gasWanted = etx.Gas()
+		} else {
+			feeTx, ok := decodedTx.(sdk.FeeTx)
+			if !ok {
+				continue
+			}
+			gasWanted = feeTx.GetGas()
+		}
+
+		// Use gas estimate for EVM txs if valid, otherwise use gasWanted
+		effectiveGas := gasWanted
+		if decodedTx.GetGasEstimate() >= MinGasEVMTx && decodedTx.GetGasEstimate() <= gasWanted {
+			effectiveGas = decodedTx.GetGasEstimate()
+		}
+
+		totalEffectiveGas += int64(effectiveGas)
+	}
+
+	return totalEffectiveGas
 }
 
 func (app *App) GetTxConfig() client.TxConfig {

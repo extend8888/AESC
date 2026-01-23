@@ -28,11 +28,17 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 
 	// Set income buffer state
 	k.SetIncomeBuffer(ctx, genState.IncomeBuffer)
+
+	// Set last gas usage rate if present in genesis
+	// This preserves the gas usage history across restarts/upgrades
+	if genState.LastGasUsageRate != nil && !genState.LastGasUsageRate.IsNil() {
+		k.SetLastGasUsageRate(ctx, *genState.LastGasUsageRate)
+	}
 }
 
 // ExportGenesis returns the module's exported genesis state
 func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
-	return &types.GenesisState{
+	gs := &types.GenesisState{
 		Params:            k.GetParams(ctx),
 		BurnStats:         k.GetBurnStats(ctx),
 		InflationStats:    k.GetInflationStats(ctx),
@@ -40,4 +46,12 @@ func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
 		ReverseBrakeState: k.GetReverseBrakeState(ctx),
 		IncomeBuffer:      k.GetIncomeBuffer(ctx),
 	}
+
+	// Export last gas usage rate if it exists
+	// Using pointer to distinguish "not set" from "set to zero"
+	if lastRate, exists := k.GetLastGasUsageRate(ctx); exists {
+		gs.LastGasUsageRate = &lastRate
+	}
+
+	return gs
 }

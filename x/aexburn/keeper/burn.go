@@ -48,7 +48,9 @@ func (k Keeper) BurnFees(ctx sdk.Context) (burned sdk.Coins, remaining sdk.Coins
 	}
 
 	// Step 2: Calculate dynamic burn rate based on gas usage
-	burnRate := k.CalculateDynamicBurnRate(ctx, moduleParams)
+	// Get current epoch gas data (already includes current block since App-level EndBlocker accumulates first)
+	epochGasData := k.GetEpochGasData(ctx)
+	burnRate := k.CalculateDynamicBurnRate(ctx, moduleParams, epochGasData)
 
 	// Log smoothing effect
 	if !smoothedFees.IsEqual(feeBalance) {
@@ -130,38 +132,72 @@ func (k Keeper) BurnFees(ctx sdk.Context) (burned sdk.Coins, remaining sdk.Coins
 // - Gas usage between thresholds: burn rate stays at TargetBurnRate
 // - Gas usage > HighGasThreshold: burn rate decreases toward MinBurnRate (high activity = burn less, retain more for validators)
 // - If reverse brake is active, the burn rate is further reduced
-func (k Keeper) CalculateDynamicBurnRate(ctx sdk.Context, moduleParams types.Params) sdk.Dec {
-	// For now, use target burn rate as default
-	// TODO: Implement actual gas usage tracking from EVM module
-	gasUsageRate := sdk.NewDecWithPrec(50, 2) // Default 50% gas usage
+//
+// Note: epochGasData is passed in to determine the gas usage rate.
+// If epochGasData has no data (BlockCount == 0 or TotalGasLimit == 0), we use LastGasUsageRate.
+// If LastGasUsageRate doesn't exist (checked by existence, not by value), we use TargetBurnRate as base.
+// IMPORTANT: gasUsageRate == 0 is a valid value (low activity period), NOT "no data".
+// The distinction is made by checking store existence, not by value comparison.
+func (k Keeper) CalculateDynamicBurnRate(ctx sdk.Context, moduleParams types.Params, epochGasData types.EpochGasData) sdk.Dec {
+	var gasUsageRate sdk.Dec
+	hasValidRate := false
+
+	// Determine if we have valid data
+	if epochGasData.BlockCount == 0 || epochGasData.TotalGasLimit.IsZero() {
+		// No data in current epoch, try to use last epoch's rate
+		lastRate, exists := k.GetLastGasUsageRate(ctx)
+		if exists {
+			// Historical data exists (may be 0, which is valid for low activity)
+			gasUsageRate = lastRate
+			hasValidRate = true
+			k.Logger(ctx).Debug("using last epoch gas usage rate", "rate", lastRate.String())
+		} else {
+			// No historical data at all, will use TargetBurnRate as base
+			k.Logger(ctx).Debug("no gas usage data available, using target burn rate as base")
+		}
+	} else {
+		// Calculate from current epoch data (may be 0 for low activity, which is valid)
+		gasUsageRate = epochGasData.CalculateUsageRate()
+		hasValidRate = true
+		k.Logger(ctx).Debug("using current epoch gas usage rate",
+			"rate", gasUsageRate.String(),
+			"block_count", epochGasData.BlockCount,
+		)
+	}
 
 	var baseBurnRate sdk.Dec
-	if gasUsageRate.LT(moduleParams.LowGasThreshold) {
-		// Low gas usage: increase burn rate (burn more when network is idle)
-		// Linear interpolation from TargetBurnRate to MaxBurnRate
-		// When gasUsageRate = 0, burnRate = MaxBurnRate
-		// When gasUsageRate = LowGasThreshold, burnRate = TargetBurnRate
-		ratio := gasUsageRate.Quo(moduleParams.LowGasThreshold)
-		baseBurnRate = moduleParams.MaxBurnRate.Sub(
-			moduleParams.MaxBurnRate.Sub(moduleParams.TargetBurnRate).Mul(ratio),
-		)
-	} else if gasUsageRate.GT(moduleParams.HighGasThreshold) {
-		// High gas usage: decrease burn rate (retain more for validators when network is busy)
-		// Linear interpolation from TargetBurnRate to MinBurnRate
-		// When gasUsageRate = HighGasThreshold, burnRate = TargetBurnRate
-		// When gasUsageRate = 1.0, burnRate = MinBurnRate
-		excessRatio := gasUsageRate.Sub(moduleParams.HighGasThreshold).Quo(
-			sdk.OneDec().Sub(moduleParams.HighGasThreshold),
-		)
-		baseBurnRate = moduleParams.TargetBurnRate.Sub(
-			moduleParams.TargetBurnRate.Sub(moduleParams.MinBurnRate).Mul(excessRatio),
-		)
+	if hasValidRate {
+		// We have a valid gas usage rate (may be 0 for low activity)
+		if gasUsageRate.LT(moduleParams.LowGasThreshold) {
+			// Low gas usage: increase burn rate (burn more when network is idle)
+			// Linear interpolation from TargetBurnRate to MaxBurnRate
+			// When gasUsageRate = 0, burnRate = MaxBurnRate
+			// When gasUsageRate = LowGasThreshold, burnRate = TargetBurnRate
+			ratio := gasUsageRate.Quo(moduleParams.LowGasThreshold)
+			baseBurnRate = moduleParams.MaxBurnRate.Sub(
+				moduleParams.MaxBurnRate.Sub(moduleParams.TargetBurnRate).Mul(ratio),
+			)
+		} else if gasUsageRate.GT(moduleParams.HighGasThreshold) {
+			// High gas usage: decrease burn rate (retain more for validators when network is busy)
+			// Linear interpolation from TargetBurnRate to MinBurnRate
+			// When gasUsageRate = HighGasThreshold, burnRate = TargetBurnRate
+			// When gasUsageRate = 1.0, burnRate = MinBurnRate
+			excessRatio := gasUsageRate.Sub(moduleParams.HighGasThreshold).Quo(
+				sdk.OneDec().Sub(moduleParams.HighGasThreshold),
+			)
+			baseBurnRate = moduleParams.TargetBurnRate.Sub(
+				moduleParams.TargetBurnRate.Sub(moduleParams.MinBurnRate).Mul(excessRatio),
+			)
+		} else {
+			// Normal gas usage: use target burn rate
+			baseBurnRate = moduleParams.TargetBurnRate
+		}
 	} else {
-		// Normal gas usage: use target burn rate
+		// No valid rate data, use target burn rate as fallback base
 		baseBurnRate = moduleParams.TargetBurnRate
 	}
 
-	// Apply reverse brake reduction if active
+	// Apply reverse brake reduction if active (always apply, even when using fallback rate)
 	if moduleParams.ReverseBrakeEnabled {
 		brakeState := k.GetReverseBrakeState(ctx)
 		if brakeState.IsBrakeActive && brakeState.CurrentReduction.IsPositive() {
@@ -253,36 +289,24 @@ func (k Keeper) UpdateReverseBrakeState(ctx sdk.Context, epochNumber uint64) {
 
 // updateMonthlyBurnData updates the monthly burn tracking data
 // This is called after each successful burn to accumulate the burned amount
+// Uses epoch-based month calculation for consistency with mint data
 func (k Keeper) updateMonthlyBurnData(ctx sdk.Context, burnedAmount sdk.Int, epochsPerYear uint64) {
-	// Calculate month index (0-11) based on block height
-	// Using blocks per month approximation (30 days * 24 hours * 60 minutes * 60 seconds / 0.8 seconds per block)
-	// Approximately 3,240,000 blocks per month, but we use epochsPerYear for consistency
-	// EpochsPerYear / 12 = epochs per month
+	// Get current epoch from epoch keeper
+	currentEpoch := k.getCurrentEpoch(ctx)
+
+	// Calculate month index (0-11) based on epoch
 	epochsPerMonth := epochsPerYear / 12
 	if epochsPerMonth == 0 {
 		epochsPerMonth = 1
 	}
+	monthIndex := uint32((currentEpoch / epochsPerMonth) % 12)
 
-	// Estimate current epoch from block height
-	// Assuming default epoch duration of ~1 day, we calculate epoch from genesis
-	// For simplicity, we use block height to estimate the current month
-	// BlocksPerMonth ≈ 3,240,000 (assuming 0.8s block time)
-	blocksPerMonth := uint64(3_240_000)
-	monthIndex := uint32((uint64(ctx.BlockHeight()) / blocksPerMonth) % 12)
+	// Get or reset the monthly slot
+	data := k.GetOrResetMonthlySlot(ctx, monthIndex, currentEpoch, epochsPerMonth)
 
-	data, found := k.GetMonthlyBurnData(ctx, monthIndex)
-	if !found {
-		data = types.MonthlyBurnData{
-			MonthIndex:   monthIndex,
-			BurnedAmount: sdk.ZeroInt(),
-			MintedAmount: sdk.ZeroInt(),
-			StartHeight:  ctx.BlockHeight(),
-			EndHeight:    ctx.BlockHeight(),
-		}
-	}
-
+	// Accumulate burn amount
 	data.BurnedAmount = data.BurnedAmount.Add(burnedAmount)
-	data.EndHeight = ctx.BlockHeight()
+	data.EndEpoch = currentEpoch
 
 	k.SetMonthlyBurnData(ctx, data)
 }

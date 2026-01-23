@@ -14,6 +14,16 @@ const (
 	QuerierRoute = ModuleName
 )
 
+// Context keys for block gas data
+type blockGasDataKeyType string
+
+const (
+	// BlockGasUsedKey is the context key for block gas used
+	BlockGasUsedKey blockGasDataKeyType = "block_gas_used"
+	// BlockGasLimitKey is the context key for block gas limit
+	BlockGasLimitKey blockGasDataKeyType = "block_gas_limit"
+)
+
 // Store key prefixes
 var (
 	// ParamsKey is the key for storing module params
@@ -42,6 +52,9 @@ var (
 
 	// EpochGasDataKey is the key for storing epoch gas accumulation data
 	EpochGasDataKey = []byte{0x09}
+
+	// LastGasUsageRateKey is the key for storing last epoch's gas usage rate
+	LastGasUsageRateKey = []byte{0x0A}
 )
 
 // GetMonthlyBurnDataKey returns the key for a specific month's burn data

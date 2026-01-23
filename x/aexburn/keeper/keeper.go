@@ -18,6 +18,7 @@ type Keeper struct {
 
 	accountKeeper types.AccountKeeper
 	bankKeeper    types.BankKeeper
+	epochKeeper   types.EpochKeeper
 }
 
 // NewKeeper creates a new aexburn Keeper instance
@@ -27,6 +28,7 @@ func NewKeeper(
 	paramSpace paramtypes.Subspace,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
+	epochKeeper types.EpochKeeper,
 ) Keeper {
 	// Set KeyTable if it has not already been set
 	if !paramSpace.HasKeyTable() {
@@ -39,6 +41,63 @@ func NewKeeper(
 		paramSpace:    paramSpace,
 		accountKeeper: accountKeeper,
 		bankKeeper:    bankKeeper,
+		epochKeeper:   epochKeeper,
+	}
+}
+
+// getCurrentEpoch returns the current epoch number from epoch keeper
+func (k Keeper) getCurrentEpoch(ctx sdk.Context) uint64 {
+	epoch := k.epochKeeper.GetEpoch(ctx)
+	return uint64(epoch.CurrentEpoch)
+}
+
+// GetOrResetMonthlySlot checks if the monthly slot belongs to the current month
+// and resets it if necessary. Returns the slot ready for writing.
+// This implements a 12-slot ring buffer for monthly data.
+//
+// Parameters:
+// - monthIndex: target slot index (0-11)
+// - currentEpoch: current epoch number
+// - epochsPerMonth: epochs per month for epoch range calculation
+func (k Keeper) GetOrResetMonthlySlot(ctx sdk.Context, monthIndex uint32, currentEpoch, epochsPerMonth uint64) types.MonthlyBurnData {
+	data, found := k.GetMonthlyBurnData(ctx, monthIndex)
+
+	if !found {
+		// Slot is empty, create new
+		return types.MonthlyBurnData{
+			MonthIndex:   monthIndex,
+			BurnedAmount: sdk.ZeroInt(),
+			MintedAmount: sdk.ZeroInt(),
+			StartEpoch:   currentEpoch,
+			EndEpoch:     currentEpoch,
+		}
+	}
+
+	// Check if the slot belongs to the current month
+	// Current month's epoch range: [startOfMonth, startOfMonth + epochsPerMonth)
+	// where startOfMonth = (currentEpoch / epochsPerMonth) * epochsPerMonth
+	currentMonthStart := (currentEpoch / epochsPerMonth) * epochsPerMonth
+	currentMonthEnd := currentMonthStart + epochsPerMonth
+
+	// If the slot's data is from the current month, return it as-is
+	if data.StartEpoch >= currentMonthStart && data.StartEpoch < currentMonthEnd {
+		return data
+	}
+
+	// Slot is from a previous month, reset it
+	k.Logger(ctx).Debug("resetting monthly slot for new month",
+		"month_index", monthIndex,
+		"old_start_epoch", data.StartEpoch,
+		"old_end_epoch", data.EndEpoch,
+		"current_epoch", currentEpoch,
+	)
+
+	return types.MonthlyBurnData{
+		MonthIndex:   monthIndex,
+		BurnedAmount: sdk.ZeroInt(),
+		MintedAmount: sdk.ZeroInt(),
+		StartEpoch:   currentEpoch,
+		EndEpoch:     currentEpoch,
 	}
 }
 
@@ -275,37 +334,59 @@ func (k Keeper) ResetEpochGasData(ctx sdk.Context) {
 	k.SetEpochGasData(ctx, types.NewEpochGasData())
 }
 
-// AccumulateBlockGas accumulates gas data from the current block
-// This should be called in EndBlocker for each block
-func (k Keeper) AccumulateBlockGas(ctx sdk.Context) {
+// GetLastGasUsageRate returns the last epoch's gas usage rate and whether it exists
+// Returns (rate, true) if data exists, (zero, false) if no data is available
+// This allows distinguishing between "no historical data" and "historical value is 0"
+func (k Keeper) GetLastGasUsageRate(ctx sdk.Context) (sdk.Dec, bool) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.LastGasUsageRateKey)
+	if bz == nil {
+		return sdk.ZeroDec(), false
+	}
+
+	var rate sdk.Dec
+	if err := rate.Unmarshal(bz); err != nil {
+		k.Logger(ctx).Error("failed to unmarshal last gas usage rate", "error", err)
+		return sdk.ZeroDec(), false
+	}
+	return rate, true
+}
+
+// HasLastGasUsageRate returns whether the last gas usage rate exists in store
+func (k Keeper) HasLastGasUsageRate(ctx sdk.Context) bool {
+	store := ctx.KVStore(k.storeKey)
+	return store.Has(types.LastGasUsageRateKey)
+}
+
+// SetLastGasUsageRate sets the last epoch's gas usage rate
+func (k Keeper) SetLastGasUsageRate(ctx sdk.Context, rate sdk.Dec) {
+	store := ctx.KVStore(k.storeKey)
+	bz, err := rate.Marshal()
+	if err != nil {
+		k.Logger(ctx).Error("failed to marshal last gas usage rate", "error", err)
+		return
+	}
+	store.Set(types.LastGasUsageRateKey, bz)
+}
+
+// AccumulateBlockGas accumulates gas data from the block
+// This should be called in App-level EndBlocker before module EndBlock calls
+// to ensure BurnFees (through distr hook) has access to the latest data
+func (k Keeper) AccumulateBlockGas(ctx sdk.Context, gasUsed, gasLimit int64) {
 	// Get current epoch gas data
 	data := k.GetEpochGasData(ctx)
 
-	// Get gas limit from consensus params
-	consensusParams := ctx.ConsensusParams()
-	var maxGas int64 = 0
-	if consensusParams != nil && consensusParams.Block != nil && consensusParams.Block.MaxGas > 0 {
-		maxGas = consensusParams.Block.MaxGas
-	}
-
-	// Get gas used from the context's gas meter
-	// Note: In EndBlocker, the gas meter tracks cumulative gas used in the block's EndBlocker calls
-	// This is an approximation - ideally we would use BlockGasMeter but it's not publicly accessible
-	gasMeter := ctx.GasMeter()
-	var gasUsed uint64 = 0
-	if gasMeter != nil {
-		gasUsed = gasMeter.GasConsumed()
-	}
-
 	// If we don't have valid gas limit, skip accumulation
-	if maxGas <= 0 {
-		k.Logger(ctx).Debug("skipping gas accumulation: no valid max gas limit")
+	if gasLimit <= 0 {
+		k.Logger(ctx).Debug("skipping gas accumulation: no valid gas limit",
+			"gas_limit", gasLimit,
+		)
 		return
 	}
 
 	// Accumulate the data
-	data.TotalGasUsed = data.TotalGasUsed.Add(sdk.NewInt(int64(gasUsed)))
-	data.TotalGasLimit = data.TotalGasLimit.Add(sdk.NewInt(maxGas))
+	data.TotalGasUsed = data.TotalGasUsed.Add(sdk.NewInt(gasUsed))
+	data.TotalGasLimit = data.TotalGasLimit.Add(sdk.NewInt(gasLimit))
 	data.BlockCount++
 
 	// Save the updated data
@@ -314,7 +395,22 @@ func (k Keeper) AccumulateBlockGas(ctx sdk.Context) {
 	k.Logger(ctx).Debug("accumulated block gas",
 		"block_height", ctx.BlockHeight(),
 		"gas_used", gasUsed,
-		"max_gas", maxGas,
+		"gas_limit", gasLimit,
 		"total_blocks", data.BlockCount,
 	)
+}
+
+// CalculateCurrentGasUsageRate calculates the gas usage rate from accumulated epoch gas data.
+// This is a wrapper for testing purposes that exposes the same logic as Hooks.CalculateGasUsageRate.
+// Returns 0 if no data is available (BlockCount == 0 or TotalGasLimit == 0).
+func (k Keeper) CalculateCurrentGasUsageRate(ctx sdk.Context) sdk.Dec {
+	epochGasData := k.GetEpochGasData(ctx)
+
+	// Same condition as in hooks.go:CalculateGasUsageRate
+	if epochGasData.BlockCount > 0 && !epochGasData.TotalGasLimit.IsZero() {
+		return epochGasData.CalculateUsageRate()
+	}
+
+	// No accumulated data, return 0 to signal "no data"
+	return sdk.ZeroDec()
 }

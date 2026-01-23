@@ -23,13 +23,26 @@ var _ epochTypes.EpochHooks = Hooks{}
 func (h Hooks) AfterEpochEnd(ctx sdk.Context, epoch epochTypes.Epoch) {
 	epochNumber := uint64(epoch.CurrentEpoch)
 
+	// Get epoch gas data before resetting
+	epochGasData := h.k.GetEpochGasData(ctx)
+
 	// Calculate gas usage rate from accumulated epoch gas data
-	gasUsageRate := h.calculateGasUsageRate(ctx)
+	gasUsageRate := h.CalculateGasUsageRate(ctx)
 
 	h.k.Logger(ctx).Info("epoch end gas usage rate calculated",
 		"epoch", epochNumber,
 		"gas_usage_rate", gasUsageRate.String(),
 	)
+
+	// Save the current gas usage rate for use in the next epoch
+	// Only save if we have valid data (BlockCount > 0 and TotalGasLimit > 0)
+	if epochGasData.BlockCount > 0 && !epochGasData.TotalGasLimit.IsZero() {
+		h.k.SetLastGasUsageRate(ctx, gasUsageRate)
+		h.k.Logger(ctx).Debug("saved last gas usage rate",
+			"epoch", epochNumber,
+			"rate", gasUsageRate.String(),
+		)
+	}
 
 	// Mint inflation tokens if conditions are met
 	if err := h.k.MintInflation(ctx, epochNumber, gasUsageRate); err != nil {
@@ -48,10 +61,11 @@ func (h Hooks) BeforeEpochStart(ctx sdk.Context, epoch epochTypes.Epoch) {
 	// Nothing to do at epoch start for inflation
 }
 
-// calculateGasUsageRate calculates the gas usage rate for the current epoch
+// CalculateGasUsageRate calculates the gas usage rate for the current epoch
 // Returns a value between 0 and 1 representing the percentage of block gas limit used
 // Uses accumulated gas data from all blocks in the epoch
-func (h Hooks) calculateGasUsageRate(ctx sdk.Context) sdk.Dec {
+// Returns 0 if no data is available (this is used to signal "no data" to CalculateDynamicBurnRate)
+func (h Hooks) CalculateGasUsageRate(ctx sdk.Context) sdk.Dec {
 	// Get accumulated epoch gas data
 	epochGasData := h.k.GetEpochGasData(ctx)
 
@@ -69,9 +83,9 @@ func (h Hooks) calculateGasUsageRate(ctx sdk.Context) sdk.Dec {
 		return usageRate
 	}
 
-	// Fallback: If no accumulated data available, return a default rate
-	// This might happen if AccumulateBlockGas was not called during the epoch
-	h.k.Logger(ctx).Info("no accumulated gas data available, using default rate")
-	return sdk.NewDecWithPrec(50, 2) // 50% default
+	// If no accumulated data available, return 0 to signal "no data"
+	// CalculateDynamicBurnRate will handle this by using LastGasUsageRate
+	h.k.Logger(ctx).Info("no accumulated gas data available, returning zero")
+	return sdk.ZeroDec()
 }
 
