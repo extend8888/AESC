@@ -136,9 +136,10 @@ func TestRecoverEVMSender_MultipleChainIDs(t *testing.T) {
 	// Test various chain IDs (excluding 0 - see note below)
 	chainIDs := []*big.Int{
 		big.NewInt(1),
-		big.NewInt(1329),      // Pacific-1
-		big.NewInt(713715),    // Arctic-1
-		big.NewInt(531050104), // Atlantic-2
+		big.NewInt(71600),  // AESC mainnet
+		big.NewInt(71601),  // AESC testnet
+		big.NewInt(71602),  // AESC devnet
+		big.NewInt(71603),  // AESC poc (local testing)
 	}
 
 	for _, chainID := range chainIDs {

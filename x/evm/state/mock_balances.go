@@ -24,7 +24,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/holiman/uint256"
-	"github.com/sei-protocol/sei-chain/x/evm/config"
 	"github.com/sei-protocol/sei-chain/x/evm/types"
 )
 
@@ -115,8 +114,11 @@ func (s *DBImpl) AddBalance(evmAddr common.Address, amtUint256 *uint256.Int, rea
 
 // This function is used to mock balance, and is only intended for use in TESTING.
 func (s *DBImpl) mockBalance(evmAddr common.Address) *uint256.Int {
-	// Prevent calling mockBalance on sei mainnet
-	if config.GetEVMChainID(s.ctx.ChainID()) == big.NewInt(1329) {
+	// Prevent calling mockBalance on AESC mainnet.
+	// Use direct Cosmos Chain ID check to avoid false positives on unknown chains
+	// (since DefaultChainID=71600, unmapped chains would incorrectly trigger this check
+	// if we used GetEVMChainID comparison).
+	if s.ctx.ChainID() == "aesc-mainnet-1" {
 		panic("Prevent mock balance from ever being called on mainnet")
 	}
 
