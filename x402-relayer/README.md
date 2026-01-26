@@ -10,6 +10,8 @@
 
 创建 `config.toml`:
 
+**使用 USDT 预编译合约（推荐）：**
+
 ```toml
 [x402-relayer]
 enabled = true
@@ -17,12 +19,31 @@ port = 8402
 pay_to_address = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
 usdt_precompile = "0x0000000000000000000000000000000000001010"
 usdt_denom = "usdt"
-network_id = "eip155:713715"
+network_id = "eip155:71603"
 private_key = "${X402_RELAYER_KEY}"
-relay_fee_per_tx = "10000"
+relay_fee_per_tx = "10000"  # 0.01 USDT (6 decimals)
 evm_rpc = "http://localhost:8545"
 db_path = "./x402-relayer.db"
 ```
+
+**使用自定义 ERC20 代币（EIP-3009）：**
+
+```toml
+[x402-relayer]
+enabled = true
+port = 8402
+pay_to_address = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+token_contract = "0x5FbDB2315678afecb367f032d93F642f64180aa3"  # 自定义代币地址
+token_name = "Test USDT"      # 必须与合约 name() 一致
+token_version = "1"           # 必须与合约 version() 一致
+network_id = "eip155:71603"
+private_key = "${X402_RELAYER_KEY}"
+relay_fee_per_tx = "10000000000000000"  # 0.01 token (18 decimals)
+evm_rpc = "http://localhost:8545"
+db_path = "./x402-relayer.db"
+```
+
+> **注意**：`relay_fee_per_tx` 的精度必须与代币的 decimals 一致。USDT 预编译使用 6 位精度，自定义 ERC20 通常使用 18 位精度。
 
 ### 2. 启动服务
 
@@ -43,18 +64,35 @@ curl http://localhost:8402/health
 
 ## 配置说明
 
+### 通用参数
+
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `enabled` | 是否启用服务 | `false` |
 | `port` | HTTP 服务端口 | `8402` |
 | `pay_to_address` | 收款钱包地址 (EVM) | 必填 |
-| `usdt_precompile` | USDT 预编译地址 | `0x...1010` |
-| `usdt_denom` | Bank 模块 denom | `usdt` |
 | `network_id` | CAIP-2 网络 ID | 必填 |
 | `private_key` | Relayer 私钥 | 必填 |
-| `relay_fee_per_tx` | 每笔中继费 (USDT 最小单位) | `10000` (0.01 USDT) |
+| `relay_fee_per_tx` | 每笔中继费（代币最小单位） | 必填 |
 | `evm_rpc` | EVM RPC 地址 | `http://localhost:8545` |
 | `db_path` | SQLite 数据库路径 | `./x402-relayer.db` |
+
+### USDT 预编译参数
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `usdt_precompile` | USDT 预编译地址 | `0x...1010` |
+| `usdt_denom` | Bank 模块 denom | `usdt` |
+
+### 自定义 ERC20 参数
+
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `token_contract` | ERC20 合约地址 | - |
+| `token_name` | 代币名称（必须与合约一致） | - |
+| `token_version` | 代币版本（用于 EIP-712） | `1` |
+
+> **注意**：如果同时设置了 `token_contract` 和 `usdt_precompile`，优先使用 `token_contract`。
 
 ### 私钥配置
 
@@ -91,7 +129,7 @@ curl http://localhost:8402/payment-requirements
 {
   "accepts": [{
     "scheme": "exact",
-    "network": "eip155:713715",
+    "network": "eip155:71603",
     "maxAmountRequired": "10000",
     "asset": "0x0000000000000000000000000000000000001010",
     "payTo": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
@@ -140,12 +178,12 @@ curl -X POST http://localhost:8402/relay \
 curl "http://localhost:8402/records?limit=10&offset=0"
 ```
 
-### GET /stats
+### GET /records/stats
 
 获取统计信息。
 
 ```bash
-curl http://localhost:8402/stats
+curl http://localhost:8402/records/stats
 ```
 
 ## 运行测试

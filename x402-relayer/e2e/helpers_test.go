@@ -23,8 +23,8 @@ const (
 	// USDT EIP-712 domain
 	USDTName    = "Tether USD"
 	USDTVersion = "1"
-	// Chain ID for local testnet
-	ChainID = 713715
+	// Chain ID for local testnet (AESC aesc-poc)
+	ChainID = 71603
 )
 
 // EIP-712 type hashes
@@ -108,7 +108,7 @@ func createPaymentPayload(auth types.EIP3009Authorization) (string, error) {
 	payload := types.PaymentPayload{
 		X402Version: 1,
 		Scheme:      "exact",
-		Network:     "eip155:713715",
+		Network:     "eip155:71603",
 		Payload:     auth,
 	}
 

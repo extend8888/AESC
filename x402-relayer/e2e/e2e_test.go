@@ -87,8 +87,8 @@ func TestPaymentRequirementsEndpoint(t *testing.T) {
 	if firstAccept["scheme"] != "exact" {
 		t.Fatalf("expected scheme 'exact', got %v", firstAccept["scheme"])
 	}
-	if firstAccept["network"] != "eip155:713715" {
-		t.Fatalf("expected network 'eip155:713715', got %v", firstAccept["network"])
+	if firstAccept["network"] != "eip155:71603" {
+		t.Fatalf("expected network 'eip155:71603', got %v", firstAccept["network"])
 	}
 }
 

@@ -608,25 +608,27 @@ graph TD
 
 ---
 
-## 十一、待决策问题
+## 十一、已决策问题
 
-1. **用户 USDC 主要在哪条链？**
-   - Base → 推荐方案 A
-   - Solana → 推荐方案 B
-   - 需要支持多链 → 可组合多个方案
+> 以下问题已在实施过程中做出决策。
 
-2. **是否第一阶段就自建 Facilitator？**
-   - 推荐先用 Coinbase 官方，降低开发成本
+| 问题 | 决策 | 说明 |
+|------|------|------|
+| 用户 USDC/USDT 在哪条链？ | **AESC** | 使用 AESC 原生 USDT（Bank Denom 封装） |
+| 是否自建 Facilitator？ | **是** | 本地 verifier/settler，不依赖 Coinbase CDP |
+| AESC 上的 USDT 来源？ | **跨链桥** | 从 BSC 桥接 USDT 到 AESC |
+| USDT 是否支持 EIP-3009？ | **是** | USDT 预编译合约实现 EIP-3009 |
+| 部署模式？ | **独立二进制** | x402-relayer 作为独立服务运行 |
+| Token 配置？ | **可配置** | 支持任意带 EIP-3009 的 ERC20 合约 |
+| 域分隔符校验？ | **启动时校验** | 调用链上 `DOMAIN_SEPARATOR()` 比对 |
 
-3. **AESC 上的 USDC 来源？**
-   - 官方部署原生 USDC？
-   - 通过跨链桥桥接？
+## 十二、待决策问题
 
-4. **Relayer 服务的商业模式？**
+1. **Relayer 服务的商业模式？**
    - 服务费如何定价？
    - 谁来运营 Relayer？
 
-5. **AESC 上的 USDC 是否支持 EIP-3009？**
-   - 如果支持 → 无需部署额外合约
-   - 如果不支持 → 需要部署 Permit2 + x402Permit2Proxy
+2. **跨链桥方案选择？**
+   - 第三方桥 / 自建桥？
+   - 需要单独提案
 

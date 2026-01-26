@@ -33,7 +33,7 @@ curl http://localhost:8402/payment-requirements
 {
   "accepts": [{
     "scheme": "exact",
-    "network": "eip155:713715",
+    "network": "eip155:71603",
     "maxAmountRequired": "10000",
     "asset": "0x0000000000000000000000000000000000001010",
     "payTo": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
@@ -43,8 +43,8 @@ curl http://localhost:8402/payment-requirements
 ```
 
 关键字段：
-- `maxAmountRequired`: 中继费用（0.01 USDT = 10000）
-- `payTo`: Relayer 收款地址
+- `maxAmountRequired`: 中继费用（0.01 USDT = 10000，假设 6 decimals）
+- `payTo`: Relayer 收款地址（**必须与支付授权的 `to` 字段匹配**）
 - `network`: 链 ID（用于签名）
 - `asset`: USDT 合约地址
 
@@ -63,7 +63,7 @@ const tx = {
   nonce: 0,
   gasLimit: 21000,
   gasPrice: ethers.parseUnits('1', 'gwei'),
-  chainId: 713715
+  chainId: 71603
 };
 
 const signedTx = await wallet.signTransaction(tx);
@@ -85,12 +85,14 @@ const validAfter = 0n;
 const validBefore = BigInt(Math.floor(Date.now() / 1000) + 300);  // 5分钟后过期
 const nonce = ethers.randomBytes(32);  // 随机 nonce
 
-// EIP-712 Domain
+// EIP-712 Domain (必须与 Relayer 配置的 token 信息一致)
+// 默认 USDT 预编译使用 name: "Tether USD", version: "1"
+// 自定义 ERC20 需要使用合约定义的 name 和 version
 const domain = {
-  name: 'USDT',
-  version: '1',
-  chainId: 713715,
-  verifyingContract: '0x0000000000000000000000000000000000001010'
+  name: 'Tether USD',  // 必须与合约的 name() 一致
+  version: '1',        // 必须与合约的 version 一致
+  chainId: 71603,      // AESC 链 ID
+  verifyingContract: '0x0000000000000000000000000000000000001010'  // USDT 预编译地址
 };
 
 // EIP-712 Types
@@ -119,11 +121,11 @@ const { v, r, s } = ethers.Signature.from(signature);
 const payload = {
   x402Version: 1,
   scheme: 'exact',
-  network: 'eip155:713715',
+  network: 'eip155:71603',  // 必须与 Relayer 的 network_id 一致
   payload: {
     from: from,
-    to: to,
-    value: value.toString(),
+    to: to,           // 必须与 payTo 地址一致！
+    value: value.toString(),  // 必须 >= maxAmountRequired
     validAfter: validAfter.toString(),
     validBefore: validBefore.toString(),
     nonce: ethers.hexlify(nonce),
@@ -168,7 +170,7 @@ const { ethers } = require('ethers');
 async function relayTransaction() {
   const RELAYER_URL = 'http://localhost:8402';
   const PRIVATE_KEY = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
-  const CHAIN_ID = 713715;
+  const CHAIN_ID = 71603;  // AESC 链 ID
   
   const wallet = new ethers.Wallet(PRIVATE_KEY);
   

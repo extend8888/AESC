@@ -14,7 +14,17 @@ const (
 	DefaultPort = 8402
 
 	// DefaultUSDTPrecompile is the fixed USDT precompile address
+	// Deprecated: use DefaultTokenContract instead
 	DefaultUSDTPrecompile = "0x0000000000000000000000000000000000001010"
+
+	// DefaultTokenContract is the default EIP-3009 token contract address
+	DefaultTokenContract = "0x0000000000000000000000000000000000001010"
+
+	// DefaultTokenName is the default EIP-712 domain name for token
+	DefaultTokenName = "Tether USD"
+
+	// DefaultTokenVersion is the default EIP-712 domain version for token
+	DefaultTokenVersion = "1"
 
 	// DefaultUSDTDenom is the Bank module denom for USDT
 	DefaultUSDTDenom = "usdt"
@@ -40,7 +50,18 @@ type Config struct {
 	// PayToAddress is the wallet address that receives USDT payments
 	PayToAddress string `mapstructure:"pay_to_address"`
 
-	// USDTPrecompile is the USDT precompile contract address (fixed)
+	// TokenContract is the EIP-3009 token contract address
+	// For backward compatibility, also accepts usdt_precompile
+	TokenContract string `mapstructure:"token_contract"`
+
+	// TokenName is the EIP-712 domain name for the token (must match on-chain contract)
+	TokenName string `mapstructure:"token_name"`
+
+	// TokenVersion is the EIP-712 domain version for the token (must match on-chain contract)
+	TokenVersion string `mapstructure:"token_version"`
+
+	// USDTPrecompile is deprecated, use TokenContract instead
+	// Kept for backward compatibility
 	USDTPrecompile string `mapstructure:"usdt_precompile"`
 
 	// USDTDenom is the Bank module denom for USDT
@@ -70,6 +91,9 @@ func DefaultConfig() *Config {
 		Enabled:        false,
 		Port:           DefaultPort,
 		PayToAddress:   "",
+		TokenContract:  DefaultTokenContract,
+		TokenName:      DefaultTokenName,
+		TokenVersion:   DefaultTokenVersion,
 		USDTPrecompile: DefaultUSDTPrecompile,
 		USDTDenom:      DefaultUSDTDenom,
 		NetworkID:      "",
@@ -114,7 +138,24 @@ func (c *Config) Validate() error {
 		return errors.New("evm_rpc is required")
 	}
 
+	// Validate token contract
+	if c.TokenContract == "" {
+		return errors.New("token_contract (or usdt_precompile) is required")
+	}
+
+	if !isValidAddress(c.TokenContract) {
+		return fmt.Errorf("invalid token_contract: %s", c.TokenContract)
+	}
+
 	return nil
+}
+
+// GetTokenContract returns the token contract address (with fallback to USDTPrecompile)
+func (c *Config) GetTokenContract() string {
+	if c.TokenContract != "" {
+		return c.TokenContract
+	}
+	return c.USDTPrecompile
 }
 
 // GetPrivateKey returns the private key, expanding environment variables if needed
@@ -146,6 +187,32 @@ func ReadConfig(v *viper.Viper) (*Config, error) {
 		if err := v.UnmarshalKey("x402-relayer", cfg); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal x402-relayer config: %w", err)
 		}
+	}
+
+	// Backward compatibility: if token_contract was NOT explicitly set but usdt_precompile was,
+	// use usdt_precompile as the token contract address.
+	// This prevents the case where user sets usdt_precompile to a custom address but
+	// TokenContract remains at default value.
+	tokenContractExplicitlySet := v.IsSet("x402-relayer.token_contract")
+	usdtPrecompileExplicitlySet := v.IsSet("x402-relayer.usdt_precompile")
+
+	if !tokenContractExplicitlySet && usdtPrecompileExplicitlySet {
+		// User set usdt_precompile but not token_contract - use usdt_precompile
+		cfg.TokenContract = cfg.USDTPrecompile
+	}
+
+	// If neither is set explicitly, TokenContract keeps default value from DefaultConfig()
+	// If both are empty (edge case), fall back to default
+	if cfg.TokenContract == "" {
+		cfg.TokenContract = DefaultTokenContract
+	}
+
+	// Ensure TokenName and TokenVersion have defaults
+	if cfg.TokenName == "" {
+		cfg.TokenName = DefaultTokenName
+	}
+	if cfg.TokenVersion == "" {
+		cfg.TokenVersion = DefaultTokenVersion
 	}
 
 	return cfg, nil

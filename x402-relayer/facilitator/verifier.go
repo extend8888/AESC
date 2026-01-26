@@ -10,17 +10,6 @@ import (
 	"github.com/sei-protocol/x402-relayer/types"
 )
 
-const (
-	// USDTAddress is the USDT precompile address
-	USDTAddress = "0x0000000000000000000000000000000000001010"
-
-	// USDTName is used for EIP-712 domain
-	USDTName = "Tether USD"
-
-	// USDTVersion is used for EIP-712 domain
-	USDTVersion = "1"
-)
-
 // EIP-712 Type Hashes
 var (
 	// EIP-712 Domain Separator typehash
@@ -32,13 +21,22 @@ var (
 
 // Verifier handles EIP-712 signature verification for x402 payments
 type Verifier struct {
-	chainID *big.Int
+	chainID      *big.Int
+	tokenAddr    common.Address
+	tokenName    string
+	tokenVersion string
 }
 
 // NewVerifier creates a new Verifier instance
-func NewVerifier(chainID *big.Int) *Verifier {
+// tokenAddr: the EIP-3009 token contract address
+// tokenName: the EIP-712 domain name (must match on-chain contract)
+// tokenVersion: the EIP-712 domain version (must match on-chain contract)
+func NewVerifier(chainID *big.Int, tokenAddr common.Address, tokenName, tokenVersion string) *Verifier {
 	return &Verifier{
-		chainID: chainID,
+		chainID:      chainID,
+		tokenAddr:    tokenAddr,
+		tokenName:    tokenName,
+		tokenVersion: tokenVersion,
 	}
 }
 
@@ -103,19 +101,24 @@ func (v *Verifier) RecoverSigner(auth *types.EIP3009Authorization) (common.Addre
 	return recoveredAddr, nil
 }
 
-// ComputeDomainSeparator computes the EIP-712 domain separator for USDT
+// ComputeDomainSeparator computes the EIP-712 domain separator for the token
 func (v *Verifier) ComputeDomainSeparator() [32]byte {
-	nameHash := crypto.Keccak256Hash([]byte(USDTName))
-	versionHash := crypto.Keccak256Hash([]byte(USDTVersion))
+	nameHash := crypto.Keccak256Hash([]byte(v.tokenName))
+	versionHash := crypto.Keccak256Hash([]byte(v.tokenVersion))
 
 	encoded := make([]byte, 0, 160) // 5 * 32 bytes
 	encoded = append(encoded, EIP712DomainTypehash.Bytes()...)
 	encoded = append(encoded, nameHash.Bytes()...)
 	encoded = append(encoded, versionHash.Bytes()...)
 	encoded = append(encoded, common.LeftPadBytes(v.chainID.Bytes(), 32)...)
-	encoded = append(encoded, common.LeftPadBytes(common.HexToAddress(USDTAddress).Bytes(), 32)...)
+	encoded = append(encoded, common.LeftPadBytes(v.tokenAddr.Bytes(), 32)...)
 
 	return crypto.Keccak256Hash(encoded)
+}
+
+// GetTokenAddress returns the token contract address
+func (v *Verifier) GetTokenAddress() common.Address {
+	return v.tokenAddr
 }
 
 // ValidateTimeWindow validates the authorization time window

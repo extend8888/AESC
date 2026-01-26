@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/sei-protocol/x402-relayer/config"
@@ -14,6 +15,22 @@ import (
 	"github.com/sei-protocol/x402-relayer/store"
 	"github.com/sei-protocol/x402-relayer/types"
 )
+
+// isRPCUnavailableError checks if an error indicates RPC unavailability
+func isRPCUnavailableError(err error) bool {
+	if err == nil {
+		return false
+	}
+	errMsg := strings.ToLower(err.Error())
+	return strings.Contains(errMsg, "connection refused") ||
+		strings.Contains(errMsg, "connection reset") ||
+		strings.Contains(errMsg, "no such host") ||
+		strings.Contains(errMsg, "timeout") ||
+		strings.Contains(errMsg, "dial tcp") ||
+		strings.Contains(errMsg, "eof") ||
+		strings.Contains(errMsg, "network is unreachable") ||
+		strings.Contains(errMsg, "i/o timeout")
+}
 
 // RelayHandler handles transaction relay requests
 type RelayHandler struct {
@@ -71,10 +88,16 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Extract signed tx hash identifier (first 66 chars or full string if shorter)
+	signedTxHash := req.SignedTx
+	if len(signedTxHash) > 66 {
+		signedTxHash = signedTxHash[:66]
+	}
+
 	// Create relay record
 	record := &store.RelayRecord{
 		UserAddress:   payment.Payload.From.Hex(),
-		SignedTxHash:  req.SignedTx[:66], // First 66 chars as identifier
+		SignedTxHash:  signedTxHash,
 		PaymentFrom:   payment.Payload.From.Hex(),
 		PaymentTo:     payment.Payload.To.Hex(),
 		PaymentAmount: payment.Payload.Value.String(),
@@ -97,6 +120,11 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		record.SettleStatus = store.StatusFailed
 		record.SettleError = err.Error()
 		h.store.Update(record)
+		// Check if it's an RPC unavailability error -> 503
+		if isRPCUnavailableError(err) {
+			h.writeServiceUnavailable(w, "EVM RPC temporarily unavailable")
+			return
+		}
 		h.writeError(w, http.StatusPaymentRequired, "payment settlement failed: "+err.Error())
 		return
 	}
@@ -120,6 +148,11 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		record.RelayStatus = store.StatusFailed
 		record.RelayError = err.Error()
 		h.store.Update(record)
+		// Check if it's an RPC unavailability error -> 503
+		if isRPCUnavailableError(err) {
+			h.writeServiceUnavailable(w, "EVM RPC temporarily unavailable")
+			return
+		}
 		h.writeJSON(w, http.StatusInternalServerError, types.RelayResponse{
 			Success:  false,
 			Error:    "transaction broadcast failed: " + err.Error(),
@@ -155,7 +188,7 @@ func (h *RelayHandler) HandlePaymentRequirements(w http.ResponseWriter, r *http.
 				Description:             "Transaction relay service",
 				PayTo:                   h.config.PayToAddress,
 				RequiredDeadlineSeconds: 300, // 5 minutes
-				Asset:                   h.config.USDTPrecompile,
+				Asset:                   h.config.GetTokenContract(),
 			},
 		},
 	}
@@ -173,6 +206,14 @@ func (h *RelayHandler) writeJSON(w http.ResponseWriter, status int, data interfa
 // writeError writes an error response
 func (h *RelayHandler) writeError(w http.ResponseWriter, status int, message string) {
 	h.writeJSON(w, status, map[string]string{"error": message})
+}
+
+// writeServiceUnavailable writes a 503 Service Unavailable response
+func (h *RelayHandler) writeServiceUnavailable(w http.ResponseWriter, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Retry-After", "30")
+	w.WriteHeader(http.StatusServiceUnavailable)
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
 
 // HealthHandler handles the /health endpoint

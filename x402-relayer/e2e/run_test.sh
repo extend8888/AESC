@@ -19,32 +19,41 @@ RELAYER_EVM_ADDRESS="0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
 # Cleanup function
 cleanup() {
     echo ""
-    echo "Cleaning up..."
+    echo "=========================================="
+    echo "Cleaning up test environment..."
+    echo "=========================================="
 
     # Stop x402-relayer
     if [ -f "$X402_DIR/e2e/x402-relayer.pid" ]; then
         PID=$(cat "$X402_DIR/e2e/x402-relayer.pid")
         if ps -p $PID > /dev/null 2>&1; then
             kill $PID 2>/dev/null || true
-            echo "Stopped x402-relayer (PID: $PID)"
+            echo "✅ Stopped x402-relayer (PID: $PID)"
         fi
-        rm -f "$X402_DIR/e2e/x402-relayer.pid"
     fi
+    pkill -f "x402-relayer" 2>/dev/null || true
 
     # Stop seid
     if [ -f "$ROOT_DIR/build/generated/seid.pid" ]; then
         PID=$(cat "$ROOT_DIR/build/generated/seid.pid")
         if ps -p $PID > /dev/null 2>&1; then
             kill $PID 2>/dev/null || true
-            echo "Stopped seid (PID: $PID)"
+            echo "✅ Stopped seid (PID: $PID)"
         fi
-        rm -f "$ROOT_DIR/build/generated/seid.pid"
     fi
+    pkill -f "seid start" 2>/dev/null || true
 
-    # Remove test database
+    # Clean up temporary files
+    rm -f "$X402_DIR/e2e/x402-relayer.pid"
+    rm -f "$X402_DIR/e2e/x402-relayer.log"
+    rm -f "$X402_DIR/e2e/test_config.toml"
     rm -f "$X402_DIR/e2e/test.db"
+    rm -f "$X402_DIR/e2e/x402-relayer"
 
+    echo "✅ Temporary files cleaned"
+    echo "=========================================="
     echo "Cleanup completed!"
+    echo "=========================================="
 }
 
 # Register cleanup on exit
@@ -78,7 +87,7 @@ cat > e2e/test_config.toml << EOF
 enabled = true
 port = 8402
 pay_to_address = "$RELAYER_EVM_ADDRESS"
-network_id = "eip155:713715"
+network_id = "eip155:71603"
 private_key = "$RELAYER_PRIVATE_KEY"
 relay_fee_per_tx = "10000"
 evm_rpc = "http://localhost:8545"

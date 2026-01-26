@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"math/big"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/sei-protocol/x402-relayer/config"
 	"github.com/sei-protocol/x402-relayer/facilitator"
 	"github.com/sei-protocol/x402-relayer/types"
@@ -59,6 +62,11 @@ func (pm *PaymentMiddleware) Middleware(next http.Handler) http.Handler {
 
 		// Validate payment
 		if err := pm.validatePayment(r.Context(), payload); err != nil {
+			// Check if it's an RPC unavailability error -> 503
+			if IsRPCUnavailableError(err) {
+				writeServiceUnavailable(w, "EVM RPC temporarily unavailable")
+				return
+			}
 			pm.writePaymentRequired(w, err.Error())
 			return
 		}
@@ -99,6 +107,21 @@ func (pm *PaymentMiddleware) validatePayment(ctx context.Context, payload *types
 	// Validate network
 	if payload.Network != pm.config.NetworkID {
 		return &PaymentError{Message: "network mismatch"}
+	}
+
+	// Validate recipient address - MUST match relayer's pay_to_address
+	expectedPayTo := common.HexToAddress(pm.config.PayToAddress)
+	if payload.Payload.To != expectedPayTo {
+		return &PaymentError{Message: "payment recipient mismatch: expected " + pm.config.PayToAddress}
+	}
+
+	// Validate payment amount - MUST be >= relay_fee_per_tx
+	requiredFee, ok := new(big.Int).SetString(pm.config.RelayFeePerTx, 10)
+	if !ok {
+		return &PaymentError{Message: "invalid relay fee configuration"}
+	}
+	if payload.Payload.Value == nil || payload.Payload.Value.Cmp(requiredFee) < 0 {
+		return &PaymentError{Message: "insufficient payment amount: required " + pm.config.RelayFeePerTx}
 	}
 
 	// Validate time window
@@ -143,15 +166,15 @@ func (pm *PaymentMiddleware) writePaymentRequired(w http.ResponseWriter, errorMs
 				Description:             "Transaction relay service",
 				PayTo:                   pm.config.PayToAddress,
 				RequiredDeadlineSeconds: 300,
-				Asset:                   pm.config.USDTPrecompile,
+				Asset:                   pm.config.GetTokenContract(),
 			},
 		},
 		Error: errorMsg,
 	}
 
-	// Set payment required header
+	// Set payment required header as JSON (not base64 per x402 spec)
 	reqJSON, _ := json.Marshal(requirements)
-	w.Header().Set(PaymentRequiredHeader, base64.StdEncoding.EncodeToString(reqJSON))
+	w.Header().Set(PaymentRequiredHeader, string(reqJSON))
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusPaymentRequired)
 	json.NewEncoder(w).Encode(requirements)
@@ -166,3 +189,38 @@ func (e *PaymentError) Error() string {
 	return e.Message
 }
 
+// RPCUnavailableError represents an EVM RPC unavailability error
+type RPCUnavailableError struct {
+	Message string
+}
+
+func (e *RPCUnavailableError) Error() string {
+	return e.Message
+}
+
+// IsRPCUnavailableError checks if an error indicates RPC unavailability
+func IsRPCUnavailableError(err error) bool {
+	if err == nil {
+		return false
+	}
+	errMsg := strings.ToLower(err.Error())
+	// Check for common RPC connection errors
+	return strings.Contains(errMsg, "connection refused") ||
+		strings.Contains(errMsg, "connection reset") ||
+		strings.Contains(errMsg, "no such host") ||
+		strings.Contains(errMsg, "timeout") ||
+		strings.Contains(errMsg, "dial tcp") ||
+		strings.Contains(errMsg, "eof") ||
+		strings.Contains(errMsg, "network is unreachable") ||
+		strings.Contains(errMsg, "i/o timeout")
+}
+
+// writeServiceUnavailable writes a 503 Service Unavailable response
+func writeServiceUnavailable(w http.ResponseWriter, errorMsg string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Retry-After", "30")
+	w.WriteHeader(http.StatusServiceUnavailable)
+	json.NewEncoder(w).Encode(map[string]string{
+		"error": errorMsg,
+	})
+}

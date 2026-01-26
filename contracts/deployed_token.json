@@ -1,0 +1,9 @@
+{
+  "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "name": "Test USDT",
+  "symbol": "TUSDT",
+  "decimals": 18,
+  "domainSeparator": "0x7a6e4d809665ef0dbd9f78345db0c634954e7113fc055cf2ef7dc44035918d96",
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "chainId": "71603"
+}

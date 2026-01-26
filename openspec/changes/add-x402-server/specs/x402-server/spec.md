@@ -2,17 +2,24 @@
 
 ### Requirement: x402 服务端配置
 
-系统必须（SHALL）提供可配置的 x402 服务端，支持通过配置文件启用或禁用。
+系统必须（SHALL）提供可配置的 x402-relayer 独立服务，支持通过配置文件启用或禁用。
 
 #### Scenario: 默认禁用
-- **WHEN** 链节点启动时未配置 x402
-- **THEN** x402 服务不启动
+- **WHEN** x402-relayer 服务未配置或未启动
+- **THEN** x402 支付功能不可用
 - **AND** 不占用任何端口
 
 #### Scenario: 启用 x402 服务
-- **WHEN** 配置 `x402.enabled = true`
-- **THEN** x402 服务在配置的端口启动
+- **WHEN** 配置 `x402-relayer.enabled = true` 并启动服务
+- **THEN** x402-relayer 在配置的端口启动
 - **AND** 记录启动日志
+
+#### Scenario: 启动时域分隔符校验
+- **WHEN** x402-relayer 启动
+- **THEN** 调用链上 Token 合约的 `DOMAIN_SEPARATOR()` 方法
+- **AND** 与本地计算的域分隔符比对
+- **IF** 不一致
+- **THEN** 拒绝启动并记录错误日志
 
 ### Requirement: HTTP 402 响应
 
@@ -27,7 +34,7 @@
 #### Scenario: 支付指令格式
 - **WHEN** 生成 402 响应
 - **THEN** 支付指令包含接收地址、金额、代币合约、网络 ID
-- **AND** 网络 ID 使用 CAIP-2 格式 (如 `eip155:CHAIN_ID`)
+- **AND** 网络 ID 使用 CAIP-2 格式 (如 `eip155:71603`)
 
 ### Requirement: 支付验证
 
@@ -44,17 +51,17 @@
 - **THEN** 返回 HTTP 402 状态码
 - **AND** 包含错误描述
 
-### Requirement: Facilitator 集成
+### Requirement: 本地支付结算
 
-系统必须（SHALL）支持通过 Coinbase CDP Facilitator 验证和结算支付。
+系统必须（SHALL）使用本地 verifier/settler 模块验证和结算支付，通过调用链上 EIP-3009 合约完成转账。
 
-#### Scenario: 调用 Facilitator 验证
-- **WHEN** 收到支付签名
-- **THEN** 调用配置的 Facilitator URL 进行验证
-- **AND** 等待验证结果后再放行请求
+#### Scenario: 支付结算
+- **WHEN** 收到有效的支付签名
+- **THEN** 调用链上 Token 合约的 `transferWithAuthorization` 方法
+- **AND** 等待交易确认后放行请求
 
-#### Scenario: Facilitator 不可用
-- **WHEN** Facilitator 服务不可达
+#### Scenario: EVM RPC 不可用
+- **WHEN** EVM RPC 服务不可达或超时
 - **THEN** 返回 HTTP 503 Service Unavailable
 - **AND** 记录错误日志
 
@@ -64,6 +71,6 @@
 
 #### Scenario: 健康检查成功
 - **WHEN** 请求 `/health` 端点
-- **AND** x402 服务正常运行
+- **AND** x402-relayer 服务正常运行
 - **THEN** 返回 HTTP 200 OK
 

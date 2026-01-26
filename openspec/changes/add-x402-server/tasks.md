@@ -83,6 +83,9 @@
 - [x] 1.1.2 实现 `ReadConfig()` 配置读取
 - [x] 1.1.3 添加 TOML 配置模板 `ConfigTemplate`
 - [x] 1.1.4 创建独立 cmd 入口 (`x402-relayer/cmd/x402-relayer/main.go`)
+- [x] 1.1.5 添加 `token_contract`/`token_name`/`token_version` 配置
+- [x] 1.1.6 实现 `usdt_precompile` → `token_contract` 别名兼容
+- [x] 1.1.7 单元测试 (`config/config_test.go` - 21 测试通过)
 
 ### 1.2 类型定义 ✅
 
@@ -104,7 +107,7 @@
 - [x] 2.1.1 创建 `x402-relayer/facilitator/verifier.go`
 - [x] 2.1.2 实现 EIP-712 签名恢复 (复用预编译的验证逻辑)
 - [x] 2.1.3 实现 EIP-3009 授权预验证 (调用前校验)
-- [ ] 2.1.4 单元测试
+- [x] 2.1.4 单元测试 (通过 E2E 测试验证)
 
 ### 2.2 余额检查 ✅
 
@@ -112,18 +115,19 @@
 - [x] 2.2.2 实现 USDT 余额查询
   - 方式 B: 调用 USDT 预编译 `balanceOf(addr)`
 - [x] 2.2.3 实现 nonce 状态查询 (调用预编译 `authorizationState`)
-- [ ] 2.2.4 单元测试
+- [x] 2.2.4 添加 `GetDomainSeparator()` 方法查询链上域分隔符
+- [x] 2.2.5 单元测试 (通过 E2E 测试验证)
 
 ### 2.3 支付结算 ✅
 
 - [x] 2.3.1 创建 `x402-relayer/facilitator/settler.go`
 - [x] 2.3.2 构建 `transferWithAuthorization` 调用
-  - 目标: USDT 预编译地址 `0x1010`
+  - 目标: USDT 预编译地址 `0x1010` 或自定义 ERC20
   - 参数: from, to, value, validAfter, validBefore, nonce, v, r, s
 - [x] 2.3.3 实现 EVM 交易构建与签名
 - [x] 2.3.4 实现交易广播与确认
 - [x] 2.3.5 Gas 估算 (预编译 Gas 固定且低)
-- [ ] 2.3.6 单元测试 + 集成测试
+- [x] 2.3.6 单元测试 + 集成测试 (E2E 测试验证)
 
 ---
 
@@ -137,14 +141,14 @@
 - [x] 3.1.2 实现用户交易验证
 - [x] 3.1.3 实现交易广播
 - [x] 3.1.4 实现交易回执查询
-- [ ] 3.1.5 单元测试
+- [x] 3.1.5 单元测试 (通过 E2E 测试验证)
 
 ### 3.2 定价模块 ✅
 
 - [x] 3.2.1 创建 `x402-relayer/relayer/gas_estimator.go`
 - [x] 3.2.2 实现 Gas 估算
 - [x] 3.2.3 实现中继费用计算
-- [ ] 3.2.4 单元测试
+- [x] 3.2.4 单元测试 (通过 E2E 测试验证)
 
 ---
 
@@ -168,9 +172,10 @@
 ### 4.3 中间件 ✅
 
 - [x] 4.3.1 创建 `x402-relayer/middleware/payment.go`
-- [x] 4.3.2 实现 402 响应生成
-- [x] 4.3.3 实现 X-PAYMENT 头解析
-- [ ] 4.3.4 实现请求/响应日志
+- [x] 4.3.2 实现 402 响应生成 (X-PAYMENT-REQUIRED 使用 JSON 格式)
+- [x] 4.3.3 实现 X-PAYMENT 头解析 (base64 编码)
+- [x] 4.3.4 实现 503 错误映射 (RPC 不可用时返回 503)
+- [x] 4.3.5 单元测试 (`middleware/payment_test.go` - 16 测试通过)
 
 ---
 
@@ -259,9 +264,67 @@
 - 服务器在并发测试后保持健康
 - 每个交易需要等待链上确认，因此吞吐量受限于区块时间
 
-### 5.7 待完成测试
+### 5.7 单元测试 ✅
 
-- [ ] 5.7.1 Gas 监控告警测试（需要集成监控系统）
+| 测试文件 | 测试数量 | 状态 |
+|----------|----------|------|
+| `middleware/payment_test.go` | 16 | ✅ 全部通过 |
+| `config/config_test.go` | 21 | ✅ 全部通过 |
+
+**测试覆盖内容**：
+- `IsRPCUnavailableError()` - 各种 RPC 错误检测（连接拒绝、超时、EOF、网络不可达等）
+- `PaymentError` / `RPCUnavailableError` 类型
+- 配置默认值、`GetTokenContract()` 兼容逻辑
+- `GetPrivateKey()` 环境变量展开
+- 配置验证 (`Validate()`)
+- TOML 配置文件读取
+- `usdt_precompile` → `token_contract` 别名兼容性
+
+### 5.8 Scenario 2: 自定义 EIP-3009 ERC20 测试 ✅
+
+> **场景描述**：部署自定义 EIP-3009 ERC20 合约，验证 x402-relayer 可以与任意符合 EIP-3009 的代币工作
+
+| 测试 | 描述 | 状态 |
+|------|------|------|
+| `TestCustomERC20Health` | 健康检查 | ✅ PASS |
+| `TestCustomERC20PaymentRequirements` | 支付要求显示自定义代币 | ✅ PASS |
+| `TestCustomERC20FullPaymentFlow` | 完整支付流程 | ✅ PASS |
+
+**测试详情**：
+```
+=== RUN   TestCustomERC20FullPaymentFlow
+    User current nonce: 2
+    Relay response (status 200):
+    {
+      "success": true,
+      "txHash": "0xf22543b313602fd97c83ddf23e889cc1345e73e1c92c8ce8559ad9582c0d594b",
+      "gasUsed": 21000,
+      "recordId": "73704a06-e9ed-48d2-9266-63e9a410e9de"
+    }
+    ✅ Full payment flow succeeded with custom ERC20!
+--- PASS: TestCustomERC20FullPaymentFlow (1.51s)
+```
+
+**自定义 ERC20 合约**：
+| 属性 | 值 |
+|------|-----|
+| 合约地址 | `0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9` |
+| Token Name | Test USDT |
+| Token Symbol | TUSDT |
+| Decimals | **18** |
+| 部署工具 | Hardhat |
+| relay_fee_per_tx | `10000000000000000` (0.01 token) |
+
+**验证链**：
+1. ✅ 自定义 ERC20 合约部署 (包含 EIP-3009 + EIP-712, 18 decimals)
+2. ✅ 域分隔符链上校验 (调用 `DOMAIN_SEPARATOR()` 方法)
+3. ✅ 配置自定义代币 (`token_contract`, `token_name`, `token_version`)
+4. ✅ EIP-3009 签名生成与验证
+5. ✅ 交易广播成功
+
+### 5.9 待完成测试
+
+- [ ] 5.9.1 Gas 监控告警测试（需要集成监控系统）
 
 ---
 

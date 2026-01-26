@@ -17,17 +17,18 @@ import (
 	"github.com/sei-protocol/x402-relayer/types"
 )
 
-// Settler handles payment settlement by calling the USDT precompile
+// Settler handles payment settlement by calling the token contract
 type Settler struct {
-	client      *ethclient.Client
-	usdtAddress common.Address
-	usdtABI     abi.ABI
-	privateKey  *ecdsa.PrivateKey
-	chainID     *big.Int
+	client       *ethclient.Client
+	tokenAddress common.Address
+	tokenABI     abi.ABI
+	privateKey   *ecdsa.PrivateKey
+	chainID      *big.Int
 }
 
 // NewSettler creates a new Settler instance
-func NewSettler(rpcURL string, privateKeyHex string, chainID *big.Int) (*Settler, error) {
+// tokenAddr: the EIP-3009 token contract address
+func NewSettler(rpcURL string, privateKeyHex string, chainID *big.Int, tokenAddr common.Address) (*Settler, error) {
 	client, err := ethclient.Dial(rpcURL)
 	if err != nil {
 		return nil, err
@@ -38,17 +39,17 @@ func NewSettler(rpcURL string, privateKeyHex string, chainID *big.Int) (*Settler
 		return nil, errors.New("invalid private key")
 	}
 
-	usdtABI, err := parseTransferWithAuthorizationABI()
+	tokenABI, err := parseTransferWithAuthorizationABI()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Settler{
-		client:      client,
-		usdtAddress: common.HexToAddress(USDTAddress),
-		usdtABI:     usdtABI,
-		privateKey:  privateKey,
-		chainID:     chainID,
+		client:       client,
+		tokenAddress: tokenAddr,
+		tokenABI:     tokenABI,
+		privateKey:   privateKey,
+		chainID:      chainID,
 	}, nil
 }
 
@@ -64,7 +65,7 @@ func (s *Settler) Settle(ctx context.Context, auth *types.EIP3009Authorization) 
 	}
 
 	// Pack the transferWithAuthorization call
-	data, err := s.usdtABI.Pack(
+	data, err := s.tokenABI.Pack(
 		"transferWithAuthorization",
 		auth.From,
 		auth.To,
@@ -99,7 +100,7 @@ func (s *Settler) Settle(ctx context.Context, auth *types.EIP3009Authorization) 
 	gasLimit := uint64(100000) // Conservative estimate for precompile call
 
 	// Create transaction
-	tx := ethtypes.NewTransaction(nonce, s.usdtAddress, big.NewInt(0), gasLimit, gasPrice, data)
+	tx := ethtypes.NewTransaction(nonce, s.tokenAddress, big.NewInt(0), gasLimit, gasPrice, data)
 
 	// Sign transaction
 	signedTx, err := ethtypes.SignTx(tx, ethtypes.NewEIP155Signer(s.chainID), s.privateKey)

@@ -2,10 +2,10 @@
 enabled = true
 port = 8402
 pay_to_address = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
-network_id = "eip155:713715"
+network_id = "eip155:71603"
 private_key = "59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
 relay_fee_per_tx = "10000"
 evm_rpc = "http://localhost:8545"
 usdt_precompile = "0x0000000000000000000000000000000000001010"
 usdt_denom = "usdt"
-db_path = "./e2e/test.db"
+db_path = "./test.db"

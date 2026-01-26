@@ -3,10 +3,12 @@ package x402relayer
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/big"
 	"net/http"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 
 	"github.com/sei-protocol/x402-relayer/config"
@@ -56,15 +58,25 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		return nil, fmt.Errorf("private key is required")
 	}
 
-	// Initialize components
-	verifier := facilitator.NewVerifier(chainID)
+	// Get token contract address
+	tokenAddr := common.HexToAddress(cfg.GetTokenContract())
 
-	balanceChecker, err := facilitator.NewBalanceChecker(cfg.EVMRPC)
+	// Initialize components
+	verifier := facilitator.NewVerifier(chainID, tokenAddr, cfg.TokenName, cfg.TokenVersion)
+
+	balanceChecker, err := facilitator.NewBalanceChecker(cfg.EVMRPC, tokenAddr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create balance checker: %w", err)
 	}
 
-	settler, err := facilitator.NewSettler(cfg.EVMRPC, privateKey, chainID)
+	// Validate domain separator at startup
+	if err := validateDomainSeparator(balanceChecker, verifier); err != nil {
+		balanceChecker.Close()
+		return nil, fmt.Errorf("domain separator validation failed: %w", err)
+	}
+	log.Printf("✅ Domain separator validated successfully for token %s", tokenAddr.Hex())
+
+	settler, err := facilitator.NewSettler(cfg.EVMRPC, privateKey, chainID, tokenAddr)
 	if err != nil {
 		balanceChecker.Close()
 		return nil, fmt.Errorf("failed to create settler: %w", err)
@@ -113,6 +125,29 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	server.setupRoutes()
 
 	return server, nil
+}
+
+// validateDomainSeparator validates that the locally computed domain separator matches the on-chain value
+func validateDomainSeparator(bc *facilitator.BalanceChecker, v *facilitator.Verifier) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Get on-chain domain separator
+	onChainDS, err := bc.GetDomainSeparator(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to query on-chain DOMAIN_SEPARATOR: %w", err)
+	}
+
+	// Compute local domain separator
+	localDS := v.ComputeDomainSeparator()
+
+	// Compare
+	if onChainDS != localDS {
+		return fmt.Errorf("domain separator mismatch: on-chain=%x, local=%x (check token_name/token_version config)",
+			onChainDS, localDS)
+	}
+
+	return nil
 }
 
 // setupRoutes configures the HTTP routes
