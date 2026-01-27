@@ -169,7 +169,14 @@ func (a *EIP3009Authorization) UnmarshalJSON(data []byte) error {
 // RelayRequest represents a request to relay a transaction
 type RelayRequest struct {
 	// SignedTx is the signed EVM transaction (RLP encoded, hex string)
-	SignedTx string `json:"signedTx"`
+	// Mutually exclusive with TransferAuth - cannot use both
+	SignedTx string `json:"signedTx,omitempty"`
+
+	// TransferAuth is the EIP-3009 authorization for gasless token transfer
+	// When provided, the relayer will execute transferWithAuthorization on behalf of the user
+	// The user pays relay fee via X-PAYMENT header, and this authorization is for the actual transfer
+	// Mutually exclusive with SignedTx - cannot use both
+	TransferAuth *EIP3009Authorization `json:"transferAuth,omitempty"`
 
 	// Payment is the x402 payment payload (base64-encoded JSON)
 	Payment string `json:"payment,omitempty"`
@@ -180,8 +187,14 @@ type RelayResponse struct {
 	// Success indicates whether the relay was successful
 	Success bool `json:"success"`
 
-	// TxHash is the transaction hash if successful
+	// TxHash is the transaction hash if successful (for signedTx mode)
 	TxHash string `json:"txHash,omitempty"`
+
+	// TransferTxHash is the transfer transaction hash (for gasless transfer mode)
+	TransferTxHash string `json:"transferTxHash,omitempty"`
+
+	// SettleTxHash is the settlement transaction hash (relay fee payment)
+	SettleTxHash string `json:"settleTxHash,omitempty"`
 
 	// Error is the error message if failed
 	Error string `json:"error,omitempty"`

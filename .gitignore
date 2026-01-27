@@ -60,3 +60,16 @@ integration_test/dapp_tests/artifacts
 seid
 
 /tmp
+
+# Local configuration files (contain sensitive data)
+*.local.toml
+
+# x402-relayer build artifacts and local databases
+x402-relayer/x402-relayer
+*-local.db
+*-local.db-shm
+*-local.db-wal
+
+# x402-relayer live e2e test (contains hardcoded test keys)
+x402-relayer/e2e/live_e2e_test.go
+x402-relayer/e2e/test_local.sh

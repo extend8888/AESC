@@ -3,6 +3,7 @@ package facilitator
 import (
 	"errors"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -133,5 +134,10 @@ func ValidateTimeWindow(auth *types.EIP3009Authorization, nowUnix int64) error {
 	}
 
 	return nil
+}
+
+// GetCurrentTimestamp returns the current Unix timestamp
+func GetCurrentTimestamp() int64 {
+	return time.Now().Unix()
 }
 

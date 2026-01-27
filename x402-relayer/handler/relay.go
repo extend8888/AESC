@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"math/big"
 	"net/http"
 	"strings"
 	"time"
@@ -65,6 +66,9 @@ func NewRelayHandler(
 }
 
 // HandleRelay handles the /relay endpoint
+// Supports two modes:
+// 1. SignedTx mode: User provides a signed EVM transaction to broadcast (legacy mode, user pays gas)
+// 2. TransferAuth mode: User provides an EIP-3009 authorization for gasless token transfer
 func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -75,9 +79,16 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate signed transaction
-	if req.SignedTx == "" {
-		h.writeError(w, http.StatusBadRequest, "signedTx is required")
+	// Validate request: must have either signedTx or transferAuth, but not both
+	hasSignedTx := req.SignedTx != ""
+	hasTransferAuth := req.TransferAuth != nil
+
+	if !hasSignedTx && !hasTransferAuth {
+		h.writeError(w, http.StatusBadRequest, "either signedTx or transferAuth is required")
+		return
+	}
+	if hasSignedTx && hasTransferAuth {
+		h.writeError(w, http.StatusBadRequest, "signedTx and transferAuth are mutually exclusive")
 		return
 	}
 
@@ -88,6 +99,155 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Route to appropriate handler
+	if hasTransferAuth {
+		h.handleGaslessTransfer(ctx, w, r, &req, payment)
+	} else {
+		h.handleSignedTxRelay(ctx, w, r, &req, payment)
+	}
+}
+
+// handleGaslessTransfer handles the gasless token transfer mode
+func (h *RelayHandler) handleGaslessTransfer(ctx context.Context, w http.ResponseWriter, r *http.Request, req *types.RelayRequest, payment *types.PaymentPayload) {
+	transferAuth := req.TransferAuth
+
+	// Validation 1: transferAuth.from must equal payment.from (same user)
+	if transferAuth.From != payment.Payload.From {
+		h.writeError(w, http.StatusBadRequest, "transferAuth.from must match payment.from")
+		return
+	}
+
+	// Validation 2: transferAuth.to must NOT equal relayer address (prevent misuse)
+	relayerAddr := h.settler.GetSettlerAddress()
+	if transferAuth.To == relayerAddr {
+		h.writeError(w, http.StatusBadRequest, "transferAuth.to cannot be the relayer address; use X-PAYMENT for relay fees")
+		return
+	}
+
+	// Validation 3: Verify transferAuth signature
+	signer, err := h.verifier.VerifyPayment(transferAuth)
+	if err != nil {
+		h.writeError(w, http.StatusBadRequest, "invalid transferAuth signature: "+err.Error())
+		return
+	}
+	if signer != transferAuth.From {
+		h.writeError(w, http.StatusBadRequest, "transferAuth signer does not match from address")
+		return
+	}
+
+	// Validation 4: Verify time window for transferAuth
+	now := facilitator.GetCurrentTimestamp()
+	if err := facilitator.ValidateTimeWindow(transferAuth, now); err != nil {
+		h.writeError(w, http.StatusBadRequest, "transferAuth time validation failed: "+err.Error())
+		return
+	}
+
+	// Validation 5: Check nonce not used for transferAuth
+	if err := h.balanceChecker.CheckNonceNotUsed(ctx, transferAuth.From, transferAuth.Nonce); err != nil {
+		h.writeError(w, http.StatusBadRequest, "transferAuth nonce already used")
+		return
+	}
+
+	// Validation 6: Check user has sufficient balance for both payment and transfer
+	totalRequired := new(big.Int).Add(payment.Payload.Value, transferAuth.Value)
+	if err := h.balanceChecker.CheckSufficientBalance(ctx, payment.Payload.From, totalRequired); err != nil {
+		h.writeError(w, http.StatusBadRequest, "insufficient balance for payment + transfer: "+err.Error())
+		return
+	}
+
+	// Create relay record
+	record := &store.RelayRecord{
+		UserAddress:   payment.Payload.From.Hex(),
+		SignedTxHash:  "gasless:" + transferAuth.To.Hex(), // Mark as gasless transfer
+		PaymentFrom:   payment.Payload.From.Hex(),
+		PaymentTo:     payment.Payload.To.Hex(),
+		PaymentAmount: payment.Payload.Value.String(),
+		PaymentNonce:  hex.EncodeToString(payment.Payload.Nonce[:]),
+		SettleStatus:  store.StatusPending,
+		RelayStatus:   store.StatusPending,
+		ClientIP:      r.RemoteAddr,
+		UserAgent:     r.UserAgent(),
+	}
+
+	if err := h.store.Create(record); err != nil {
+		h.writeError(w, http.StatusInternalServerError, "failed to create record")
+		return
+	}
+
+	// Step 1: Settle the payment first (relay fee: user -> relayer)
+	settleReceipt, err := h.settler.Settle(ctx, &payment.Payload)
+	if err != nil {
+		record.SettleStatus = store.StatusFailed
+		record.SettleError = err.Error()
+		h.store.Update(record)
+		if isRPCUnavailableError(err) {
+			h.writeServiceUnavailable(w, "EVM RPC temporarily unavailable")
+			return
+		}
+		h.writeError(w, http.StatusPaymentRequired, "payment settlement failed: "+err.Error())
+		return
+	}
+
+	record.SettleTxHash = settleReceipt.TxHash.Hex()
+	record.SettleGasUsed = settleReceipt.GasUsed
+	if settleReceipt.Status == 0 {
+		record.SettleStatus = store.StatusFailed
+		record.SettleError = "payment transaction reverted"
+		h.store.Update(record)
+		h.writeError(w, http.StatusPaymentRequired, "payment settlement transaction failed")
+		return
+	}
+	record.SettleStatus = store.StatusSuccess
+	h.store.Update(record)
+
+	// Step 2: Execute the transfer (user -> recipient)
+	transferReceipt, err := h.settler.Settle(ctx, transferAuth)
+	if err != nil {
+		record.RelayStatus = store.StatusFailed
+		record.RelayError = err.Error()
+		h.store.Update(record)
+		if isRPCUnavailableError(err) {
+			h.writeServiceUnavailable(w, "EVM RPC temporarily unavailable")
+			return
+		}
+		h.writeJSON(w, http.StatusInternalServerError, types.RelayResponse{
+			Success:      false,
+			Error:        "transfer execution failed: " + err.Error(),
+			SettleTxHash: settleReceipt.TxHash.Hex(),
+			RecordID:     record.ID,
+		})
+		return
+	}
+
+	record.RelayTxHash = transferReceipt.TxHash.Hex()
+	record.RelayGasUsed = transferReceipt.GasUsed
+	if transferReceipt.Status == 0 {
+		record.RelayStatus = store.StatusFailed
+		record.RelayError = "transfer transaction reverted"
+		h.store.Update(record)
+		h.writeJSON(w, http.StatusInternalServerError, types.RelayResponse{
+			Success:      false,
+			Error:        "transfer transaction reverted",
+			SettleTxHash: settleReceipt.TxHash.Hex(),
+			RecordID:     record.ID,
+		})
+		return
+	}
+	record.RelayStatus = store.StatusSuccess
+	h.store.Update(record)
+
+	// Return success response
+	h.writeJSON(w, http.StatusOK, types.RelayResponse{
+		Success:        true,
+		TransferTxHash: transferReceipt.TxHash.Hex(),
+		SettleTxHash:   settleReceipt.TxHash.Hex(),
+		GasUsed:        settleReceipt.GasUsed + transferReceipt.GasUsed,
+		RecordID:       record.ID,
+	})
+}
+
+// handleSignedTxRelay handles the legacy signed transaction relay mode
+func (h *RelayHandler) handleSignedTxRelay(ctx context.Context, w http.ResponseWriter, r *http.Request, req *types.RelayRequest, payment *types.PaymentPayload) {
 	// Extract signed tx hash identifier (first 66 chars or full string if shorter)
 	signedTxHash := req.SignedTx
 	if len(signedTxHash) > 66 {
@@ -108,7 +268,6 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		UserAgent:     r.UserAgent(),
 	}
 
-	// Save initial record
 	if err := h.store.Create(record); err != nil {
 		h.writeError(w, http.StatusInternalServerError, "failed to create record")
 		return
@@ -120,7 +279,6 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		record.SettleStatus = store.StatusFailed
 		record.SettleError = err.Error()
 		h.store.Update(record)
-		// Check if it's an RPC unavailability error -> 503
 		if isRPCUnavailableError(err) {
 			h.writeServiceUnavailable(w, "EVM RPC temporarily unavailable")
 			return
@@ -129,7 +287,6 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update settlement status
 	record.SettleTxHash = receipt.TxHash.Hex()
 	record.SettleGasUsed = receipt.GasUsed
 	if receipt.Status == 0 {
@@ -148,7 +305,6 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		record.RelayStatus = store.StatusFailed
 		record.RelayError = err.Error()
 		h.store.Update(record)
-		// Check if it's an RPC unavailability error -> 503
 		if isRPCUnavailableError(err) {
 			h.writeServiceUnavailable(w, "EVM RPC temporarily unavailable")
 			return
@@ -161,7 +317,6 @@ func (h *RelayHandler) HandleRelay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update relay status
 	record.RelayTxHash = txReceipt.TxHash.Hex()
 	record.RelayGasUsed = txReceipt.GasUsed
 	record.RelayStatus = store.StatusSuccess
